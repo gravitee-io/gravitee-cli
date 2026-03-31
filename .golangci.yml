@@ -1,0 +1,47 @@
+run:
+  timeout: 2m
+
+linters:
+  enable:
+    # Errors
+    - errcheck
+    - errorlint
+    - govet
+    - typecheck
+    - unused
+    - staticcheck
+    # Style
+    - revive
+    - gofmt
+    - goimports
+    - whitespace
+    - godot
+    # Security
+    - gosec
+    # Complexity
+    - cyclop
+    - gocognit
+    - funlen
+    # Cleanup
+    - unconvert
+    - unparam
+    - wastedassign
+    - bodyclose
+    - noctx
+
+linters-settings:
+  cyclop:
+    max-complexity: 20
+  gocognit:
+    min-complexity: 20
+  funlen:
+    lines: 80
+    statements: 50
+  errcheck:
+    check-type-assertions: true
+  govet:
+    enable-all: true
+
+issues:
+  exclude-dirs:
+    - dist

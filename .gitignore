@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+**/.vscode
+
+# Go
+dist/
+cover.out
+*.test
+
+# Claude configurations
+CLAUDE.md
+.claude
