@@ -19,8 +19,8 @@ func TestRootHelp(t *testing.T) {
 	}
 
 	output := out.String()
-	if !strings.Contains(output, "Gravitee API Management") {
-		t.Errorf("expected help to contain 'Gravitee API Management', got: %s", output)
+	if !strings.Contains(output, "Gravitee platform") {
+		t.Errorf("expected help to contain 'Gravitee platform', got: %s", output)
 	}
 }
 
@@ -52,8 +52,6 @@ func TestGlobalFlags(t *testing.T) {
 		{"context"},
 		{"org"},
 		{"env-id"},
-		{"output"},
-		{"quiet"},
 		{"debug"},
 	}
 

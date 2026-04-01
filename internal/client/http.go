@@ -53,11 +53,11 @@ func (c *HTTPClient) Get(path string) ([]byte, error) {
 	return c.doRequest(http.MethodGet, path, nil)
 }
 
-func (c *HTTPClient) Post(path string, body interface{}) ([]byte, error) {
+func (c *HTTPClient) Post(path string, body any) ([]byte, error) {
 	return c.doRequest(http.MethodPost, path, body)
 }
 
-func (c *HTTPClient) Put(path string, body interface{}) ([]byte, error) {
+func (c *HTTPClient) Put(path string, body any) ([]byte, error) {
 	return c.doRequest(http.MethodPut, path, body)
 }
 
@@ -67,7 +67,7 @@ func (c *HTTPClient) Delete(path string) error {
 	return err
 }
 
-func (c *HTTPClient) doRequest(method, path string, body interface{}) ([]byte, error) {
+func (c *HTTPClient) doRequest(method, path string, body any) ([]byte, error) {
 	url := c.baseURL + path
 
 	var reqBody io.Reader

@@ -2,14 +2,15 @@ run:
   timeout: 2m
 
 linters:
+  disable-all: true
   enable:
     # Errors
     - errcheck
     - errorlint
     - govet
+    - staticcheck
     - typecheck
     - unused
-    - staticcheck
     # Style
     - revive
     - gofmt
@@ -41,7 +42,18 @@ linters-settings:
     check-type-assertions: true
   govet:
     enable-all: true
+    disable:
+      - fieldalignment
+  revive:
+    rules:
+      - name: var-naming
+        disabled: true
 
 issues:
   exclude-dirs:
     - dist
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - funlen
+        - gocognit

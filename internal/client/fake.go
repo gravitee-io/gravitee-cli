@@ -5,8 +5,8 @@ import "fmt"
 // FakeClient implements GraviteeClient with injectable functions for testing.
 type FakeClient struct {
 	GetFunc    func(path string) ([]byte, error)
-	PostFunc   func(path string, body interface{}) ([]byte, error)
-	PutFunc    func(path string, body interface{}) ([]byte, error)
+	PostFunc   func(path string, body any) ([]byte, error)
+	PutFunc    func(path string, body any) ([]byte, error)
 	DeleteFunc func(path string) error
 }
 
@@ -18,7 +18,7 @@ func (f *FakeClient) Get(path string) ([]byte, error) {
 	return f.GetFunc(path)
 }
 
-func (f *FakeClient) Post(path string, body interface{}) ([]byte, error) {
+func (f *FakeClient) Post(path string, body any) ([]byte, error) {
 	if f.PostFunc == nil {
 		return nil, fmt.Errorf("unexpected Post call: %s", path)
 	}
@@ -26,7 +26,7 @@ func (f *FakeClient) Post(path string, body interface{}) ([]byte, error) {
 	return f.PostFunc(path, body)
 }
 
-func (f *FakeClient) Put(path string, body interface{}) ([]byte, error) {
+func (f *FakeClient) Put(path string, body any) ([]byte, error) {
 	if f.PutFunc == nil {
 		return nil, fmt.Errorf("unexpected Put call: %s", path)
 	}

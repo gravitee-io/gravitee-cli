@@ -1,0 +1,149 @@
+package plan
+
+import (
+	"github.com/spf13/cobra"
+
+	"github.com/gravitee-io/gio-cli/internal/apim"
+	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+	"github.com/gravitee-io/gio-cli/internal/printer"
+)
+
+type listOptions struct {
+	factory  *factory.Factory
+	apiID    string
+	status   string
+	security string
+	page     int
+	perPage  int
+	all      bool
+}
+
+func newListCmd(f *factory.Factory) *cobra.Command {
+	opts := &listOptions{factory: f}
+
+	cmd := &cobra.Command{
+		Use:   "list --api <apiId>",
+		Short: "List plans for an API",
+		Example: `  gio apim plan list --api 8a7b3c4d-1234-5678-abcd-ef0123456789
+  gio apim plan list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --status STAGING`,
+		Args: cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			if err := opts.validate(); err != nil {
+				return err
+			}
+
+			return opts.run()
+		},
+	}
+
+	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
+	cmd.Flags().StringVar(&opts.status, "status", "PUBLISHED", "Filter by status: STAGING, PUBLISHED, DEPRECATED, CLOSED")
+	cmd.Flags().StringVar(&opts.security, "security", "", "Filter by security type: KEY_LESS, API_KEY, OAUTH2, JWT, MTLS")
+	cmd.Flags().IntVar(&opts.page, "page", 1, "Page number")
+	cmd.Flags().IntVar(&opts.perPage, "per-page", 10, "Results per page")
+	cmd.Flags().BoolVar(&opts.all, "all", false, "Fetch all pages")
+	_ = cmd.MarkFlagRequired("api")
+
+	return cmd
+}
+
+var (
+	validPlanStatuses = []string{"STAGING", "PUBLISHED", "DEPRECATED", "CLOSED"}
+	validPlanSecurity = []string{"KEY_LESS", "API_KEY", "OAUTH2", "JWT", "MTLS"}
+)
+
+func (o *listOptions) validate() error {
+	if err := cmdutil.ValidateEnum(o.status, "status", validPlanStatuses); err != nil {
+		return err
+	}
+
+	if o.security != "" {
+		if err := cmdutil.ValidateEnum(o.security, "security", validPlanSecurity); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *listOptions) run() error {
+	f := o.factory
+	p, err := cmdutil.NewPrinter(f)
+	if err != nil {
+		return err
+	}
+
+	if o.all {
+		return o.fetchAll(f, p)
+	}
+
+	return o.fetchPage(f, p, o.page)
+}
+
+func (o *listOptions) params(page int) apim.ListPlansParams {
+	return apim.ListPlansParams{
+		Status:   o.status,
+		Security: o.security,
+		Page:     page,
+		PerPage:  o.perPage,
+	}
+}
+
+func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int) error {
+	resp, err := f.APIM().ListPlans(o.apiID, o.params(page))
+	if err != nil {
+		return err
+	}
+
+	if f.OutputFormat != printer.FormatTable {
+		return p.PrintDetail(resp)
+	}
+
+	if err := p.PrintList(resp.Data, planColumns()); err != nil {
+		return err
+	}
+
+	pg := resp.Pagination
+	cmdutil.PrintPaginationHint(p, pg.Page, pg.PerPage, pg.PageCount, pg.TotalCount, pg.PageItemsCount, o.all)
+
+	return nil
+}
+
+func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
+	allData, err := apim.FetchAllPages(func(page int) (*apim.PaginatedResponse, error) {
+		return f.APIM().ListPlans(o.apiID, o.params(page))
+	})
+	if err != nil {
+		return err
+	}
+
+	if f.OutputFormat != printer.FormatTable {
+		return p.PrintDetail(allData)
+	}
+
+	if err := p.PrintList(allData, planColumns()); err != nil {
+		return err
+	}
+
+	if len(allData) > 0 {
+		p.PrintMessage("Showing %d results.", len(allData))
+	}
+
+	return nil
+}
+
+func planColumns() []printer.Column {
+	return []printer.Column{
+		{Name: "Name", Value: func(i any) string { return cmdutil.StringField(i, "name") }},
+		{Name: "Security", Value: securityType},
+		{Name: "Status", Value: func(i any) string { return cmdutil.StringField(i, "status") }},
+		{Name: "Validation", Value: func(i any) string { return cmdutil.StringField(i, "validation") }},
+		{Name: "ID", Value: func(i any) string { return cmdutil.StringField(i, "id") }},
+		{Name: "Updated", Value: func(i any) string { return cmdutil.StringField(i, "updatedAt") }},
+	}
+}

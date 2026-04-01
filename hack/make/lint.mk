@@ -1,13 +1,15 @@
+ROOT_DIR := $(shell git -C $(CURDIR) rev-parse --show-toplevel)
+
 .PHONY: lint lint-fix fmt vet
 
 lint:
-	golangci-lint run
+	cd $(ROOT_DIR) && golangci-lint run
 
 lint-fix:
-	golangci-lint run --fix
+	cd $(ROOT_DIR) && golangci-lint run --fix
 
 fmt:
-	go fmt ./...
+	cd $(ROOT_DIR) && go fmt ./...
 
 vet:
-	go vet ./...
+	cd $(ROOT_DIR) && go vet ./...

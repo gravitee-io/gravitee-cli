@@ -4,6 +4,8 @@ import (
 	"io"
 	"os"
 
+	"github.com/gravitee-io/gio-cli/internal/am"
+	"github.com/gravitee-io/gio-cli/internal/apim"
 	"github.com/gravitee-io/gio-cli/internal/client"
 	"github.com/gravitee-io/gio-cli/internal/config"
 )
@@ -26,11 +28,54 @@ func DefaultIOStreams() IOStreams {
 
 // Factory is the central dependency injection container passed to all commands.
 type Factory struct {
-	Config       *config.Config
-	Resolved     *config.ResolvedContext
-	Client       client.GraviteeClient
-	IOStreams    IOStreams
-	ConfigPath   string
-	OutputFormat string
-	Quiet        bool
+	Config            *config.Config
+	Resolved          *config.ResolvedContext
+	Overrides         config.Overrides
+	Client            client.GraviteeClient
+	apimService       apim.Service
+	amService         am.Service
+	IOStreams         IOStreams
+	ContextResolveErr error
+	ConfigPath        string
+	Product           string
+	OutputFormat      string
+	NoHeaders         bool
+	Quiet             bool
+	Debug             bool
+}
+
+// APIM returns the APIM service, creating it lazily from Client + Resolved if needed.
+func (f *Factory) APIM() apim.Service {
+	if f.apimService != nil {
+		return f.apimService
+	}
+
+	if f.Client != nil && f.Resolved != nil {
+		f.apimService = apim.NewService(f.Client, f.Resolved)
+	}
+
+	return f.apimService
+}
+
+// SetAPIMService sets the APIM service (used in tests).
+func (f *Factory) SetAPIMService(s apim.Service) {
+	f.apimService = s
+}
+
+// AM returns the AM service, creating it lazily from Client + Resolved if needed.
+func (f *Factory) AM() am.Service {
+	if f.amService != nil {
+		return f.amService
+	}
+
+	if f.Client != nil && f.Resolved != nil {
+		f.amService = am.NewService(f.Client, f.Resolved)
+	}
+
+	return f.amService
+}
+
+// SetAMService sets the AM service (used in tests).
+func (f *Factory) SetAMService(s am.Service) {
+	f.amService = s
 }

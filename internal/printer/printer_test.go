@@ -9,7 +9,7 @@ import (
 func TestPrintListTable(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, false)
+	p := New(FormatTable, &buf, false, false)
 
 	items := []map[string]string{
 		{"name": "Weather API", "status": "STARTED"},
@@ -19,8 +19,8 @@ func TestPrintListTable(t *testing.T) {
 	columns := []Column{
 		{
 			Name: "Name",
-			Value: func(item interface{}) string {
-				m, ok := item.(map[string]interface{})
+			Value: func(item any) string {
+				m, ok := item.(map[string]any)
 				if !ok {
 					return ""
 				}
@@ -32,8 +32,8 @@ func TestPrintListTable(t *testing.T) {
 		},
 		{
 			Name: "Status",
-			Value: func(item interface{}) string {
-				m, ok := item.(map[string]interface{})
+			Value: func(item any) string {
+				m, ok := item.(map[string]any)
 				if !ok {
 					return ""
 				}
@@ -71,7 +71,7 @@ func TestPrintListTable(t *testing.T) {
 func TestPrintListJSON(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatJSON, &buf, false)
+	p := New(FormatJSON, &buf, false, false)
 
 	items := []map[string]string{
 		{"id": "123", "name": "Test API"},
@@ -95,7 +95,7 @@ func TestPrintListJSON(t *testing.T) {
 func TestPrintListYAML(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatYAML, &buf, false)
+	p := New(FormatYAML, &buf, false, false)
 
 	items := []map[string]string{
 		{"id": "123", "name": "Test API"},
@@ -115,7 +115,7 @@ func TestPrintListYAML(t *testing.T) {
 func TestPrintDetailJSON(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatJSON, &buf, false)
+	p := New(FormatJSON, &buf, false, false)
 
 	item := map[string]string{"id": "abc", "status": "STARTED"}
 
@@ -133,7 +133,7 @@ func TestPrintDetailJSON(t *testing.T) {
 func TestPrintDetailYAML(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatYAML, &buf, false)
+	p := New(FormatYAML, &buf, false, false)
 
 	item := map[string]string{"id": "abc", "status": "STARTED"}
 
@@ -149,10 +149,10 @@ func TestPrintDetailYAML(t *testing.T) {
 func TestQuietSuppressesOutput(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, true)
+	p := New(FormatTable, &buf, true, false)
 
 	items := []map[string]string{{"name": "test"}}
-	columns := []Column{{Name: "Name", Value: func(_ interface{}) string { return "test" }}}
+	columns := []Column{{Name: "Name", Value: func(_ any) string { return "test" }}}
 
 	if err := p.PrintList(items, columns); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -166,7 +166,7 @@ func TestQuietSuppressesOutput(t *testing.T) {
 func TestPrintMessage(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, false)
+	p := New(FormatTable, &buf, false, false)
 	p.PrintMessage("Plan '%s' published.", "plan-123")
 
 	if !strings.Contains(buf.String(), "Plan 'plan-123' published.") {
@@ -177,10 +177,55 @@ func TestPrintMessage(t *testing.T) {
 func TestPrintMessageQuiet(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, true)
+	p := New(FormatTable, &buf, true, false)
 	p.PrintMessage("should not appear")
 
 	if buf.Len() != 0 {
 		t.Error("quiet mode should suppress PrintMessage")
+	}
+}
+
+func TestPrintListTable_NoHeaders(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatTable, &buf, false, true)
+
+	items := []map[string]string{
+		{"name": "Weather API"},
+		{"name": "Petstore"},
+	}
+
+	columns := []Column{
+		{
+			Name: "Name",
+			Value: func(item any) string {
+				m, ok := item.(map[string]any)
+				if !ok {
+					return ""
+				}
+
+				s, _ := m["name"].(string)
+
+				return s
+			},
+		},
+	}
+
+	if err := p.PrintList(items, columns); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	output := buf.String()
+
+	if strings.Contains(output, "NAME") {
+		t.Error("expected no header row, but found 'NAME' in output")
+	}
+
+	if !strings.Contains(output, "Weather API") {
+		t.Error("expected data row 'Weather API'")
+	}
+
+	if !strings.Contains(output, "Petstore") {
+		t.Error("expected data row 'Petstore'")
 	}
 }
