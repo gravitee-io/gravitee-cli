@@ -13,7 +13,7 @@ import (
 
 func TestListAudits(t *testing.T) {
 	t.Run("returns audits", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListAuditsFunc: func(domainID string, p am.ListAuditsParams) (*am.PaginatedResponse, error) {
 				if domainID != "dom-1" {
@@ -42,7 +42,7 @@ func TestListAudits(t *testing.T) {
 	})
 
 	t.Run("passes filter flags", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListAuditsFunc: func(_ string, p am.ListAuditsParams) (*am.PaginatedResponse, error) {
 				if p.Type != "USER_LOGIN" {
@@ -68,7 +68,7 @@ func TestListAudits(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListAuditsFunc: func(_ string, _ am.ListAuditsParams) (*am.PaginatedResponse, error) {
 				return &am.PaginatedResponse{
@@ -90,7 +90,7 @@ func TestListAudits(t *testing.T) {
 	})
 
 	t.Run("fetches all pages", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		callCount := 0
 		mock := &am.MockService{
 			ListAuditsFunc: func(_ string, p am.ListAuditsParams) (*am.PaginatedResponse, error) {
@@ -126,7 +126,7 @@ func TestListAudits(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAuditCmd(tc.Factory)
@@ -136,7 +136,7 @@ func TestListAudits(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAuditCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -149,7 +149,7 @@ func TestListAudits(t *testing.T) {
 
 func TestGetAudit(t *testing.T) {
 	t.Run("returns audit details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAuditFunc: func(domainID, auditID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -179,7 +179,7 @@ func TestGetAudit(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAuditFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "aud-1", "type": "USER_LOGIN"})
@@ -195,7 +195,7 @@ func TestGetAudit(t *testing.T) {
 	})
 
 	t.Run("requires audit ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAuditCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -204,7 +204,7 @@ func TestGetAudit(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAuditCmd(tc.Factory)
@@ -214,7 +214,7 @@ func TestGetAudit(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAuditFunc: func(_, _ string) (json.RawMessage, error) {
 				return nil, &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}

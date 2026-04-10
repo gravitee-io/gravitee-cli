@@ -1,4 +1,4 @@
-package metadata
+package application
 
 import (
 	"github.com/spf13/cobra"
@@ -8,41 +8,36 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/printer"
 )
 
-func newCreateCmd(f *factory.Factory) *cobra.Command {
-	var (
-		apiID string
-		file  string
-	)
+func newUpdateCmd(f *factory.Factory) *cobra.Command {
+	var file string
 
 	cmd := &cobra.Command{
-		Use:     "create --api <apiId> -f <file>",
-		Short:   "Create a metadata entry from a JSON file",
-		Example: `  gio apim metadata create --api 8a7b3c4d-1234-5678-abcd-ef0123456789 -f metadata.json`,
-		Args:    cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		Use:     "update <appId> -f <file>",
+		Short:   "Update an application from a JSON file",
+		Example: `  gio apim app update aaaa1111-2222-3333-4444-555566667777 -f app-updated.json`,
+		Args:    cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			return runCreate(f, apiID, file)
+			return runUpdate(f, args[0], file)
 		},
 	}
 
-	cmd.Flags().StringVar(&apiID, "api", "", "API ID (required)")
 	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("api")
 	_ = cmd.MarkFlagRequired("file")
 
 	return cmd
 }
 
-func runCreate(f *factory.Factory, apiID, file string) error {
+func runUpdate(f *factory.Factory, appID, file string) error {
 	body, err := cmdutil.ReadJSONFile(file)
 	if err != nil {
 		return err
 	}
 
-	data, err := f.APIM().CreateMetadata(apiID, body)
+	data, err := f.APIM().UpdateApplication(appID, body)
 	if err != nil {
 		return err
 	}
@@ -56,5 +51,5 @@ func runCreate(f *factory.Factory, apiID, file string) error {
 		return p.PrintDetail(data)
 	}
 
-	return printMetadataDetail(p, data, apiID)
+	return printAppDetail(p, data)
 }

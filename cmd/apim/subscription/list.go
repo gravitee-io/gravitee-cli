@@ -26,7 +26,7 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list --api <apiId>",
 		Short: "List subscriptions for an API",
-		Example: `  gio apim subscription list --api 8a7b3c4d-1234-5678-abcd-ef0123456789
+		Example: `  gio apim subscription list --api /my/api
   gio apim sub list --api 8a7b3c4d --status PENDING`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
@@ -42,8 +42,7 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
-	_ = cmd.MarkFlagRequired("api")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
 	cmd.Flags().StringArrayVarP(&opts.status, "status", "s", []string{"ACCEPTED", "PENDING", "PAUSED"}, "Filter by status")
 	cmd.Flags().StringVar(&opts.planID, "plan", "", "Filter by plan ID")
 	cmd.Flags().StringVar(&opts.appID, "app", "", "Filter by application ID")
@@ -96,7 +95,7 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(resp)
 	}
 
@@ -118,7 +117,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(allData)
 	}
 
@@ -127,7 +126,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 	}
 
 	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
+		p.PrintHint("Showing %d results.", len(allData))
 	}
 
 	return nil

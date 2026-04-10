@@ -1,0 +1,9 @@
+{
+  "name": "gio-e2e-test-app",
+  "description": "Updated description from the smoke test",
+  "settings": {
+    "app": {
+      "type": "WEB"
+    }
+  }
+}

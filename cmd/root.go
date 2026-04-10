@@ -26,18 +26,16 @@ func NewRootCmd(version string) *cobra.Command {
 		SilenceErrors: true,
 	}
 
-	// Global flags — stored on factory for product commands to use.
 	cmd.PersistentFlags().StringVar(&f.Overrides.Context, "context", "", "Override context")
 	cmd.PersistentFlags().StringVar(&f.Overrides.Org, "org", "", "Override organization ID")
-	cmd.PersistentFlags().StringVar(&f.Overrides.EnvID, "env-id", "", "Override environment ID")
+	cmd.PersistentFlags().StringVar(&f.Overrides.EnvID, "env", "", "Override environment ID")
 	cmd.PersistentFlags().BoolVar(&f.Debug, "debug", false, "Show raw HTTP requests/responses")
 
-	// Root-level commands.
 	cmd.AddCommand(newLoginCmd(f))
 	cmd.AddCommand(contextcmd.NewContextCmd(f))
 	cmd.AddCommand(newCompletionCmd())
+	cmd.AddCommand(newVersionCmd(f, version))
 
-	// Product subcommands.
 	cmd.AddCommand(apimcmd.NewAPIMCmd(f))
 	cmd.AddCommand(amcmd.NewAMCmd(f))
 

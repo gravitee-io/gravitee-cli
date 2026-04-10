@@ -15,7 +15,7 @@ import (
 
 func TestListIdentityProviders(t *testing.T) {
 	t.Run("returns identity providers", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListIdentityProvidersFunc: func(domainID string, userProvider bool) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -43,7 +43,7 @@ func TestListIdentityProviders(t *testing.T) {
 	})
 
 	t.Run("passes user-provider flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListIdentityProvidersFunc: func(_ string, userProvider bool) ([]json.RawMessage, error) {
 				if !userProvider {
@@ -62,7 +62,7 @@ func TestListIdentityProviders(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListIdentityProvidersFunc: func(_ string, _ bool) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -80,7 +80,7 @@ func TestListIdentityProviders(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewIDPCmd(tc.Factory)
@@ -90,7 +90,7 @@ func TestListIdentityProviders(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewIDPCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -103,7 +103,7 @@ func TestListIdentityProviders(t *testing.T) {
 
 func TestGetIdentityProvider(t *testing.T) {
 	t.Run("returns identity provider details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetIdentityProviderFunc: func(domainID, idpID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -130,7 +130,7 @@ func TestGetIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetIdentityProviderFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "idp-1", "name": "Test"})
@@ -146,7 +146,7 @@ func TestGetIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires idp ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewIDPCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -155,7 +155,7 @@ func TestGetIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewIDPCmd(tc.Factory)
@@ -169,7 +169,7 @@ func TestGetIdentityProvider(t *testing.T) {
 
 func TestCreateIdentityProvider(t *testing.T) {
 	t.Run("creates an identity provider from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateIdentityProviderFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -194,7 +194,7 @@ func TestCreateIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewIDPCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
@@ -203,7 +203,7 @@ func TestCreateIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -219,7 +219,7 @@ func TestCreateIdentityProvider(t *testing.T) {
 
 func TestUpdateIdentityProvider(t *testing.T) {
 	t.Run("updates an identity provider from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateIdentityProviderFunc: func(domainID, idpID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -247,7 +247,7 @@ func TestUpdateIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewIDPCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "idp-1")
@@ -256,7 +256,7 @@ func TestUpdateIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires idp ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
 
@@ -267,7 +267,7 @@ func TestUpdateIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -283,7 +283,7 @@ func TestUpdateIdentityProvider(t *testing.T) {
 
 func TestDeleteIdentityProvider(t *testing.T) {
 	t.Run("deletes an identity provider", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteIdentityProviderFunc: func(domainID, idpID string) error {
 				if domainID != "dom-1" {
@@ -307,7 +307,7 @@ func TestDeleteIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteIdentityProviderFunc: func(_, _ string) error {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
@@ -322,7 +322,7 @@ func TestDeleteIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires idp ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewIDPCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "delete")
@@ -331,7 +331,7 @@ func TestDeleteIdentityProvider(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewIDPCmd(tc.Factory)

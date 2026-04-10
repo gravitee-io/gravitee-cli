@@ -15,7 +15,7 @@ import (
 
 func TestListPasswordPolicies(t *testing.T) {
 	t.Run("returns password policies", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListPasswordPoliciesFunc: func(domainID string) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -39,7 +39,7 @@ func TestListPasswordPolicies(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListPasswordPoliciesFunc: func(_ string) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -57,7 +57,7 @@ func TestListPasswordPolicies(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)
@@ -67,7 +67,7 @@ func TestListPasswordPolicies(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -80,7 +80,7 @@ func TestListPasswordPolicies(t *testing.T) {
 
 func TestGetPasswordPolicy(t *testing.T) {
 	t.Run("returns password policy details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetPasswordPolicyFunc: func(domainID, policyID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -107,7 +107,7 @@ func TestGetPasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetPasswordPolicyFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "pp-1", "name": "Strong"})
@@ -123,7 +123,7 @@ func TestGetPasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires policy ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -132,7 +132,7 @@ func TestGetPasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)
@@ -146,7 +146,7 @@ func TestGetPasswordPolicy(t *testing.T) {
 
 func TestCreatePasswordPolicy(t *testing.T) {
 	t.Run("creates a password policy from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreatePasswordPolicyFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -171,7 +171,7 @@ func TestCreatePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
@@ -180,7 +180,7 @@ func TestCreatePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Custom"}`)
@@ -196,7 +196,7 @@ func TestCreatePasswordPolicy(t *testing.T) {
 
 func TestUpdatePasswordPolicy(t *testing.T) {
 	t.Run("updates a password policy from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdatePasswordPolicyFunc: func(domainID, policyID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -224,7 +224,7 @@ func TestUpdatePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "pp-1")
@@ -233,7 +233,7 @@ func TestUpdatePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires policy ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		tmpFile := writeTempJSON(t, `{"name":"Updated"}`)
 
@@ -244,7 +244,7 @@ func TestUpdatePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Updated"}`)
@@ -260,7 +260,7 @@ func TestUpdatePasswordPolicy(t *testing.T) {
 
 func TestDeletePasswordPolicy(t *testing.T) {
 	t.Run("deletes a password policy", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeletePasswordPolicyFunc: func(domainID, policyID string) error {
 				if domainID != "dom-1" {
@@ -284,7 +284,7 @@ func TestDeletePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeletePasswordPolicyFunc: func(_, _ string) error {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
@@ -299,7 +299,7 @@ func TestDeletePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires policy ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "delete")
@@ -308,7 +308,7 @@ func TestDeletePasswordPolicy(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewPasswordPolicyCmd(tc.Factory)

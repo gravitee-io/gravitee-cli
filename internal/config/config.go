@@ -26,11 +26,10 @@ type ProductConfig struct {
 
 // Context holds shared fields plus per-product config blocks.
 type Context struct {
-	Org      string         `yaml:"org,omitempty"      json:"org,omitempty"`
-	Env      string         `yaml:"env,omitempty"      json:"env,omitempty"`
-	ReadOnly bool           `yaml:"readOnly,omitempty" json:"readOnly,omitempty"`
-	APIM     *ProductConfig `yaml:"apim,omitempty"     json:"apim,omitempty"`
-	AM       *ProductConfig `yaml:"am,omitempty"       json:"am,omitempty"`
+	Org  string         `yaml:"org,omitempty"  json:"org,omitempty"`
+	Env  string         `yaml:"env,omitempty"  json:"env,omitempty"`
+	APIM *ProductConfig `yaml:"apim,omitempty" json:"apim,omitempty"`
+	AM   *ProductConfig `yaml:"am,omitempty"   json:"am,omitempty"`
 }
 
 // Config holds the unified CLI configuration.
@@ -41,12 +40,11 @@ type Config struct {
 
 // ResolvedContext holds the fully resolved context after applying overrides.
 type ResolvedContext struct {
-	Name     string
-	URL      string
-	Token    string
-	Org      string
-	Env      string
-	ReadOnly bool
+	Name  string
+	URL   string
+	Token string
+	Org   string
+	Env   string
 }
 
 // Overrides holds flag-based overrides applied on top of the config context.
@@ -54,6 +52,13 @@ type Overrides struct {
 	Context string
 	Org     string
 	EnvID   string
+}
+
+// NormalizeContextName lowercases the name and replaces spaces with hyphens
+// so context names are safe to display in tables and easy to type back.
+// "Local Master" -> "local-master".
+func NormalizeContextName(name string) string {
+	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(name)), " ", "-")
 }
 
 // Path returns the full path to the config file (~/.gio/config.yaml).
@@ -122,7 +127,7 @@ func (c *Config) SaveTo(path string) error {
 func (c *Config) Resolve(overrides Overrides, product string) (*ResolvedContext, error) {
 	contextName := c.Current
 	if overrides.Context != "" {
-		contextName = overrides.Context
+		contextName = NormalizeContextName(overrides.Context)
 	}
 
 	if contextName == "" {
@@ -142,12 +147,11 @@ func (c *Config) Resolve(overrides Overrides, product string) (*ResolvedContext,
 	}
 
 	resolved := &ResolvedContext{
-		Name:     contextName,
-		URL:      pc.URL,
-		Token:    pc.Token,
-		Org:      withDefault(ctx.Org, DefaultOrg),
-		Env:      withDefault(ctx.Env, DefaultEnv),
-		ReadOnly: ctx.ReadOnly,
+		Name:  contextName,
+		URL:   pc.URL,
+		Token: pc.Token,
+		Org:   withDefault(ctx.Org, DefaultOrg),
+		Env:   withDefault(ctx.Env, DefaultEnv),
 	}
 
 	if overrides.Org != "" {

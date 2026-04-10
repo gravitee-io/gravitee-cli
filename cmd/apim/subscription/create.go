@@ -34,8 +34,7 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
-	_ = cmd.MarkFlagRequired("api")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
 	cmd.Flags().StringVar(&opts.planID, "plan", "", "Plan ID (required)")
 	_ = cmd.MarkFlagRequired("plan")
 	cmd.Flags().StringVar(&opts.appID, "app", "", "Application ID (required)")

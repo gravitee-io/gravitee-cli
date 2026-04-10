@@ -8,7 +8,21 @@ services:
       retries: 5
       start_period: 10s
 
-  management:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  am-management:
     image: graviteeio/am-management-api:4
     ports:
       - "8093:8093"
@@ -29,3 +43,25 @@ services:
       timeout: 5s
       retries: 15
       start_period: 45s
+
+  apim-management:
+    image: graviteeio/apim-management-api:4
+    ports:
+      - "18183:8083"
+      - "28183:18083"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - gravitee_management_mongodb_uri=mongodb://mongodb:27017/graviteeapim?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
+      - gravitee_analytics_elasticsearch_endpoints_0=http://elasticsearch:9200
+      - gravitee_services_core_http_host=0.0.0.0
+    healthcheck:
+      # The management API answers 401 on / without auth - any response means the HTTP listener is up.
+      test: ["CMD-SHELL", "curl -sf -u admin:admin http://localhost:8083/management/organizations/DEFAULT/environments || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 15
+      start_period: 60s

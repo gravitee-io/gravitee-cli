@@ -1,6 +1,8 @@
 package apikey
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/gravitee-io/gio-cli/internal/cmdutil"
@@ -30,10 +32,9 @@ func newRevokeCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
 	cmd.Flags().StringVar(&opts.subscription, "subscription", "", "Subscription ID (required)")
 
-	_ = cmd.MarkFlagRequired("api")
 	_ = cmd.MarkFlagRequired("subscription")
 
 	return cmd
@@ -50,7 +51,7 @@ func (o *revokeOptions) run(keyID string) error {
 	if err != nil {
 		return err
 	}
-	p.PrintMessage("API key '%s' revoked.", keyID)
 
-	return nil
+	return cmdutil.PrintActionResult(p, keyID, "revoked",
+		fmt.Sprintf("API key '%s' revoked.", keyID))
 }

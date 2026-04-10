@@ -4,8 +4,10 @@ package e2e
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -17,6 +19,7 @@ import (
 var (
 	cliBinary string
 	amURL     = "http://localhost:8093"
+	apimURL   = "http://localhost:18183"
 )
 
 func TestMain(m *testing.M) {
@@ -24,7 +27,10 @@ func TestMain(m *testing.M) {
 		amURL = u
 	}
 
-	// Build the CLI binary.
+	if u := os.Getenv("APIM_URL"); u != "" {
+		apimURL = u
+	}
+
 	binary, err := buildCLI()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to build CLI: %v\n", err)
@@ -35,17 +41,34 @@ func TestMain(m *testing.M) {
 
 	defer os.Remove(binary)
 
-	// Wait for AM to be ready.
 	if err := waitForAM(amURL, 3*time.Minute); err != nil {
 		fmt.Fprintf(os.Stderr, "AM not ready: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Login.
-	if err := loginToAM(); err != nil {
-		fmt.Fprintf(os.Stderr, "login failed: %v\n", err)
+	if err := waitForAPIM(apimURL, 3*time.Minute); err != nil {
+		fmt.Fprintf(os.Stderr, "APIM not ready: %v\n", err)
 		os.Exit(1)
 	}
+
+	amToken, err := fetchAMToken()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to fetch AM token: %v\n", err)
+		os.Exit(1)
+	}
+
+	apimToken, err := fetchAPIMToken()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to fetch APIM token: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Env vars bypass the config file entirely (see cmdutil.ResolveProductContext).
+	// The login/config persistence flow has its own dedicated test in login_config_test.go.
+	os.Setenv("GIO_AM_URL", amURL)
+	os.Setenv("GIO_AM_TOKEN", amToken)
+	os.Setenv("GIO_APIM_URL", apimURL)
+	os.Setenv("GIO_APIM_TOKEN", apimToken)
 
 	os.Exit(m.Run())
 }
@@ -67,7 +90,7 @@ func waitForAM(baseURL string, timeout time.Duration) error {
 		resp, err := http.Get(baseURL + "/management/organizations/DEFAULT/environments/DEFAULT/domains")
 		if err == nil {
 			resp.Body.Close()
-			// AM is up — it returns 401 for unauthenticated requests.
+			// AM is up - it returns 401 for unauthenticated requests.
 			if resp.StatusCode == 401 {
 				return nil
 			}
@@ -79,14 +102,13 @@ func waitForAM(baseURL string, timeout time.Duration) error {
 	return fmt.Errorf("AM did not become ready within %s", timeout)
 }
 
-func loginToAM() error {
-	// Get token via basic auth.
+func fetchAMToken() (string, error) {
 	req, _ := http.NewRequest("POST", amURL+"/management/auth/token", nil)
 	req.SetBasicAuth("admin", "adminadmin")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("auth request failed: %w", err)
+		return "", fmt.Errorf("auth request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -95,16 +117,153 @@ func loginToAM() error {
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-		return fmt.Errorf("failed to decode token: %w", err)
+		return "", fmt.Errorf("failed to decode token: %w", err)
 	}
 
-	// Login via CLI.
-	out, err := runCLI("login", "am", "--url", amURL, "--token", tokenResp.AccessToken)
+	if tokenResp.AccessToken == "" {
+		return "", fmt.Errorf("empty access token in response")
+	}
+
+	return tokenResp.AccessToken, nil
+}
+
+// waitForAPIM polls the APIM Management API until it accepts requests.
+func waitForAPIM(baseURL string, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+
+	for time.Now().Before(deadline) {
+		req, _ := http.NewRequest("GET", baseURL+"/management/organizations/DEFAULT/environments", nil)
+		req.SetBasicAuth("admin", "admin")
+
+		resp, err := http.DefaultClient.Do(req)
+		if err == nil {
+			resp.Body.Close()
+
+			if resp.StatusCode == http.StatusOK {
+				return nil
+			}
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+
+	return fmt.Errorf("APIM did not become ready within %s", timeout)
+}
+
+// fetchAPIMToken obtains a Bearer Personal Access Token for the admin user
+// on a default APIM Management API instance (basic auth admin:admin).
+//
+// Two-step flow (mirrors the init script in gravitee-ai-assistant):
+//  1. POST /management/organizations/DEFAULT/user/login → JWT, sub claim = user ID
+//  2. POST /management/organizations/DEFAULT/users/{id}/tokens → bearer PAT
+//
+// The token name includes a unique suffix so repeated runs against the same
+// APIM instance don't collide.
+func fetchAPIMToken() (string, error) {
+	userID, err := apimUserLogin()
 	if err != nil {
-		return fmt.Errorf("CLI login failed: %s: %w", out, err)
+		return "", fmt.Errorf("login: %w", err)
 	}
 
-	return nil
+	tokenName := fmt.Sprintf("gio-e2e-%d", time.Now().UnixNano())
+
+	req, _ := http.NewRequest("POST",
+		apimURL+"/management/organizations/DEFAULT/users/"+userID+"/tokens",
+		strings.NewReader(fmt.Sprintf(`{"name":%q}`, tokenName)))
+	req.SetBasicAuth("admin", "admin")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("create token: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("create token: HTTP %d: %s", resp.StatusCode, body)
+	}
+
+	var tokenResp struct {
+		Token string `json:"token"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return "", fmt.Errorf("decode token response: %w", err)
+	}
+
+	if tokenResp.Token == "" {
+		return "", fmt.Errorf("empty token in response")
+	}
+
+	return tokenResp.Token, nil
+}
+
+func apimUserLogin() (string, error) {
+	req, _ := http.NewRequest("POST", apimURL+"/management/organizations/DEFAULT/user/login", nil)
+	req.SetBasicAuth("admin", "admin")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("HTTP %d: %s", resp.StatusCode, body)
+	}
+
+	var loginResp struct {
+		ID    string `json:"id"`
+		Token string `json:"token"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&loginResp); err != nil {
+		return "", fmt.Errorf("decode login response: %w", err)
+	}
+
+	if loginResp.ID != "" {
+		return loginResp.ID, nil
+	}
+
+	if loginResp.Token == "" {
+		return "", fmt.Errorf("no id or token in login response")
+	}
+
+	// Fall back to extracting the sub claim from the JWT payload.
+	parts := strings.Split(loginResp.Token, ".")
+	if len(parts) < 2 {
+		return "", fmt.Errorf("malformed JWT in login response")
+	}
+
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		// Some encoders use standard base64 with padding.
+		padded := parts[1]
+		if pad := len(padded) % 4; pad != 0 {
+			padded += strings.Repeat("=", 4-pad)
+		}
+
+		payload, err = base64.URLEncoding.DecodeString(padded)
+		if err != nil {
+			return "", fmt.Errorf("decode JWT payload: %w", err)
+		}
+	}
+
+	var claims struct {
+		Sub string `json:"sub"`
+	}
+
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		return "", fmt.Errorf("parse JWT claims: %w", err)
+	}
+
+	if claims.Sub == "" {
+		return "", fmt.Errorf("empty sub claim in JWT")
+	}
+
+	return claims.Sub, nil
 }
 
 func runCLI(args ...string) (string, error) {
@@ -179,7 +338,7 @@ func getDefaultDomainID(t *testing.T) string {
 		return resp.Data[0].ID
 	}
 
-	// No domains — create one for the test suite.
+	// No domains - create one for the test suite.
 	out = runCLIExpectSuccess(t, "am", "domain", "create",
 		"--name", "e2e-shared-domain",
 		"--description", "Shared E2E test domain",

@@ -15,7 +15,7 @@ import (
 
 func TestListFlows(t *testing.T) {
 	t.Run("returns flows", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListFlowsFunc: func(domainID string) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -39,7 +39,7 @@ func TestListFlows(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListFlowsFunc: func(_ string) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -57,7 +57,7 @@ func TestListFlows(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewFlowCmd(tc.Factory)
@@ -67,7 +67,7 @@ func TestListFlows(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewFlowCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -80,7 +80,7 @@ func TestListFlows(t *testing.T) {
 
 func TestGetFlow(t *testing.T) {
 	t.Run("returns flow details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetFlowFunc: func(domainID, flowID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -107,7 +107,7 @@ func TestGetFlow(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetFlowFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "flow-1", "name": "Test"})
@@ -123,7 +123,7 @@ func TestGetFlow(t *testing.T) {
 	})
 
 	t.Run("requires flow ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewFlowCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -132,7 +132,7 @@ func TestGetFlow(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewFlowCmd(tc.Factory)
@@ -146,7 +146,7 @@ func TestGetFlow(t *testing.T) {
 
 func TestUpdateFlows(t *testing.T) {
 	t.Run("updates flows from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateFlowsFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -170,7 +170,7 @@ func TestUpdateFlows(t *testing.T) {
 	})
 
 	t.Run("returns JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateFlowsFunc: func(_ string, _ json.RawMessage) (json.RawMessage, error) {
 				return json.Marshal([]map[string]any{{"id": "flow-1"}})
@@ -188,7 +188,7 @@ func TestUpdateFlows(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateFlowsFunc: func(_ string, _ json.RawMessage) (json.RawMessage, error) {
 				return nil, &client.APIError{Status: 400, Message: "bad request (HTTP 400)"}
@@ -205,7 +205,7 @@ func TestUpdateFlows(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewFlowCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update")
@@ -214,7 +214,7 @@ func TestUpdateFlows(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `[{"name":"Test"}]`)

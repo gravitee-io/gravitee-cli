@@ -3,6 +3,7 @@ package apim
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
@@ -50,10 +51,6 @@ func (s *service) GetPlan(apiID, planID string) (json.RawMessage, error) {
 }
 
 func (s *service) CreatePlan(apiID string, body json.RawMessage) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/plans", apiID)), body)
 	if err != nil {
 		return nil, fmt.Errorf("plan creation failed: %w", err)
@@ -63,10 +60,6 @@ func (s *service) CreatePlan(apiID string, body json.RawMessage) (json.RawMessag
 }
 
 func (s *service) UpdatePlan(apiID, planID string, body json.RawMessage) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Put(s.v2(fmt.Sprintf("apis/%s/plans/%s", apiID, planID)), body)
 	if err != nil {
 		return nil, fmt.Errorf("plan update failed: %w", err)
@@ -76,10 +69,6 @@ func (s *service) UpdatePlan(apiID, planID string, body json.RawMessage) (json.R
 }
 
 func (s *service) DeletePlan(apiID, planID string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
 	if err := s.client.Delete(s.v2(fmt.Sprintf("apis/%s/plans/%s", apiID, planID))); err != nil {
 		return fmt.Errorf("plan deletion failed: %w", err)
 	}
@@ -88,10 +77,6 @@ func (s *service) DeletePlan(apiID, planID string) error {
 }
 
 func (s *service) PublishPlan(apiID, planID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/plans/%s/_publish", apiID, planID)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("plan publish failed: %w", err)
@@ -101,10 +86,6 @@ func (s *service) PublishPlan(apiID, planID string) (json.RawMessage, error) {
 }
 
 func (s *service) DeprecatePlan(apiID, planID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/plans/%s/_deprecate", apiID, planID)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("plan deprecate failed: %w", err)
@@ -114,10 +95,6 @@ func (s *service) DeprecatePlan(apiID, planID string) (json.RawMessage, error) {
 }
 
 func (s *service) ClosePlan(apiID, planID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/plans/%s/_close", apiID, planID)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("plan close failed: %w", err)

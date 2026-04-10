@@ -181,6 +181,62 @@ func TestMapHTTPError(t *testing.T) {
 	}
 }
 
+func TestMapHTTPError_IncludesServerBody(t *testing.T) {
+	tests := []struct {
+		name      string
+		body      string
+		wantLabel string
+		wantHint  string
+		status    int
+	}{
+		{name: "401 with body", status: 401, body: `{"message":"Token expired"}`, wantLabel: "authentication failed", wantHint: "gio login"},
+		{name: "403 with body", status: 403, body: `{"message":"forbidden"}`, wantLabel: "access denied", wantHint: "token permissions"},
+		{name: "404 with body", status: 404, body: `{"message":"app not found"}`, wantLabel: "resource not found"},
+		{name: "500 with body", status: 500, body: "stack trace here", wantLabel: "server error", wantHint: "APIM server status"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := MapHTTPError(tt.status, []byte(tt.body))
+
+			if !strings.Contains(err.Error(), tt.wantLabel) {
+				t.Errorf("expected label %q, got: %s", tt.wantLabel, err.Error())
+			}
+
+			if !strings.Contains(err.Error(), tt.body) {
+				t.Errorf("expected body %q in error, got: %s", tt.body, err.Error())
+			}
+
+			if tt.wantHint != "" && !strings.Contains(err.Error(), tt.wantHint) {
+				t.Errorf("expected hint %q in error, got: %s", tt.wantHint, err.Error())
+			}
+		})
+	}
+}
+
+func TestMapHTTPError_EmptyBodyOmitsColon(t *testing.T) {
+	// With an empty body, we should not emit a dangling ": " before the newline.
+	tests := []struct {
+		name   string
+		status int
+	}{
+		{"401 no body", 401},
+		{"404 no body", 404},
+		{"400 no body", 400},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := MapHTTPError(tt.status, nil)
+			firstLine := strings.SplitN(err.Error(), "\n", 2)[0]
+
+			if strings.HasSuffix(firstLine, ": ") || strings.HasSuffix(firstLine, ":") {
+				t.Errorf("expected no trailing colon on empty body, got: %q", firstLine)
+			}
+		})
+	}
+}
+
 func TestMaskToken(t *testing.T) {
 	tests := []struct {
 		input string

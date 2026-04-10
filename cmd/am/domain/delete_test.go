@@ -16,7 +16,7 @@ func TestDeleteDomain(t *testing.T) {
 				return nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory), "dom-1")
 
@@ -30,7 +30,7 @@ func TestDeleteDomain(t *testing.T) {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory), "dom-1")
 
@@ -38,7 +38,7 @@ func TestDeleteDomain(t *testing.T) {
 	})
 
 	t.Run("requires domain ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory))
 
@@ -46,7 +46,7 @@ func TestDeleteDomain(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory), "dom-1")

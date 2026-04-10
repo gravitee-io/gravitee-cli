@@ -3,17 +3,16 @@ package apim
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gravitee-io/gio-cli/internal/client"
 	"net/url"
 	"strings"
+
+	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
 // ListAPIsParams holds parameters for listing APIs.
 type ListAPIsParams struct {
 	Query   string
 	Status  string
-	Sort    string
-	Order   string
 	Page    int
 	PerPage int
 }
@@ -47,6 +46,7 @@ type AnalyticsParams struct {
 // APIService defines API-related operations.
 type APIService interface {
 	ListAPIs(params ListAPIsParams) (*PaginatedResponse, error)
+	ResolveAPI(pathOrID string) (string, error)
 	GetAPI(apiID string) (json.RawMessage, error)
 	CreateAPI(body json.RawMessage) (json.RawMessage, error)
 	UpdateAPI(apiID string, body json.RawMessage) (json.RawMessage, error)
@@ -66,11 +66,15 @@ type APIService interface {
 func (s *service) ListAPIs(params ListAPIsParams) (*PaginatedResponse, error) {
 	q := client.BuildQuery(map[string]string{
 		"page": client.Itoa(params.Page), "perPage": client.Itoa(params.PerPage),
-		"q": params.Query, "status": params.Status,
-		"sortBy": params.Sort, "order": params.Order,
+		"status": params.Status,
 	})
 
-	data, err := s.client.Get(s.v2("apis?" + q))
+	body := map[string]string{}
+	if params.Query != "" {
+		body["query"] = params.Query
+	}
+
+	data, err := s.client.Post(s.v2("apis/_search?"+q), body)
 	if err != nil {
 		return nil, fmt.Errorf("API list failed: %w", err)
 	}
@@ -88,10 +92,6 @@ func (s *service) GetAPI(apiID string) (json.RawMessage, error) {
 }
 
 func (s *service) CreateAPI(body json.RawMessage) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2("apis"), body)
 	if err != nil {
 		return nil, fmt.Errorf("API creation failed: %w", err)
@@ -101,10 +101,6 @@ func (s *service) CreateAPI(body json.RawMessage) (json.RawMessage, error) {
 }
 
 func (s *service) UpdateAPI(apiID string, body json.RawMessage) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Put(s.v2(fmt.Sprintf("apis/%s", apiID)), body)
 	if err != nil {
 		return nil, fmt.Errorf("API update failed: %w", err)
@@ -114,10 +110,6 @@ func (s *service) UpdateAPI(apiID string, body json.RawMessage) (json.RawMessage
 }
 
 func (s *service) DeleteAPI(apiID string, closePlans bool) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
 	path := s.v2(fmt.Sprintf("apis/%s", apiID))
 	if closePlans {
 		path += "?closePlans=true"
@@ -131,10 +123,6 @@ func (s *service) DeleteAPI(apiID string, closePlans bool) error {
 }
 
 func (s *service) StartAPI(apiID string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
 	if _, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/_start", apiID)), nil); err != nil {
 		return fmt.Errorf("API start failed: %w", err)
 	}
@@ -143,10 +131,6 @@ func (s *service) StartAPI(apiID string) error {
 }
 
 func (s *service) StopAPI(apiID string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
 	if _, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/_stop", apiID)), nil); err != nil {
 		return fmt.Errorf("API stop failed: %w", err)
 	}
@@ -155,10 +139,6 @@ func (s *service) StopAPI(apiID string) error {
 }
 
 func (s *service) DeployAPI(apiID string, label string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
 	var body any
 	if label != "" {
 		body = map[string]string{"deploymentLabel": label}
@@ -172,10 +152,6 @@ func (s *service) DeployAPI(apiID string, label string) error {
 }
 
 func (s *service) ImportAPI(body json.RawMessage) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2("apis/_import/definition"), body)
 	if err != nil {
 		return nil, fmt.Errorf("API import failed: %w", err)
@@ -205,10 +181,6 @@ func (s *service) ExportAPI(apiID string, exclude []string) (json.RawMessage, er
 }
 
 func (s *service) RollbackAPI(apiID, eventID string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
 	body := map[string]string{"eventId": eventID}
 
 	if _, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/_rollback", apiID)), body); err != nil {
@@ -220,13 +192,9 @@ func (s *service) RollbackAPI(apiID, eventID string) error {
 
 func (s *service) GetAPIAnalytics(apiID string, p AnalyticsParams) (json.RawMessage, error) {
 	q := url.Values{}
-	if p.From != 0 {
-		q.Set("from", i64toa(p.From))
-	}
-
-	if p.To != 0 {
-		q.Set("to", i64toa(p.To))
-	}
+	// from and to are required by the API - always send them.
+	q.Set("from", i64toa(p.From))
+	q.Set("to", i64toa(p.To))
 
 	if p.Interval != 0 {
 		q.Set("interval", i64toa(p.Interval))

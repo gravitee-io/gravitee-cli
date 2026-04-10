@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/gravitee-io/gio-cli/internal/cmdutil"
@@ -11,14 +13,15 @@ func newStopCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "stop <apiId>",
 		Short:   "Stop an API",
-		Example: `  gio apim api stop 8a7b3c4d-1234-5678-abcd-ef0123456789`,
+		Example: `  gio apim api stop /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			if err := f.APIM().StopAPI(args[0]); err != nil {
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
 				return err
 			}
 
@@ -26,9 +29,13 @@ func newStopCmd(f *factory.Factory) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			p.PrintMessage("API '%s' stopped.", args[0])
 
-			return nil
+			if err := f.APIM().StopAPI(apiID); err != nil {
+				return err
+			}
+
+			return cmdutil.PrintActionResult(p, apiID, "stopped",
+				fmt.Sprintf("API '%s' stopped.", apiID))
 		},
 	}
 }

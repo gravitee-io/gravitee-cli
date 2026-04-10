@@ -13,7 +13,6 @@ type listOptions struct {
 	factory *factory.Factory
 	query   string
 	status  string
-	order   string
 	page    int
 	perPage int
 	all     bool
@@ -26,7 +25,7 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 		Use:   "list",
 		Short: "List applications",
 		Example: `  gio apim app list
-  gio apim app list --query "Mobile" --order -updated_at
+  gio apim app list --query "Mobile"
   gio apim app list --status ARCHIVED`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
@@ -44,7 +43,6 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 
 	cmd.Flags().StringVar(&opts.query, "query", "", "Search applications by name")
 	cmd.Flags().StringVar(&opts.status, "status", "ACTIVE", "Filter by status: ACTIVE, ARCHIVED")
-	cmd.Flags().StringVar(&opts.order, "order", "name", "Sort field: name, updated_at, -name, -updated_at")
 	cmd.Flags().IntVar(&opts.page, "page", 1, "Page number")
 	cmd.Flags().IntVar(&opts.perPage, "per-page", 10, "Results per page")
 	cmd.Flags().BoolVar(&opts.all, "all", false, "Fetch all pages")
@@ -52,21 +50,10 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	return cmd
 }
 
-var (
-	validAppStatuses = []string{"ACTIVE", "ARCHIVED"}
-	validAppOrders   = []string{"name", "updated_at", "-name", "-updated_at"}
-)
+var validAppStatuses = []string{"ACTIVE", "ARCHIVED"}
 
 func (o *listOptions) validate() error {
-	if err := cmdutil.ValidateEnum(o.status, "status", validAppStatuses); err != nil {
-		return err
-	}
-
-	if err := cmdutil.ValidateEnum(o.order, "order", validAppOrders); err != nil {
-		return err
-	}
-
-	return nil
+	return cmdutil.ValidateEnum(o.status, "status", validAppStatuses)
 }
 
 func (o *listOptions) run() error {
@@ -87,7 +74,6 @@ func (o *listOptions) params(page int) apim.ListApplicationsParams {
 	return apim.ListApplicationsParams{
 		Query:   o.query,
 		Status:  o.status,
-		Order:   o.order,
 		Page:    page,
 		PerPage: o.perPage,
 	}
@@ -99,7 +85,7 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(resp)
 	}
 
@@ -121,7 +107,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(allData)
 	}
 
@@ -130,7 +116,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 	}
 
 	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
+		p.PrintHint("Showing %d results.", len(allData))
 	}
 
 	return nil
@@ -143,6 +129,6 @@ func appColumns() []printer.Column {
 		{Name: "Status", Value: func(i any) string { return cmdutil.StringField(i, "status") }},
 		{Name: "Owner", Value: ownerDisplayName},
 		{Name: "ID", Value: func(i any) string { return cmdutil.StringField(i, "id") }},
-		{Name: "Updated", Value: func(i any) string { return cmdutil.StringField(i, "updated_at") }},
+		{Name: "Updated", Value: func(i any) string { return cmdutil.TimestampField(i, "updated_at") }},
 	}
 }

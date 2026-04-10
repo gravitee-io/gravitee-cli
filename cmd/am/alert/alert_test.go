@@ -15,7 +15,7 @@ import (
 
 func TestListAlertNotifiers(t *testing.T) {
 	t.Run("returns notifiers", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListAlertNotifiersFunc: func(domainID string) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -39,7 +39,7 @@ func TestListAlertNotifiers(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListAlertNotifiersFunc: func(_ string) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -57,7 +57,7 @@ func TestListAlertNotifiers(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAlertCmd(tc.Factory)
@@ -67,7 +67,7 @@ func TestListAlertNotifiers(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "notifier", "list")
@@ -80,7 +80,7 @@ func TestListAlertNotifiers(t *testing.T) {
 
 func TestGetAlertNotifier(t *testing.T) {
 	t.Run("returns notifier details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAlertNotifierFunc: func(domainID, notifierID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -107,7 +107,7 @@ func TestGetAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires notifier ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "notifier", "get")
@@ -116,7 +116,7 @@ func TestGetAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAlertCmd(tc.Factory)
@@ -130,7 +130,7 @@ func TestGetAlertNotifier(t *testing.T) {
 
 func TestCreateAlertNotifier(t *testing.T) {
 	t.Run("creates a notifier from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateAlertNotifierFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -155,7 +155,7 @@ func TestCreateAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "notifier", "create")
@@ -164,7 +164,7 @@ func TestCreateAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -180,7 +180,7 @@ func TestCreateAlertNotifier(t *testing.T) {
 
 func TestUpdateAlertNotifier(t *testing.T) {
 	t.Run("updates a notifier from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateAlertNotifierFunc: func(domainID, notifierID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -208,7 +208,7 @@ func TestUpdateAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "notifier", "update", "n-1")
@@ -217,7 +217,7 @@ func TestUpdateAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires notifier ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
 
@@ -228,7 +228,7 @@ func TestUpdateAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -244,7 +244,7 @@ func TestUpdateAlertNotifier(t *testing.T) {
 
 func TestDeleteAlertNotifier(t *testing.T) {
 	t.Run("deletes a notifier", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteAlertNotifierFunc: func(domainID, notifierID string) error {
 				if domainID != "dom-1" {
@@ -268,7 +268,7 @@ func TestDeleteAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteAlertNotifierFunc: func(_, _ string) error {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
@@ -283,7 +283,7 @@ func TestDeleteAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires notifier ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "notifier", "delete")
@@ -292,7 +292,7 @@ func TestDeleteAlertNotifier(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAlertCmd(tc.Factory)
@@ -306,7 +306,7 @@ func TestDeleteAlertNotifier(t *testing.T) {
 
 func TestGetAlertTriggers(t *testing.T) {
 	t.Run("returns trigger data", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAlertTriggersFunc: func(domainID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -328,7 +328,7 @@ func TestGetAlertTriggers(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAlertCmd(tc.Factory)
@@ -342,7 +342,7 @@ func TestGetAlertTriggers(t *testing.T) {
 
 func TestUpdateAlertTriggers(t *testing.T) {
 	t.Run("updates triggers from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateAlertTriggersFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -366,7 +366,7 @@ func TestUpdateAlertTriggers(t *testing.T) {
 	})
 
 	t.Run("returns JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateAlertTriggersFunc: func(_ string, _ json.RawMessage) (json.RawMessage, error) {
 				return json.Marshal([]map[string]any{{"type": "test"}})
@@ -384,7 +384,7 @@ func TestUpdateAlertTriggers(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "trigger", "update")
@@ -393,7 +393,7 @@ func TestUpdateAlertTriggers(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `[{"type":"test"}]`)

@@ -3,6 +3,7 @@ package apim
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
@@ -25,10 +26,6 @@ func (s *service) ListMembers(apiID string, page, perPage int) (*PaginatedRespon
 }
 
 func (s *service) AddMember(apiID, userID, role string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	body := map[string]string{"userId": userID, "roleName": role}
 
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/members", apiID)), body)
@@ -40,10 +37,6 @@ func (s *service) AddMember(apiID, userID, role string) (json.RawMessage, error)
 }
 
 func (s *service) RemoveMember(apiID, memberID string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
 	if err := s.client.Delete(s.v2(fmt.Sprintf("apis/%s/members/%s", apiID, memberID))); err != nil {
 		return fmt.Errorf("member removal failed: %w", err)
 	}

@@ -1,6 +1,8 @@
 package application
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/gravitee-io/gio-cli/internal/cmdutil"
@@ -34,7 +36,7 @@ func runDelete(f *factory.Factory, appID string) error {
 	if err != nil {
 		return err
 	}
-	p.PrintMessage("Application '%s' deleted.", appID)
 
-	return nil
+	return cmdutil.PrintActionResult(p, appID, "deleted",
+		fmt.Sprintf("Application '%s' deleted.", appID))
 }

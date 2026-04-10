@@ -9,7 +9,7 @@ import (
 func TestPrintListTable(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, false, false)
+	p := New(FormatTable, &buf, &buf, false, false)
 
 	items := []map[string]string{
 		{"name": "Weather API", "status": "STARTED"},
@@ -71,7 +71,7 @@ func TestPrintListTable(t *testing.T) {
 func TestPrintListJSON(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatJSON, &buf, false, false)
+	p := New(FormatJSON, &buf, &buf, false, false)
 
 	items := []map[string]string{
 		{"id": "123", "name": "Test API"},
@@ -95,7 +95,7 @@ func TestPrintListJSON(t *testing.T) {
 func TestPrintListYAML(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatYAML, &buf, false, false)
+	p := New(FormatYAML, &buf, &buf, false, false)
 
 	items := []map[string]string{
 		{"id": "123", "name": "Test API"},
@@ -115,7 +115,7 @@ func TestPrintListYAML(t *testing.T) {
 func TestPrintDetailJSON(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatJSON, &buf, false, false)
+	p := New(FormatJSON, &buf, &buf, false, false)
 
 	item := map[string]string{"id": "abc", "status": "STARTED"}
 
@@ -133,23 +133,47 @@ func TestPrintDetailJSON(t *testing.T) {
 func TestPrintDetailYAML(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatYAML, &buf, false, false)
+	p := New(FormatYAML, &buf, &buf, false, false)
 
-	item := map[string]string{"id": "abc", "status": "STARTED"}
+	item := map[string]any{
+		"id":        "abc",
+		"status":    "STARTED",
+		"updatedAt": int64(1776784037000),
+		"ratio":     1.5,
+		"active":    true,
+		"meta":      map[string]any{"version": 3},
+	}
 
 	if err := p.PrintDetail(item); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if !strings.Contains(buf.String(), "status: STARTED") {
-		t.Errorf("expected YAML status field, got: %s", buf.String())
+	output := buf.String()
+
+	for _, want := range []string{
+		"id: abc",
+		"status: STARTED",
+		"updatedAt: 1776784037000",
+		"ratio: 1.5",
+		"active: true",
+		"version: 3",
+	} {
+		if !strings.Contains(output, want) {
+			t.Errorf("expected %q in YAML output, got: %s", want, output)
+		}
+	}
+
+	if strings.ContainsAny(output, "eE") && strings.Contains(output, "+") {
+		if strings.Contains(output, "e+") || strings.Contains(output, "E+") {
+			t.Errorf("unexpected scientific notation in YAML output: %s", output)
+		}
 	}
 }
 
 func TestQuietSuppressesOutput(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, true, false)
+	p := New(FormatTable, &buf, &buf, true, false)
 
 	items := []map[string]string{{"name": "test"}}
 	columns := []Column{{Name: "Name", Value: func(_ any) string { return "test" }}}
@@ -166,7 +190,7 @@ func TestQuietSuppressesOutput(t *testing.T) {
 func TestPrintMessage(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, false, false)
+	p := New(FormatTable, &buf, &buf, false, false)
 	p.PrintMessage("Plan '%s' published.", "plan-123")
 
 	if !strings.Contains(buf.String(), "Plan 'plan-123' published.") {
@@ -177,7 +201,7 @@ func TestPrintMessage(t *testing.T) {
 func TestPrintMessageQuiet(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, true, false)
+	p := New(FormatTable, &buf, &buf, true, false)
 	p.PrintMessage("should not appear")
 
 	if buf.Len() != 0 {
@@ -185,10 +209,98 @@ func TestPrintMessageQuiet(t *testing.T) {
 	}
 }
 
+func TestPrintDetailID(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatID, &buf, &buf, false, false)
+
+	item := map[string]string{"id": "abc-123", "name": "Test API", "status": "STARTED"}
+
+	if err := p.PrintDetail(item); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := buf.String(); got != "abc-123\n" {
+		t.Errorf("expected %q, got %q", "abc-123\n", got)
+	}
+}
+
+func TestPrintDetailID_KeyFallback(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatID, &buf, &buf, false, false)
+
+	// APIKeys expose their identifier as `key`, not `id`.
+	item := map[string]string{"key": "apikey-value", "applicationName": "X"}
+
+	if err := p.PrintDetail(item); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := buf.String(); got != "apikey-value\n" {
+		t.Errorf("expected %q, got %q", "apikey-value\n", got)
+	}
+}
+
+func TestPrintDetailID_MissingID(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatID, &buf, &buf, false, false)
+
+	item := map[string]string{"name": "no-id-here"}
+
+	if err := p.PrintDetail(item); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if buf.Len() != 0 {
+		t.Errorf("expected empty output when id missing, got %q", buf.String())
+	}
+}
+
+func TestPrintListID(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatID, &buf, &buf, false, false)
+
+	items := []map[string]string{
+		{"id": "id-1", "name": "A"},
+		{"id": "id-2", "name": "B"},
+		{"key": "key-3", "name": "C"}, // fallback to key
+	}
+
+	if err := p.PrintList(items, nil); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := buf.String(); got != "id-1\nid-2\nkey-3\n" {
+		t.Errorf("expected %q, got %q", "id-1\nid-2\nkey-3\n", got)
+	}
+}
+
+func TestIsStructured(t *testing.T) {
+	cases := []struct {
+		format string
+		want   bool
+	}{
+		{FormatJSON, true},
+		{FormatYAML, true},
+		{FormatTable, false},
+		{FormatID, false},
+		{"", false},
+	}
+
+	for _, c := range cases {
+		if got := IsStructured(c.format); got != c.want {
+			t.Errorf("IsStructured(%q) = %v, want %v", c.format, got, c.want)
+		}
+	}
+}
+
 func TestPrintListTable_NoHeaders(t *testing.T) {
 	var buf bytes.Buffer
 
-	p := New(FormatTable, &buf, false, true)
+	p := New(FormatTable, &buf, &buf, false, true)
 
 	items := []map[string]string{
 		{"name": "Weather API"},

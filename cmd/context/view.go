@@ -54,16 +54,10 @@ func runView(f *factory.Factory) error {
 		env = config.DefaultEnv
 	}
 
-	readOnly := "no"
-	if ctx.ReadOnly {
-		readOnly = "yes"
-	}
-
 	out := f.IOStreams.Out
 	fmt.Fprintf(out, "Context:    %s\n", contextName)
 	fmt.Fprintf(out, "Org:        %s\n", org)
 	fmt.Fprintf(out, "Env:        %s\n", env)
-	fmt.Fprintf(out, "Read-only:  %s\n", readOnly)
 
 	if ctx.APIM != nil {
 		fmt.Fprintf(out, "APIM URL:   %s\n", ctx.APIM.URL)

@@ -151,12 +151,12 @@ func TestDomainListQuery(t *testing.T) {
 	}()
 
 	t.Run("list with query flag accepted", func(t *testing.T) {
-		// AM API may not support query search — just verify the command succeeds.
+		// AM API may not support query search - just verify the command succeeds.
 		runCLIExpectSuccess(t, "am", "domain", "list", "--query", "e2e-query-test")
 	})
 
 	t.Run("list with non-matching query", func(t *testing.T) {
-		// With unsupported query, AM may return all or none — just verify no error.
+		// With unsupported query, AM may return all or none - just verify no error.
 		runCLIExpectSuccess(t, "am", "domain", "list", "--query", "nonexistent-xyz-12345")
 	})
 }

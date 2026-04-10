@@ -1,0 +1,28 @@
+{
+  "name": "gio-e2e-test",
+  "apiVersion": "1.0.0",
+  "definitionVersion": "V4",
+  "type": "PROXY",
+  "description": "Temporary API created by the gio smoke test. Safe to delete.",
+  "listeners": [
+    {
+      "type": "HTTP",
+      "paths": [{ "path": "/gio-e2e-test" }],
+      "entrypoints": [{ "type": "http-proxy" }]
+    }
+  ],
+  "endpointGroups": [
+    {
+      "name": "default",
+      "type": "http-proxy",
+      "endpoints": [
+        {
+          "name": "backend",
+          "type": "http-proxy",
+          "inheritConfiguration": false,
+          "configuration": { "target": "https://api.gravitee.io/echo" }
+        }
+      ]
+    }
+  ]
+}

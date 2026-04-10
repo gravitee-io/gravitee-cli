@@ -13,7 +13,14 @@ const (
 	FormatTable = "table"
 	FormatJSON  = "json"
 	FormatYAML  = "yaml"
+	FormatID    = "id"
 )
+
+// IsStructured reports whether the format preserves the full server response
+// (json/yaml). Table and id are per-item flat views and should route through PrintList.
+func IsStructured(format string) bool {
+	return format == FormatJSON || format == FormatYAML
+}
 
 // Column defines a column for table output.
 type Column struct {
@@ -25,16 +32,18 @@ type Column struct {
 // Printer handles output formatting in table, JSON, or YAML.
 type Printer struct {
 	Out       io.Writer
+	Err       io.Writer
 	Format    string
 	NoHeaders bool
 	Quiet     bool
 }
 
 // New creates a Printer with the given format and writer.
-func New(format string, out io.Writer, quiet bool, noHeaders bool) *Printer {
+func New(format string, out, errOut io.Writer, quiet bool, noHeaders bool) *Printer {
 	return &Printer{
 		Format:    format,
 		Out:       out,
+		Err:       errOut,
 		Quiet:     quiet,
 		NoHeaders: noHeaders,
 	}
@@ -51,6 +60,8 @@ func (p *Printer) PrintList(items any, columns []Column) error {
 		return p.printJSON(items)
 	case FormatYAML:
 		return p.printYAML(items)
+	case FormatID:
+		return p.printIDList(items)
 	default:
 		return p.printTable(items, columns)
 	}
@@ -67,6 +78,8 @@ func (p *Printer) PrintDetail(item any) error {
 		return p.printJSON(item)
 	case FormatYAML:
 		return p.printYAML(item)
+	case FormatID:
+		return p.printID(item)
 	default:
 		return p.printJSON(item)
 	}
@@ -81,6 +94,74 @@ func (p *Printer) PrintMessage(format string, args ...any) {
 	fmt.Fprintf(p.Out, format+"\n", args...)
 }
 
+// PrintHint outputs a message to stderr (used for pagination hints and other metadata that should not pollute piped output).
+func (p *Printer) PrintHint(format string, args ...any) {
+	if p.Quiet {
+		return
+	}
+
+	fmt.Fprintf(p.Err, format+"\n", args...)
+}
+
+func (p *Printer) printID(item any) error {
+	m, err := toMap(item)
+	if err != nil {
+		return err
+	}
+
+	if id := idFromMap(m); id != "" {
+		fmt.Fprintln(p.Out, id)
+	}
+
+	return nil
+}
+
+func (p *Printer) printIDList(items any) error {
+	raw, err := json.Marshal(items)
+	if err != nil {
+		return fmt.Errorf("failed to marshal items: %w", err)
+	}
+
+	var list []map[string]any
+	if err := json.Unmarshal(raw, &list); err != nil {
+		return fmt.Errorf("failed to unmarshal items: %w", err)
+	}
+
+	for _, m := range list {
+		if id := idFromMap(m); id != "" {
+			fmt.Fprintln(p.Out, id)
+		}
+	}
+
+	return nil
+}
+
+func toMap(item any) (map[string]any, error) {
+	raw, err := json.Marshal(item)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal item: %w", err)
+	}
+
+	var m map[string]any
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal item: %w", err)
+	}
+
+	return m, nil
+}
+
+func idFromMap(m map[string]any) string {
+	if id, ok := m["id"].(string); ok {
+		return id
+	}
+
+	if key, ok := m["key"].(string); ok {
+		return key
+	}
+
+	return ""
+}
+
 func (p *Printer) printJSON(data any) error {
 	encoder := json.NewEncoder(p.Out)
 	encoder.SetIndent("", "  ")
@@ -93,14 +174,16 @@ func (p *Printer) printJSON(data any) error {
 }
 
 func (p *Printer) printYAML(data any) error {
-	// Round-trip through JSON to ensure consistent field naming.
+	// Round-trip through JSON for consistent field naming, then parse as YAML
+	// (which is a superset of JSON) to preserve int vs float types - avoids
+	// epoch-millis ints being rendered as scientific-notation floats.
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("failed to marshal to JSON: %w", err)
 	}
 
 	var generic any
-	if err := json.Unmarshal(jsonData, &generic); err != nil {
+	if err := yaml.Unmarshal(jsonData, &generic); err != nil {
 		return fmt.Errorf("failed to unmarshal JSON: %w", err)
 	}
 
@@ -115,7 +198,6 @@ func (p *Printer) printYAML(data any) error {
 }
 
 func (p *Printer) printTable(data any, columns []Column) error {
-	// Convert data to a slice of interfaces via JSON round-trip.
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
@@ -136,7 +218,6 @@ func (p *Printer) printTable(data any, columns []Column) error {
 		return nil
 	}
 
-	// Calculate column widths.
 	widths := make([]int, len(columns))
 	for i, col := range columns {
 		widths[i] = len(col.Name)
@@ -154,7 +235,6 @@ func (p *Printer) printTable(data any, columns []Column) error {
 		}
 	}
 
-	// Print header.
 	if !p.NoHeaders {
 		headers := make([]string, len(columns))
 		for i, col := range columns {
@@ -164,7 +244,6 @@ func (p *Printer) printTable(data any, columns []Column) error {
 		fmt.Fprintln(p.Out, strings.Join(headers, "  "))
 	}
 
-	// Print rows.
 	for _, item := range items {
 		values := make([]string, len(columns))
 		for i, col := range columns {

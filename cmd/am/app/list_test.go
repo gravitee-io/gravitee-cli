@@ -10,7 +10,7 @@ import (
 
 func TestListApplications(t *testing.T) {
 	t.Run("returns applications", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListApplicationsFunc: func(domainID string, p am.ListApplicationsParams) (*am.PaginatedResponse, error) {
 				if domainID != "dom-1" {
@@ -38,7 +38,7 @@ func TestListApplications(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListApplicationsFunc: func(_ string, _ am.ListApplicationsParams) (*am.PaginatedResponse, error) {
 				return &am.PaginatedResponse{
@@ -58,7 +58,7 @@ func TestListApplications(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAppCmd(tc.Factory)
@@ -68,7 +68,7 @@ func TestListApplications(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAppCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")

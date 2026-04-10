@@ -15,7 +15,7 @@ func TestListPlugins(t *testing.T) {
 			map[string]string{"id": "rate-limit", "name": "Rate Limiting", "version": "4.5.0", "description": "Rate limiting policy"},
 			map[string]string{"id": "api-key", "name": "API Key", "version": "4.5.0", "description": "API key validation policy"},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--type", "policies")
 
@@ -34,7 +34,7 @@ func TestListPlugins(t *testing.T) {
 				return data, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--type", "policies")
 
@@ -45,7 +45,7 @@ func TestListPlugins(t *testing.T) {
 		fake := pluginList(
 			map[string]string{"id": "rate-limit", "name": "Rate Limiting", "version": "4.5.0"},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--type", "policies")
 
@@ -82,7 +82,7 @@ func TestListPlugins(t *testing.T) {
 				}
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -112,7 +112,7 @@ func TestListPlugins(t *testing.T) {
 				}
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -147,7 +147,7 @@ func TestListPlugins(t *testing.T) {
 				}
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -159,7 +159,7 @@ func TestListPlugins(t *testing.T) {
 
 	t.Run("rejects invalid token with hint", func(t *testing.T) {
 		fake := testutil.APIFailingWith(401, "authentication failed (HTTP 401)")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--type", "policies")
 
@@ -167,7 +167,7 @@ func TestListPlugins(t *testing.T) {
 	})
 
 	t.Run("rejects invalid type flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--type", "connectors")
 

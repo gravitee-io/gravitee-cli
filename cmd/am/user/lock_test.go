@@ -24,7 +24,7 @@ func TestLockUser(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "user-1", "enabled": false})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 
 		err := testutil.Execute(newLockCmd(tc.Factory, &domainID), "user-1")
@@ -40,7 +40,7 @@ func TestLockUser(t *testing.T) {
 				return nil, &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 
 		err := testutil.Execute(newLockCmd(tc.Factory, &domainID), "user-1")
@@ -50,7 +50,7 @@ func TestLockUser(t *testing.T) {
 
 	t.Run("requires user ID argument", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newLockCmd(tc.Factory, &domainID))
 
@@ -59,7 +59,7 @@ func TestLockUser(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newLockCmd(tc.Factory, &domainID), "user-1")
@@ -83,7 +83,7 @@ func TestUnlockUser(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "user-1", "enabled": true})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 
 		err := testutil.Execute(newUnlockCmd(tc.Factory, &domainID), "user-1")
@@ -94,7 +94,7 @@ func TestUnlockUser(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newUnlockCmd(tc.Factory, &domainID), "user-1")

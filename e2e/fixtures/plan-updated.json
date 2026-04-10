@@ -1,0 +1,8 @@
+{
+  "name": "Smoke Test Plan (updated)",
+  "description": "Updated by the smoke test",
+  "definitionVersion": "V4",
+  "validation": "AUTO",
+  "security": { "type": "API_KEY" },
+  "characteristics": ["updated"]
+}

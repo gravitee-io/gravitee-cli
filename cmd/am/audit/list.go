@@ -103,9 +103,9 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 			hint = ""
 		}
 
-		p.PrintMessage("Showing %d of %d.%s", len(resp.Data), resp.TotalCount, hint)
+		p.PrintHint("Showing %d of %d.%s", len(resp.Data), resp.TotalCount, hint)
 	} else if resp.TotalCount > 0 {
-		p.PrintMessage("Showing %d results.", len(resp.Data))
+		p.PrintHint("Showing %d results.", len(resp.Data))
 	}
 
 	return nil
@@ -128,7 +128,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 	}
 
 	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
+		p.PrintHint("Showing %d results.", len(allData))
 	}
 
 	return nil

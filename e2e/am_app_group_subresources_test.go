@@ -190,7 +190,7 @@ func TestAppAnalytics(t *testing.T) {
 	})
 
 	t.Run("missing type returns error", func(t *testing.T) {
-		// Missing --type may return CLI "required" error or API 500 — just verify it fails.
+		// Missing --type may return CLI "required" error or API 500 - just verify it fails.
 		_, err := runCLI("am", "app", "analytics", "get", "--domain", domainID, "--app-id", appID)
 		if err == nil {
 			t.Error("expected error for missing --type")

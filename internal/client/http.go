@@ -98,7 +98,11 @@ func (c *HTTPClient) doRequest(method, path string, body any) ([]byte, error) {
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		if c.debug {
+			return nil, fmt.Errorf("request failed: %w", err)
+		}
+
+		return nil, fmt.Errorf("connection failed\nHint: check that the server is running and the URL is correct (use --debug for details)")
 	}
 	defer resp.Body.Close()
 

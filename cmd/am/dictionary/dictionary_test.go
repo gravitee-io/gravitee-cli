@@ -15,7 +15,7 @@ import (
 
 func TestListDictionaries(t *testing.T) {
 	t.Run("returns dictionaries", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListDictionariesFunc: func(domainID string) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -39,7 +39,7 @@ func TestListDictionaries(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListDictionariesFunc: func(_ string) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -57,7 +57,7 @@ func TestListDictionaries(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewDictionaryCmd(tc.Factory)
@@ -67,7 +67,7 @@ func TestListDictionaries(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewDictionaryCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -80,7 +80,7 @@ func TestListDictionaries(t *testing.T) {
 
 func TestGetDictionary(t *testing.T) {
 	t.Run("returns dictionary details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetDictionaryFunc: func(domainID, dictID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -107,7 +107,7 @@ func TestGetDictionary(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetDictionaryFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "dict-1", "name": "Test"})
@@ -123,7 +123,7 @@ func TestGetDictionary(t *testing.T) {
 	})
 
 	t.Run("requires dictionary ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewDictionaryCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -132,7 +132,7 @@ func TestGetDictionary(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewDictionaryCmd(tc.Factory)
@@ -146,7 +146,7 @@ func TestGetDictionary(t *testing.T) {
 
 func TestCreateDictionary(t *testing.T) {
 	t.Run("creates a dictionary from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateDictionaryFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -171,7 +171,7 @@ func TestCreateDictionary(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewDictionaryCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
@@ -180,7 +180,7 @@ func TestCreateDictionary(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -196,7 +196,7 @@ func TestCreateDictionary(t *testing.T) {
 
 func TestUpdateDictionary(t *testing.T) {
 	t.Run("updates a dictionary from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateDictionaryFunc: func(domainID, dictID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -224,7 +224,7 @@ func TestUpdateDictionary(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewDictionaryCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "dict-1")
@@ -233,7 +233,7 @@ func TestUpdateDictionary(t *testing.T) {
 	})
 
 	t.Run("requires dictionary ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
 
@@ -244,7 +244,7 @@ func TestUpdateDictionary(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -260,7 +260,7 @@ func TestUpdateDictionary(t *testing.T) {
 
 func TestDeleteDictionary(t *testing.T) {
 	t.Run("deletes a dictionary", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteDictionaryFunc: func(domainID, dictID string) error {
 				if domainID != "dom-1" {
@@ -284,7 +284,7 @@ func TestDeleteDictionary(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteDictionaryFunc: func(_, _ string) error {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
@@ -299,7 +299,7 @@ func TestDeleteDictionary(t *testing.T) {
 	})
 
 	t.Run("requires dictionary ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewDictionaryCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "delete")
@@ -308,7 +308,7 @@ func TestDeleteDictionary(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewDictionaryCmd(tc.Factory)

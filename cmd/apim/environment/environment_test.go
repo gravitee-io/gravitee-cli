@@ -14,7 +14,7 @@ func TestListEnvironments(t *testing.T) {
 			map[string]string{"id": "dev-1111", "name": "Development", "description": "Development environment"},
 			map[string]string{"id": "prod-2222", "name": "Production", "description": "Production environment"},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -33,7 +33,7 @@ func TestListEnvironments(t *testing.T) {
 				return data, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -42,7 +42,7 @@ func TestListEnvironments(t *testing.T) {
 
 	t.Run("rejects invalid token with hint", func(t *testing.T) {
 		fake := testutil.APIFailingWith(401, "authentication failed (HTTP 401)")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -55,7 +55,7 @@ func TestGetEnvironment(t *testing.T) {
 		fake := testutil.APIReturningItem(map[string]any{
 			"id": "prod-2222", "name": "Production", "description": "Production environment",
 		})
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "prod-2222")
 
@@ -74,7 +74,7 @@ func TestGetEnvironment(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "prod-2222")
 
@@ -83,10 +83,30 @@ func TestGetEnvironment(t *testing.T) {
 
 	t.Run("returns error when not found", func(t *testing.T) {
 		fake := testutil.APIFailingWith(404, "resource not found (HTTP 404)")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "env-999")
 
 		testutil.AssertErrorContains(t, err, "not found")
+	})
+
+	t.Run("rejects empty envId before calling the API", func(t *testing.T) {
+		called := false
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				called = true
+
+				return nil, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newGetCmd(tc.Factory), "")
+
+		testutil.AssertErrorContains(t, err, "envId cannot be empty")
+
+		if called {
+			t.Fatal("expected no API call for empty envId")
+		}
 	})
 }

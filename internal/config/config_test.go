@@ -136,7 +136,6 @@ func TestResolve(t *testing.T) {
 				},
 			},
 			"prod": {
-				ReadOnly: true,
 				APIM: &ProductConfig{
 					URL:   "https://apim-prod.company.com",
 					Token: "tok_prod",
@@ -164,10 +163,6 @@ func TestResolve(t *testing.T) {
 		assertEqual(t, "prod", resolved.Name, "name")
 		assertEqual(t, "DEFAULT", resolved.Org, "org")
 		assertEqual(t, "DEFAULT", resolved.Env, "env")
-
-		if !resolved.ReadOnly {
-			t.Error("expected readOnly=true")
-		}
 	})
 
 	t.Run("override org and env", func(t *testing.T) {
@@ -285,9 +280,58 @@ func TestContextNames(t *testing.T) {
 		t.Fatalf("expected 3 names, got %d", len(names))
 	}
 
-	// Should be sorted
 	if names[0] != "beta" || names[1] != "dev" || names[2] != "prod" {
 		t.Errorf("expected sorted names [beta dev prod], got %v", names)
+	}
+}
+
+func TestNormalizeContextName(t *testing.T) {
+	tests := []struct {
+		in   string
+		want string
+	}{
+		{"local-master", "local-master"},
+		{"Local Master", "local-master"},
+		{"  PROD  ", "prod"},
+		{"My Test Context", "my-test-context"},
+		{"already-clean", "already-clean"},
+		{"", ""},
+		{"UPPER", "upper"},
+		{"a b c", "a-b-c"},
+	}
+
+	for _, tt := range tests {
+		got := NormalizeContextName(tt.in)
+		if got != tt.want {
+			t.Errorf("NormalizeContextName(%q) = %q, want %q", tt.in, got, tt.want)
+		}
+	}
+}
+
+// Resolve must normalize overrides.Context so a user passing
+// --context "Local Master" matches a stored "local-master" context.
+func TestResolve_NormalizesOverrideContext(t *testing.T) {
+	cfg := &Config{
+		Current: "other",
+		Contexts: map[string]*Context{
+			"local-master": {
+				Org:  "ACME",
+				Env:  "prod",
+				APIM: &ProductConfig{URL: "https://x", Token: "tok"},
+			},
+			"other": {
+				APIM: &ProductConfig{URL: "https://other", Token: "tok2"},
+			},
+		},
+	}
+
+	resolved, err := cfg.Resolve(Overrides{Context: "Local Master"}, "apim")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if resolved.Name != "local-master" {
+		t.Errorf("expected resolved name 'local-master', got %q", resolved.Name)
 	}
 }
 

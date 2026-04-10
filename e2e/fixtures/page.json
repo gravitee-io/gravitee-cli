@@ -1,0 +1,6 @@
+{
+  "name": "Smoke Test Page",
+  "type": "MARKDOWN",
+  "visibility": "PUBLIC",
+  "content": "# Smoke Test\n\nThis page is created by the gio smoke test. Safe to delete."
+}

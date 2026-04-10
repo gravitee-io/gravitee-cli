@@ -15,7 +15,7 @@ import (
 
 func TestListCertificates(t *testing.T) {
 	t.Run("returns certificates", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListCertificatesFunc: func(domainID string) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -39,7 +39,7 @@ func TestListCertificates(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListCertificatesFunc: func(_ string) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -57,7 +57,7 @@ func TestListCertificates(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewCertificateCmd(tc.Factory)
@@ -67,7 +67,7 @@ func TestListCertificates(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewCertificateCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -80,7 +80,7 @@ func TestListCertificates(t *testing.T) {
 
 func TestGetCertificate(t *testing.T) {
 	t.Run("returns certificate details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetCertificateFunc: func(domainID, certID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -107,7 +107,7 @@ func TestGetCertificate(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetCertificateFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "cert-1", "name": "Test"})
@@ -123,7 +123,7 @@ func TestGetCertificate(t *testing.T) {
 	})
 
 	t.Run("requires cert ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewCertificateCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -132,7 +132,7 @@ func TestGetCertificate(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewCertificateCmd(tc.Factory)
@@ -146,7 +146,7 @@ func TestGetCertificate(t *testing.T) {
 
 func TestCreateCertificate(t *testing.T) {
 	t.Run("creates a certificate from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateCertificateFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -171,7 +171,7 @@ func TestCreateCertificate(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewCertificateCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
@@ -180,7 +180,7 @@ func TestCreateCertificate(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -196,7 +196,7 @@ func TestCreateCertificate(t *testing.T) {
 
 func TestUpdateCertificate(t *testing.T) {
 	t.Run("updates a certificate from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateCertificateFunc: func(domainID, certID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -224,7 +224,7 @@ func TestUpdateCertificate(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewCertificateCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "cert-1")
@@ -233,7 +233,7 @@ func TestUpdateCertificate(t *testing.T) {
 	})
 
 	t.Run("requires cert ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
 
@@ -244,7 +244,7 @@ func TestUpdateCertificate(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
@@ -260,7 +260,7 @@ func TestUpdateCertificate(t *testing.T) {
 
 func TestDeleteCertificate(t *testing.T) {
 	t.Run("deletes a certificate", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteCertificateFunc: func(domainID, certID string) error {
 				if domainID != "dom-1" {
@@ -284,7 +284,7 @@ func TestDeleteCertificate(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteCertificateFunc: func(_, _ string) error {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
@@ -299,7 +299,7 @@ func TestDeleteCertificate(t *testing.T) {
 	})
 
 	t.Run("requires cert ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewCertificateCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "delete")
@@ -308,7 +308,7 @@ func TestDeleteCertificate(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewCertificateCmd(tc.Factory)

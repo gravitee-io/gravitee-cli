@@ -35,7 +35,7 @@ func TestListGroups(t *testing.T) {
 				return &am.PaginatedResponse{Data: data, TotalCount: 2, CurrentPage: 0}, nil
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestGroup(tc, mock, domainID)
 
 		err := testutil.Execute(newListCmd(tc.Factory, &domainID))
@@ -54,7 +54,7 @@ func TestListGroups(t *testing.T) {
 				return &am.PaginatedResponse{Data: data, TotalCount: 1, CurrentPage: 0}, nil
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestGroup(tc, mock, domainID)
 		tc.Factory.OutputFormat = "json"
 
@@ -66,7 +66,7 @@ func TestListGroups(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newListCmd(tc.Factory, &domainID))

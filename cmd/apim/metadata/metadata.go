@@ -18,9 +18,6 @@ func NewMetadataCmd(f *factory.Factory) *cobra.Command {
 	cmdutil.AddOutputFlags(cmd, f)
 
 	cmd.AddCommand(newListCmd(f))
-	cmd.AddCommand(newCreateCmd(f))
-	cmd.AddCommand(newUpdateCmd(f))
-	cmd.AddCommand(newDeleteCmd(f))
 
 	return cmd
 }

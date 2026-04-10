@@ -15,7 +15,7 @@ import (
 
 func TestListThemes(t *testing.T) {
 	t.Run("returns themes", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListThemesFunc: func(domainID string) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -39,7 +39,7 @@ func TestListThemes(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListThemesFunc: func(_ string) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -57,7 +57,7 @@ func TestListThemes(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewThemeCmd(tc.Factory)
@@ -67,7 +67,7 @@ func TestListThemes(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewThemeCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -80,7 +80,7 @@ func TestListThemes(t *testing.T) {
 
 func TestGetTheme(t *testing.T) {
 	t.Run("returns theme details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetThemeFunc: func(domainID, themeID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -107,7 +107,7 @@ func TestGetTheme(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetThemeFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "theme-1", "name": "Default"})
@@ -123,7 +123,7 @@ func TestGetTheme(t *testing.T) {
 	})
 
 	t.Run("requires theme ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewThemeCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -132,7 +132,7 @@ func TestGetTheme(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewThemeCmd(tc.Factory)
@@ -146,7 +146,7 @@ func TestGetTheme(t *testing.T) {
 
 func TestCreateTheme(t *testing.T) {
 	t.Run("creates a theme from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateThemeFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -171,7 +171,7 @@ func TestCreateTheme(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewThemeCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
@@ -180,7 +180,7 @@ func TestCreateTheme(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Custom"}`)
@@ -196,7 +196,7 @@ func TestCreateTheme(t *testing.T) {
 
 func TestUpdateTheme(t *testing.T) {
 	t.Run("updates a theme from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateThemeFunc: func(domainID, themeID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -224,7 +224,7 @@ func TestUpdateTheme(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewThemeCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "theme-1")
@@ -233,7 +233,7 @@ func TestUpdateTheme(t *testing.T) {
 	})
 
 	t.Run("requires theme ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		tmpFile := writeTempJSON(t, `{"name":"Updated"}`)
 
@@ -244,7 +244,7 @@ func TestUpdateTheme(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Updated"}`)
@@ -260,7 +260,7 @@ func TestUpdateTheme(t *testing.T) {
 
 func TestDeleteTheme(t *testing.T) {
 	t.Run("deletes a theme", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteThemeFunc: func(domainID, themeID string) error {
 				if domainID != "dom-1" {
@@ -284,7 +284,7 @@ func TestDeleteTheme(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			DeleteThemeFunc: func(_, _ string) error {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
@@ -299,7 +299,7 @@ func TestDeleteTheme(t *testing.T) {
 	})
 
 	t.Run("requires theme ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewThemeCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "delete")
@@ -308,7 +308,7 @@ func TestDeleteTheme(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewThemeCmd(tc.Factory)

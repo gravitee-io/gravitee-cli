@@ -22,7 +22,12 @@ func newLogCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
-			return runLog(f, args[0], args[1])
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
+				return err
+			}
+
+			return runLog(f, apiID, args[1])
 		},
 	}
 }
@@ -38,7 +43,7 @@ func runLog(f *factory.Factory, apiID, requestID string) error {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(data)
 	}
 

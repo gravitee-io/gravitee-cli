@@ -37,14 +37,19 @@ func newAnalyticsCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
-			opts.apiID = args[0]
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
+				return err
+			}
+
+			opts.apiID = apiID
 
 			return opts.run()
 		},
 	}
 
-	cmd.Flags().Int64Var(&opts.from, "from", 0, "Start timestamp (epoch millis)")
-	cmd.Flags().Int64Var(&opts.to, "to", 0, "End timestamp (epoch millis)")
+	cmd.Flags().Int64Var(&opts.from, "from", 0, "Start timestamp (epoch millis, required)")
+	cmd.Flags().Int64Var(&opts.to, "to", 0, "End timestamp (epoch millis, required)")
 	cmd.Flags().Int64Var(&opts.interval, "interval", 0, "Interval in milliseconds")
 	cmd.Flags().StringVar(&opts.field, "field", "", "Aggregation field")
 	cmd.Flags().StringVar(&opts.analytType, "type", "", "Analytics type: STATS, COUNT, HISTOGRAM, GROUP_BY")
@@ -54,6 +59,8 @@ func newAnalyticsCmd(f *factory.Factory) *cobra.Command {
 	cmd.Flags().StringVar(&opts.order, "order", "", "Sort order")
 	cmd.Flags().StringVar(&opts.query, "query", "", "Custom search query")
 	cmd.Flags().StringArrayVar(&opts.terms, "terms", nil, "Filters (e.g. plan-id:xyz)")
+	_ = cmd.MarkFlagRequired("from")
+	_ = cmd.MarkFlagRequired("to")
 
 	return cmd
 }

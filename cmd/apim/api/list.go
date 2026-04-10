@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -15,11 +16,10 @@ type listOptions struct {
 	factory *factory.Factory
 	query   string
 	status  string
-	sort    string
-	order   string
 	page    int
 	perPage int
 	all     bool
+	wide    bool
 }
 
 func newListCmd(f *factory.Factory) *cobra.Command {
@@ -42,11 +42,10 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 
 	cmd.Flags().StringVar(&opts.query, "query", "", "Search by name or description")
 	cmd.Flags().StringVar(&opts.status, "status", "", "Filter by status: STARTED, STOPPED")
-	cmd.Flags().StringVar(&opts.sort, "sort", "", "Sort field: name, updatedAt, createdAt")
-	cmd.Flags().StringVar(&opts.order, "order", "asc", "Sort order: asc, desc")
 	cmd.Flags().IntVar(&opts.page, "page", 1, "Page number")
 	cmd.Flags().IntVar(&opts.perPage, "per-page", 10, "Results per page")
 	cmd.Flags().BoolVar(&opts.all, "all", false, "Fetch all pages")
+	cmd.Flags().BoolVarP(&opts.wide, "wide", "w", false, "Show additional columns (tags, categories, owner, portal, visibility)")
 
 	return cmd
 }
@@ -69,8 +68,6 @@ func (o *listOptions) params(page int) apim.ListAPIsParams {
 	return apim.ListAPIsParams{
 		Query:   o.query,
 		Status:  o.status,
-		Sort:    o.sort,
-		Order:   o.order,
 		Page:    page,
 		PerPage: o.perPage,
 	}
@@ -82,12 +79,12 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		raw, _ := json.Marshal(resp)
 		return p.PrintDetail(json.RawMessage(raw))
 	}
 
-	if err := p.PrintList(resp.Data, apiColumns()); err != nil {
+	if err := p.PrintList(resp.Data, apiColumns(o.wide)); err != nil {
 		return err
 	}
 
@@ -105,27 +102,140 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(allData)
 	}
 
-	if err := p.PrintList(allData, apiColumns()); err != nil {
+	if err := p.PrintList(allData, apiColumns(o.wide)); err != nil {
 		return err
 	}
 
 	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
+		p.PrintHint("Showing %d results.", len(allData))
 	}
 
 	return nil
 }
 
-func apiColumns() []printer.Column {
-	return []printer.Column{
+func apiColumns(wide bool) []printer.Column {
+	cols := []printer.Column{
 		{Name: "Name", Value: func(i any) string { return cmdutil.StringField(i, "name") }},
+		{Name: "API Type", Value: apiTypeLabel},
 		{Name: "Status", Value: func(i any) string { return cmdutil.StringField(i, "state") }},
-		{Name: "ID", Value: func(i any) string { return cmdutil.StringField(i, "id") }},
-		{Name: "Definition", Value: func(i any) string { return cmdutil.StringField(i, "definitionVersion") }},
-		{Name: "Updated", Value: func(i any) string { return cmdutil.StringField(i, "updatedAt") }},
+		{Name: "Access", Value: apiAccessPath},
 	}
+
+	if wide {
+		cols = append(cols,
+			printer.Column{Name: "Tags", Value: func(i any) string { return joinStringArray(i, "tags") }},
+			printer.Column{Name: "Categories", Value: func(i any) string { return joinStringArray(i, "categories") }},
+			printer.Column{Name: "Owner", Value: apiOwnerName},
+			printer.Column{Name: "Portal", Value: func(i any) string { return cmdutil.StringField(i, "lifecycleState") }},
+			printer.Column{Name: "Visibility", Value: func(i any) string { return cmdutil.StringField(i, "visibility") }},
+		)
+	}
+
+	cols = append(cols, printer.Column{Name: "ID", Value: func(i any) string { return cmdutil.StringField(i, "id") }})
+
+	return cols
+}
+
+func apiTypeLabel(item any) string {
+	defVersion := cmdutil.StringField(item, "definitionVersion")
+
+	switch defVersion {
+	case "V4":
+		apiType := cmdutil.StringField(item, "type")
+		if apiType != "" {
+			return "V4 " + apiType
+		}
+
+		return "V4"
+	case "V2":
+		return "V2 HTTP Proxy"
+	case "V1":
+		return "V1 HTTP Proxy"
+	}
+
+	return defVersion
+}
+
+func apiAccessPath(item any) string {
+	m, ok := item.(map[string]any)
+	if !ok {
+		return ""
+	}
+
+	// V1/V2 APIs have a direct contextPath field
+	if cp, cpOK := m["contextPath"].(string); cpOK && cp != "" {
+		return cp
+	}
+
+	// V4 APIs: extract from listeners[].paths[].path
+	listeners, ok := m["listeners"].([]any)
+	if !ok {
+		return ""
+	}
+
+	for _, l := range listeners {
+		lm, ok := l.(map[string]any)
+		if !ok {
+			continue
+		}
+
+		paths, ok := lm["paths"].([]any)
+		if !ok {
+			continue
+		}
+
+		for _, p := range paths {
+			pm, ok := p.(map[string]any)
+			if !ok {
+				continue
+			}
+
+			if path, ok := pm["path"].(string); ok {
+				return path
+			}
+		}
+	}
+
+	return ""
+}
+
+func apiOwnerName(item any) string {
+	m, ok := item.(map[string]any)
+	if !ok {
+		return ""
+	}
+
+	owner, ok := m["primaryOwner"].(map[string]any)
+	if !ok {
+		return ""
+	}
+
+	s, _ := owner["displayName"].(string)
+
+	return s
+}
+
+func joinStringArray(item any, key string) string {
+	m, ok := item.(map[string]any)
+	if !ok {
+		return ""
+	}
+
+	arr, ok := m[key].([]any)
+	if !ok || len(arr) == 0 {
+		return ""
+	}
+
+	parts := make([]string, 0, len(arr))
+	for _, v := range arr {
+		if s, ok := v.(string); ok {
+			parts = append(parts, s)
+		}
+	}
+
+	return strings.Join(parts, ", ")
 }

@@ -14,7 +14,7 @@ import (
 
 func TestListAuthorizationEngines(t *testing.T) {
 	t.Run("returns authorization engines", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListAuthorizationEnginesFunc: func(domainID string) ([]json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -38,7 +38,7 @@ func TestListAuthorizationEngines(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListAuthorizationEnginesFunc: func(_ string) ([]json.RawMessage, error) {
 				return []json.RawMessage{
@@ -56,7 +56,7 @@ func TestListAuthorizationEngines(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAuthorizationEngineCmd(tc.Factory)
@@ -66,7 +66,7 @@ func TestListAuthorizationEngines(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAuthorizationEngineCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -79,7 +79,7 @@ func TestListAuthorizationEngines(t *testing.T) {
 
 func TestGetAuthorizationEngine(t *testing.T) {
 	t.Run("returns authorization engine details", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAuthorizationEngineFunc: func(domainID, engineID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -106,7 +106,7 @@ func TestGetAuthorizationEngine(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAuthorizationEngineFunc: func(_, _ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "ae-1", "name": "Test"})
@@ -122,7 +122,7 @@ func TestGetAuthorizationEngine(t *testing.T) {
 	})
 
 	t.Run("requires engine ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAuthorizationEngineCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
@@ -131,7 +131,7 @@ func TestGetAuthorizationEngine(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAuthorizationEngineCmd(tc.Factory)
@@ -145,7 +145,7 @@ func TestGetAuthorizationEngine(t *testing.T) {
 
 func TestUpdateAuthorizationEngine(t *testing.T) {
 	t.Run("updates an authorization engine from file", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			UpdateAuthorizationEngineFunc: func(domainID, engineID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -173,7 +173,7 @@ func TestUpdateAuthorizationEngine(t *testing.T) {
 	})
 
 	t.Run("requires file flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAuthorizationEngineCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "ae-1")
@@ -182,7 +182,7 @@ func TestUpdateAuthorizationEngine(t *testing.T) {
 	})
 
 	t.Run("requires engine ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
 
@@ -193,7 +193,7 @@ func TestUpdateAuthorizationEngine(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		tmpFile := writeTempJSON(t, `{"name":"Test"}`)

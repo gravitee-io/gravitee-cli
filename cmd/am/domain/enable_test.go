@@ -17,7 +17,7 @@ func TestEnableDomain(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "dom-1", "enabled": true})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newEnableCmd(tc.Factory), "dom-1")
 
@@ -26,7 +26,7 @@ func TestEnableDomain(t *testing.T) {
 	})
 
 	t.Run("requires domain ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newEnableCmd(tc.Factory))
 
@@ -34,7 +34,7 @@ func TestEnableDomain(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newEnableCmd(tc.Factory), "dom-1")
@@ -52,7 +52,7 @@ func TestDisableDomain(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "dom-1", "enabled": false})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newDisableCmd(tc.Factory), "dom-1")
 
@@ -61,7 +61,7 @@ func TestDisableDomain(t *testing.T) {
 	})
 
 	t.Run("requires domain ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newDisableCmd(tc.Factory))
 

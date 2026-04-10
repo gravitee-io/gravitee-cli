@@ -136,7 +136,7 @@ func TestOrgGroupCRUD(t *testing.T) {
 	t.Run("list groups json", func(t *testing.T) {
 		out := runCLIExpectSuccess(t, "am", "org", "group", "list", "-o", "json")
 
-		// Org groups may return paginated object or array — just verify valid JSON.
+		// Org groups may return paginated object or array - just verify valid JSON.
 		if !json.Valid([]byte(out)) {
 			t.Fatalf("expected valid JSON, got: %s", out)
 		}

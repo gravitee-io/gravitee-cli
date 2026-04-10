@@ -51,7 +51,7 @@ func TestGlobalFlags(t *testing.T) {
 	}{
 		{"context"},
 		{"org"},
-		{"env-id"},
+		{"env"},
 		{"debug"},
 	}
 

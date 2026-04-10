@@ -19,7 +19,7 @@ func TestUpdateDomain(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory), "dom-1", "--name", "Updated")
 
@@ -35,7 +35,7 @@ func TestUpdateDomain(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory), "dom-1", "--description", "New desc")
 
@@ -44,7 +44,7 @@ func TestUpdateDomain(t *testing.T) {
 	})
 
 	t.Run("requires at least one flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory), "dom-1")
 
@@ -52,7 +52,7 @@ func TestUpdateDomain(t *testing.T) {
 	})
 
 	t.Run("requires domain ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory))
 
@@ -60,7 +60,7 @@ func TestUpdateDomain(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory), "dom-1", "--name", "Test")

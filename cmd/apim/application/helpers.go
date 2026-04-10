@@ -3,6 +3,7 @@ package application
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/gravitee-io/gio-cli/internal/printer"
 )
@@ -54,9 +55,18 @@ func printAppDetail(p *printer.Printer, data []byte) error {
 }
 
 func printField(p *printer.Printer, m map[string]any, label, key string) {
-	if v, ok := m[key]; ok && v != nil {
-		p.PrintMessage("%-16s%v", label+":", v)
+	v, ok := m[key]
+	if !ok || v == nil {
+		return
 	}
+
+	if f, isNum := v.(float64); isNum && (key == "created_at" || key == "updated_at") {
+		p.PrintMessage("%-16s%s", label+":", time.UnixMilli(int64(f)).UTC().Format(time.RFC3339))
+
+		return
+	}
+
+	p.PrintMessage("%-16s%v", label+":", v)
 }
 
 func printOwner(p *printer.Printer, m map[string]any) {

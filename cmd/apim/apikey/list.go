@@ -36,13 +36,12 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
 	cmd.Flags().StringVar(&opts.subscription, "subscription", "", "Subscription ID (required)")
 	cmd.Flags().IntVar(&opts.page, "page", 1, "Page number")
 	cmd.Flags().IntVar(&opts.perPage, "per-page", 10, "Results per page")
 	cmd.Flags().BoolVar(&opts.all, "all", false, "Fetch all pages")
 
-	_ = cmd.MarkFlagRequired("api")
 	_ = cmd.MarkFlagRequired("subscription")
 
 	return cmd
@@ -68,7 +67,7 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(resp)
 	}
 
@@ -90,7 +89,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(allData)
 	}
 
@@ -99,7 +98,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 	}
 
 	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
+		p.PrintHint("Showing %d results.", len(allData))
 	}
 
 	return nil

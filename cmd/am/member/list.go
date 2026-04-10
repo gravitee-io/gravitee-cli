@@ -42,7 +42,7 @@ func runList(f *factory.Factory, domainID string) error {
 		return p.PrintDetail(data)
 	}
 
-	// The response has a "memberships" array — extract it for table display.
+	// The response has a "memberships" array - extract it for table display.
 	memberships, err := extractMemberships(data)
 	if err != nil {
 		return err

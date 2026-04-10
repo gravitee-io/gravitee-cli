@@ -17,14 +17,19 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update <apiId> -f <file>",
 		Short:   "Update an API from a JSON file",
-		Example: `  gio apim api update 8a7b3c4d-1234-5678-abcd-ef0123456789 -f api-updated.json`,
+		Example: `  gio apim api update /my/api -f api-updated.json`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			return runUpdate(f, args[0], file)
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
+				return err
+			}
+
+			return runUpdate(f, apiID, file)
 		},
 	}
 

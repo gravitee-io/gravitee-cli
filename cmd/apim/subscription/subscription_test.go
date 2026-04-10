@@ -16,7 +16,7 @@ func TestListSubscriptions(t *testing.T) {
 				"status": "ACCEPTED", "createdAt": "2026-03-20T10:30:00Z",
 			},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1")
 
@@ -40,7 +40,7 @@ func TestGetSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "sub-1", "--api", "api-1")
 
@@ -51,7 +51,7 @@ func TestGetSubscription(t *testing.T) {
 
 	t.Run("reports not found", func(t *testing.T) {
 		fake := testutil.APIFailingWith(404, "resource not found (HTTP 404)")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "sub-999", "--api", "api-1")
 
@@ -72,7 +72,7 @@ func TestCreateSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--api", "api-1", "--plan", "plan-1", "--app", "app-1")
 
@@ -80,7 +80,6 @@ func TestCreateSubscription(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "sub-new")
 		testutil.AssertOutputContains(t, tc.Out, "PENDING")
 	})
-
 }
 
 func TestAcceptSubscription(t *testing.T) {
@@ -97,14 +96,13 @@ func TestAcceptSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newAcceptCmd(tc.Factory), "sub-1", "--api", "api-1", "--reason", "Approved")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "ACCEPTED")
 	})
-
 }
 
 func TestRejectSubscription(t *testing.T) {
@@ -121,7 +119,7 @@ func TestRejectSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newRejectCmd(tc.Factory), "sub-1", "--api", "api-1", "--reason", "Denied")
 
@@ -144,7 +142,7 @@ func TestPauseSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newPauseCmd(tc.Factory), "sub-1", "--api", "api-1")
 
@@ -167,7 +165,7 @@ func TestResumeSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newResumeCmd(tc.Factory), "sub-1", "--api", "api-1")
 
@@ -190,7 +188,7 @@ func TestCloseSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCloseCmd(tc.Factory), "sub-1", "--api", "api-1")
 
@@ -213,12 +211,11 @@ func TestTransferSubscription(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newTransferCmd(tc.Factory), "sub-1", "--api", "api-1", "--plan", "plan-2")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "plan-2")
 	})
-
 }

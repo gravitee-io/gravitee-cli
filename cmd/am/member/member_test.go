@@ -13,7 +13,7 @@ import (
 
 func TestListMembers(t *testing.T) {
 	t.Run("returns members", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListMembersFunc: func(domainID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -39,7 +39,7 @@ func TestListMembers(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			ListMembersFunc: func(_ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{
@@ -59,7 +59,7 @@ func TestListMembers(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewMemberCmd(tc.Factory)
@@ -69,7 +69,7 @@ func TestListMembers(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewMemberCmd(tc.Factory)
 		err := testutil.Execute(cmd, "list")
@@ -82,7 +82,7 @@ func TestListMembers(t *testing.T) {
 
 func TestAddMember(t *testing.T) {
 	t.Run("adds a member", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			AddMemberFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -119,7 +119,7 @@ func TestAddMember(t *testing.T) {
 	})
 
 	t.Run("requires member-id flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewMemberCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "add", "--role", "role-456")
@@ -128,7 +128,7 @@ func TestAddMember(t *testing.T) {
 	})
 
 	t.Run("requires role flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewMemberCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "add", "--member-id", "user-123")
@@ -137,7 +137,7 @@ func TestAddMember(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewMemberCmd(tc.Factory)
@@ -151,7 +151,7 @@ func TestAddMember(t *testing.T) {
 
 func TestRemoveMember(t *testing.T) {
 	t.Run("removes a member", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			RemoveMemberFunc: func(domainID, memberID string) error {
 				if domainID != "dom-1" {
@@ -175,7 +175,7 @@ func TestRemoveMember(t *testing.T) {
 	})
 
 	t.Run("returns error on API failure", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			RemoveMemberFunc: func(_, _ string) error {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
@@ -190,7 +190,7 @@ func TestRemoveMember(t *testing.T) {
 	})
 
 	t.Run("requires member ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewMemberCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "remove")
@@ -199,7 +199,7 @@ func TestRemoveMember(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewMemberCmd(tc.Factory)

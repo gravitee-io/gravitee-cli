@@ -1,0 +1,8 @@
+{
+  "name": "Smoke Test Plan (Keyless)",
+  "description": "Keyless plan - smoke test",
+  "definitionVersion": "V4",
+  "validation": "AUTO",
+  "security": { "type": "KEY_LESS" },
+  "characteristics": []
+}

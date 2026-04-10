@@ -3,6 +3,7 @@ package apim
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
@@ -26,11 +27,7 @@ func (s *service) ListAPIKeys(apiID, subID string, page, perPage int) (*Paginate
 }
 
 func (s *service) RenewAPIKey(apiID, subID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
-	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/api-keys/_renew", apiID, subID)), nil)
+	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/api-keys/_renew", apiID, subID)), json.RawMessage(`{}`))
 	if err != nil {
 		return nil, fmt.Errorf("API key renew failed: %w", err)
 	}
@@ -39,11 +36,7 @@ func (s *service) RenewAPIKey(apiID, subID string) (json.RawMessage, error) {
 }
 
 func (s *service) RevokeAPIKey(apiID, subID, keyID string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
-	}
-
-	if _, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/api-keys/%s/_revoke", apiID, subID, keyID)), nil); err != nil {
+	if _, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/api-keys/%s/_revoke", apiID, subID, keyID)), json.RawMessage(`{}`)); err != nil {
 		return fmt.Errorf("API key revoke failed: %w", err)
 	}
 
@@ -51,10 +44,6 @@ func (s *service) RevokeAPIKey(apiID, subID, keyID string) error {
 }
 
 func (s *service) ReactivateAPIKey(apiID, subID, keyID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/api-keys/%s/_reactivate", apiID, subID, keyID)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("API key reactivate failed: %w", err)

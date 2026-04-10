@@ -15,14 +15,23 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <apiId>",
 		Short:   "Get API details",
-		Example: `  gio apim api get 8a7b3c4d-1234-5678-abcd-ef0123456789`,
+		Example: `  gio apim api get /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			return runGet(f, args[0])
+			if err := cmdutil.RequireNonEmpty("apiId", args[0]); err != nil {
+				return err
+			}
+
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
+				return err
+			}
+
+			return runGet(f, apiID)
 		},
 	}
 }

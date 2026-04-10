@@ -31,8 +31,7 @@ func newRejectCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
-	_ = cmd.MarkFlagRequired("api")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
 	cmd.Flags().StringVar(&opts.reason, "reason", "", "Reason for rejecting")
 
 	return cmd

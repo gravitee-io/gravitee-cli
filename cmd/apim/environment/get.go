@@ -22,6 +22,10 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
+			if err := cmdutil.RequireNonEmpty("envId", args[0]); err != nil {
+				return err
+			}
+
 			return runGet(f, args[0])
 		},
 	}

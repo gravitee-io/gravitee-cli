@@ -105,9 +105,9 @@ func (o *userAuditListOptions) run() error {
 	}
 
 	if resp.TotalCount > len(resp.Data) {
-		p.PrintMessage("Showing %d of %d.", len(resp.Data), resp.TotalCount)
+		p.PrintHint("Showing %d of %d.", len(resp.Data), resp.TotalCount)
 	} else if resp.TotalCount > 0 {
-		p.PrintMessage("Showing %d results.", len(resp.Data))
+		p.PrintHint("Showing %d results.", len(resp.Data))
 	}
 
 	return nil

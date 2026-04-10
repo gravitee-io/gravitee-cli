@@ -22,7 +22,7 @@ func TestCreateUser(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--username", "alice", "--email", "alice@example.com")
@@ -42,7 +42,7 @@ func TestCreateUser(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID),
@@ -60,7 +60,7 @@ func TestCreateUser(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "new-user", "username": "alice"})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 		tc.Factory.OutputFormat = "json"
 
@@ -72,7 +72,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("requires username flag", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--email", "alice@example.com")
 
@@ -81,7 +81,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("requires email flag", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--username", "alice")
 
@@ -90,7 +90,7 @@ func TestCreateUser(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--username", "alice", "--email", "alice@example.com")

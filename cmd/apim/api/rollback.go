@@ -5,6 +5,7 @@ import (
 
 	"github.com/gravitee-io/gio-cli/internal/cmdutil"
 	"github.com/gravitee-io/gio-cli/internal/factory"
+	"github.com/gravitee-io/gio-cli/internal/printer"
 )
 
 func newRollbackCmd(f *factory.Factory) *cobra.Command {
@@ -13,14 +14,19 @@ func newRollbackCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "rollback <apiId> --event-id <eventId>",
 		Short:   "Rollback an API to a previous version",
-		Example: `  gio apim api rollback 8a7b3c4d-1234-5678-abcd-ef0123456789 --event-id aaaa1111-bbbb-2222-cccc-333344445555`,
+		Example: `  gio apim api rollback /my/api --event-id aaaa1111-bbbb-2222-cccc-333344445555`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			return runRollback(f, args[0], eventID)
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
+				return err
+			}
+
+			return runRollback(f, apiID, eventID)
 		},
 	}
 
@@ -39,6 +45,15 @@ func runRollback(f *factory.Factory, apiID, eventID string) error {
 	if err != nil {
 		return err
 	}
+
+	if printer.IsStructured(p.Format) || p.Format == printer.FormatID {
+		return p.PrintDetail(map[string]string{
+			"id":      apiID,
+			"eventId": eventID,
+			"status":  "rolled-back",
+		})
+	}
+
 	p.PrintMessage("API '%s' rolled back to event '%s'.", apiID, eventID)
 
 	return nil

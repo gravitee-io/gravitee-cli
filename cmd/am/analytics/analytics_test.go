@@ -12,7 +12,7 @@ import (
 
 func TestGetAnalytics(t *testing.T) {
 	t.Run("returns analytics data", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAnalyticsFunc: func(domainID string, params am.AnalyticsParams) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -36,7 +36,7 @@ func TestGetAnalytics(t *testing.T) {
 	})
 
 	t.Run("passes all parameters", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetAnalyticsFunc: func(_ string, params am.AnalyticsParams) (json.RawMessage, error) {
 				if params.Field != "status" {
@@ -74,7 +74,7 @@ func TestGetAnalytics(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAnalyticsCmd(tc.Factory)
@@ -84,7 +84,7 @@ func TestGetAnalytics(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAnalyticsCmd(tc.Factory)
 		err := testutil.Execute(cmd, "get")

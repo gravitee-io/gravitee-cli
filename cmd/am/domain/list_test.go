@@ -22,7 +22,7 @@ func TestListDomains(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -41,7 +41,7 @@ func TestListDomains(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 		tc.Factory.OutputFormat = "json"
 
 		err := testutil.Execute(newListCmd(tc.Factory))
@@ -52,7 +52,7 @@ func TestListDomains(t *testing.T) {
 
 	t.Run("rejects invalid token with hint", func(t *testing.T) {
 		fake := testutil.APIFailingWith(401, "authentication failed")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -60,7 +60,7 @@ func TestListDomains(t *testing.T) {
 	})
 
 	t.Run("rejects page zero", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--page", "0")
 
@@ -68,7 +68,7 @@ func TestListDomains(t *testing.T) {
 	})
 
 	t.Run("rejects per-page zero", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--per-page", "0")
 
@@ -76,7 +76,7 @@ func TestListDomains(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newListCmd(tc.Factory))

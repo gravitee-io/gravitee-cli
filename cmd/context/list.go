@@ -40,7 +40,6 @@ func runList(f *factory.Factory) error {
 		return nil
 	}
 
-	// Build a list of maps for printer consumption.
 	items := make([]map[string]any, 0, len(names))
 	for _, name := range names {
 		ctx := cfg.Contexts[name]
@@ -60,19 +59,13 @@ func runList(f *factory.Factory) error {
 			hasAM = "yes"
 		}
 
-		readOnly := "no"
-		if ctx.ReadOnly {
-			readOnly = "yes"
-		}
-
 		items = append(items, map[string]any{
-			"current":  current,
-			"name":     name,
-			"org":      ctx.Org,
-			"env":      ctx.Env,
-			"apim":     hasAPIM,
-			"am":       hasAM,
-			"readOnly": readOnly,
+			"current": current,
+			"name":    name,
+			"org":     ctx.Org,
+			"env":     ctx.Env,
+			"apim":    hasAPIM,
+			"am":      hasAM,
 		})
 	}
 
@@ -92,6 +85,5 @@ func contextColumns() []printer.Column {
 		{Name: "Env", Value: func(i any) string { return cmdutil.StringField(i, "env") }},
 		{Name: "APIM", Value: func(i any) string { return cmdutil.StringField(i, "apim") }},
 		{Name: "AM", Value: func(i any) string { return cmdutil.StringField(i, "am") }},
-		{Name: "Read-Only", Value: func(i any) string { return cmdutil.StringField(i, "readOnly") }},
 	}
 }

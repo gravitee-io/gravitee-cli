@@ -41,14 +41,6 @@ func (s *service) v1(path string) string {
 	return client.V1Path(s.resolved.Org, s.resolved.Env, path)
 }
 
-func (s *service) requireWrite() error {
-	if s.resolved.ReadOnly {
-		return fmt.Errorf("write operation not allowed in read-only mode (context: %s)", s.resolved.Name)
-	}
-
-	return nil
-}
-
 func (s *service) orgV2(path string) string {
 	return fmt.Sprintf("/management/v2/organizations/%s/%s", s.resolved.Org, path)
 }

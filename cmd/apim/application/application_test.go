@@ -17,7 +17,7 @@ func TestListApplications(t *testing.T) {
 				"updated_at": "2026-03-25T14:30:00Z",
 			},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -35,7 +35,7 @@ func TestListApplications(t *testing.T) {
 				return emptyPaginatedResponse(), nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory))
 
@@ -46,7 +46,7 @@ func TestListApplications(t *testing.T) {
 func TestGetApplication(t *testing.T) {
 	t.Run("returns application details", func(t *testing.T) {
 		fake := testutil.APIReturningItem(appJSON())
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "app-1")
 
@@ -67,7 +67,7 @@ func TestGetApplication(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "app-1")
 
@@ -76,11 +76,31 @@ func TestGetApplication(t *testing.T) {
 
 	t.Run("returns error when not found", func(t *testing.T) {
 		fake := testutil.APIFailingWith(404, "resource not found (HTTP 404)")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "app-999")
 
 		testutil.AssertErrorContains(t, err, "not found")
+	})
+
+	t.Run("rejects empty appId before calling the API", func(t *testing.T) {
+		called := false
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				called = true
+
+				return nil, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newGetCmd(tc.Factory), "")
+
+		testutil.AssertErrorContains(t, err, "appId cannot be empty")
+
+		if called {
+			t.Fatal("expected no API call for empty appId")
+		}
 	})
 }
 
@@ -96,14 +116,13 @@ func TestCreateApplication(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "-f", file)
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "My Mobile App")
 	})
-
 }
 
 func TestDeleteApplication(t *testing.T) {
@@ -116,12 +135,11 @@ func TestDeleteApplication(t *testing.T) {
 				return nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory), "app-1")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "deleted")
 	})
-
 }

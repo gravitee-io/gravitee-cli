@@ -17,7 +17,7 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update <planId> --api <apiId> -f <file>",
 		Short:   "Update a plan from a JSON file",
-		Example: `  gio apim plan update aaaa1111-2222-3333-4444-555566667777 --api 8a7b3c4d-1234-5678-abcd-ef0123456789 -f plan-updated.json`,
+		Example: `  gio apim plan update aaaa1111-2222-3333-4444-555566667777 --api /my/api -f plan-updated.json`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -28,9 +28,8 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&apiID, "api", "", "API ID (required)")
+	cmdutil.AddAPIFlag(cmd, &apiID)
 	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("api")
 	_ = cmd.MarkFlagRequired("file")
 
 	return cmd

@@ -155,7 +155,7 @@ func TestAuditGet(t *testing.T) {
 		}
 
 		if len(resp.Data) == 0 {
-			t.Skip("no audit entries available — skipping audit get tests")
+			t.Skip("no audit entries available - skipping audit get tests")
 		}
 
 		auditID = resp.Data[0].ID

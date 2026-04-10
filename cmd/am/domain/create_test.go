@@ -19,7 +19,7 @@ func TestCreateDomain(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--name", "My Domain")
 
@@ -36,7 +36,7 @@ func TestCreateDomain(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--name", "My Domain", "--description", "Desc")
 
@@ -50,7 +50,7 @@ func TestCreateDomain(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "new-dom", "name": "Test"})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 		tc.Factory.OutputFormat = "json"
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--name", "Test")
@@ -69,7 +69,7 @@ func TestCreateDomain(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "new", "name": "Test"})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--name", "Test")
 
@@ -80,7 +80,7 @@ func TestCreateDomain(t *testing.T) {
 	})
 
 	t.Run("requires name flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory))
 
@@ -88,7 +88,7 @@ func TestCreateDomain(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--name", "Test")

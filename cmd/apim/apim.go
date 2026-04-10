@@ -25,18 +25,22 @@ func NewAPIMCmd(f *factory.Factory) *cobra.Command {
 		Use:   "apim",
 		Short: "Gravitee API Management",
 		Long:  "Manage Gravitee APIM resources: APIs, plans, subscriptions, applications, and more.",
-		PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			if err := cmdutil.SetupConfig(f); err != nil {
 				return err
 			}
-			return cmdutil.ResolveProductContext(f, "apim")
+
+			if err := cmdutil.ResolveProductContext(f, "apim"); err != nil {
+				return err
+			}
+
+			return cmdutil.ResolveAPIMFlags(f, cmd)
 		},
 	}
 
-	// Override help to show context info.
 	defaultHelp := cmd.HelpFunc()
 	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
-		// Load context silently for help display.
+		// Silence errors: help must render even without a configured context.
 		_ = cmdutil.SetupConfig(f)
 		_ = cmdutil.ResolveProductContext(f, "apim")
 		if header := cmdutil.ContextHeader(f, "apim"); header != "" {

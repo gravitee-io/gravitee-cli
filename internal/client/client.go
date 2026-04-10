@@ -25,58 +25,47 @@ func (e *APIError) Error() string {
 }
 
 // MapHTTPError maps an HTTP status code to a user-friendly APIError.
+// Every branch includes the server body (when non-empty) and an actionable
+// hint (when one applies) - callers need the server detail to diagnose.
 func MapHTTPError(status int, body []byte) *APIError {
 	switch status {
-	case 401:
-		return &APIError{
-			Status:  status,
-			Message: fmt.Sprintf("authentication failed (HTTP %d)\nHint: run 'gio login' to configure your credentials", status),
-		}
-	case 403:
-		return &APIError{
-			Status:  status,
-			Message: fmt.Sprintf("access denied (HTTP %d)\nHint: check your token permissions for this operation", status),
-		}
-	case 404:
-		return &APIError{
-			Status:  status,
-			Message: fmt.Sprintf("resource not found (HTTP %d)", status),
-		}
 	case 400:
-		return &APIError{
-			Status:  status,
-			Message: fmt.Sprintf("invalid request (HTTP %d): %s", status, sanitizeBody(body)),
-		}
+		return newAPIError(status, "invalid request", body, "")
+	case 401:
+		return newAPIError(status, "authentication failed", body, "run 'gio login' to configure your credentials")
+	case 403:
+		return newAPIError(status, "access denied", body, "check your token permissions for this operation")
+	case 404:
+		return newAPIError(status, "resource not found", body, "")
 	case 409:
-		return &APIError{
-			Status:  status,
-			Message: fmt.Sprintf("conflict (HTTP %d): %s", status, sanitizeBody(body)),
-		}
+		return newAPIError(status, "conflict", body, "")
 	default:
 		if status >= 500 {
-			return &APIError{
-				Status:  status,
-				Message: fmt.Sprintf("server error (HTTP %d)\nHint: try again or check the APIM server status", status),
-			}
+			return newAPIError(status, "server error", body, "try again or check the APIM server status")
 		}
 
-		return &APIError{
-			Status:  status,
-			Message: fmt.Sprintf("unexpected error (HTTP %d): %s", status, sanitizeBody(body)),
-		}
+		return newAPIError(status, "unexpected error", body, "")
 	}
+}
+
+func newAPIError(status int, label string, body []byte, hint string) *APIError {
+	msg := fmt.Sprintf("%s (HTTP %d)", label, status)
+
+	if trimmed := strings.TrimSpace(string(body)); trimmed != "" {
+		msg += ": " + sanitizeBody(body)
+	}
+
+	if hint != "" {
+		msg += "\nHint: " + hint
+	}
+
+	return &APIError{Status: status, Message: msg}
 }
 
 const maxBodyLen = 500
 
 func sanitizeBody(body []byte) string {
 	s := string(body)
-
-	lower := strings.ToLower(s)
-	if strings.Contains(lower, "token") || strings.Contains(lower, "authorization") {
-		return "[redacted: response may contain sensitive data]"
-	}
-
 	if len(s) > maxBodyLen {
 		return s[:maxBodyLen] + "... (truncated)"
 	}

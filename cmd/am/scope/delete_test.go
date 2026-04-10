@@ -23,7 +23,7 @@ func TestDeleteScope(t *testing.T) {
 				return nil
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestScope(tc, mock, domainID)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory, &domainID), "scope-1")
@@ -39,7 +39,7 @@ func TestDeleteScope(t *testing.T) {
 				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestScope(tc, mock, domainID)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory, &domainID), "scope-1")
@@ -49,7 +49,7 @@ func TestDeleteScope(t *testing.T) {
 
 	t.Run("requires scope ID argument", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory, &domainID))
 
@@ -58,7 +58,7 @@ func TestDeleteScope(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory, &domainID), "scope-1")

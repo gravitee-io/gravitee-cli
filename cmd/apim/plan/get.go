@@ -14,7 +14,7 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get <planId> --api <apiId>",
 		Short:   "Get plan details",
-		Example: `  gio apim plan get aaaa1111-2222-3333-4444-555566667777 --api 8a7b3c4d-1234-5678-abcd-ef0123456789`,
+		Example: `  gio apim plan get aaaa1111-2222-3333-4444-555566667777 --api /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -25,8 +25,7 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&apiID, "api", "", "API ID (required)")
-	_ = cmd.MarkFlagRequired("api")
+	cmdutil.AddAPIFlag(cmd, &apiID)
 
 	return cmd
 }

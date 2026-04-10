@@ -25,7 +25,7 @@ func TestGetRole(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestRole(tc, mock, domainID)
 
 		err := testutil.Execute(newGetCmd(tc.Factory, &domainID), "role-1")
@@ -42,7 +42,7 @@ func TestGetRole(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "role-1", "name": "Admin"})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestRole(tc, mock, domainID)
 		tc.Factory.OutputFormat = "json"
 
@@ -54,7 +54,7 @@ func TestGetRole(t *testing.T) {
 
 	t.Run("requires role ID argument", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newGetCmd(tc.Factory, &domainID))
 
@@ -63,7 +63,7 @@ func TestGetRole(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newGetCmd(tc.Factory, &domainID), "role-1")

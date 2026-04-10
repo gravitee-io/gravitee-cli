@@ -10,7 +10,7 @@ import (
 
 func TestDomainCRUD(t *testing.T) {
 	t.Run("list domains (may be empty on fresh AM)", func(t *testing.T) {
-		// On a fresh AM instance there are no domains — just verify the command succeeds.
+		// On a fresh AM instance there are no domains - just verify the command succeeds.
 		runCLIExpectSuccess(t, "am", "domain", "list")
 	})
 
@@ -284,6 +284,13 @@ func TestOutputFormats(t *testing.T) {
 
 func TestErrorHandling(t *testing.T) {
 	t.Run("nonexistent context", func(t *testing.T) {
+		// Isolate HOME and clear the AM env vars so the CLI falls back to the
+		// config file (and reports the missing context) instead of bypassing
+		// resolution via GIO_AM_URL/GIO_AM_TOKEN set in TestMain.
+		t.Setenv("HOME", t.TempDir())
+		t.Setenv("GIO_AM_URL", "")
+		t.Setenv("GIO_AM_TOKEN", "")
+
 		out := runCLIExpectError(t, "am", "domain", "list", "--context", "nonexistent")
 		if !strings.Contains(out, "not found") {
 			t.Errorf("expected context not found error, got: %s", out)

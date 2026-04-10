@@ -27,7 +27,6 @@ func TestBuildQuery(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result := BuildQuery(tt.params)
 
-			// Verify non-empty params are present
 			for k, v := range tt.params {
 				if v == "" {
 					if containsStr(result, k+"=") {

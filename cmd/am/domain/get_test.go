@@ -19,7 +19,7 @@ func TestGetDomain(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "dom-1")
 
@@ -34,7 +34,7 @@ func TestGetDomain(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "dom-1", "name": "Test"})
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 		tc.Factory.OutputFormat = "json"
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "dom-1")
@@ -44,7 +44,7 @@ func TestGetDomain(t *testing.T) {
 	})
 
 	t.Run("requires domain ID", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		err := testutil.Execute(newGetCmd(tc.Factory))
 
@@ -52,7 +52,7 @@ func TestGetDomain(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "dom-1")

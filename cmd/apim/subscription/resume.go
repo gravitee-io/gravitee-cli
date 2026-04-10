@@ -25,8 +25,7 @@ func newResumeCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&apiID, "api", "", "API ID (required)")
-	_ = cmd.MarkFlagRequired("api")
+	cmdutil.AddAPIFlag(cmd, &apiID)
 
 	return cmd
 }

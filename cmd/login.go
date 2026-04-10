@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -11,6 +13,15 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+const loginLongFmt = `Configure credentials for a Gravitee %s instance.
+
+Three modes:
+  Interactive (for humans): run without arguments and paste the curl from
+      Gravitee's UI. URL, token, org, env are parsed automatically.
+  Flags (for agents/scripts): --url, --token, --context, --org, --env.
+  Env vars (for CI): GIO_%s_URL, GIO_%s_TOKEN, GIO_ORG, GIO_ENV. These
+      bypass the config file entirely, no 'gio login' needed.`
+
 type loginProductOptions struct {
 	factory     *factory.Factory
 	product     string
@@ -19,21 +30,23 @@ type loginProductOptions struct {
 	contextName string
 	org         string
 	envID       string
-	readOnly    bool
 }
 
 func newLoginCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "login [apim|am]",
 		Short: "Configure credentials for a Gravitee product",
-		Example: `  gio login apim --url https://apim.company.com --token gioat_abc123
-  gio login apim --url https://apim.company.com --token gioat_abc123 --context prod --org ACME --env production
-  gio login am --url https://am.company.com --token gioat_abc123 --context prod
-  gio login`,
+		Long: `Configure credentials for a Gravitee product (APIM or AM).
+
+Three modes:
+  Interactive (for humans): 'gio login apim' or 'gio login am' without args.
+      Paste the curl from Gravitee's UI, URL/token/org/env are parsed automatically.
+  Flags (for agents/scripts): --url, --token, --context, --org, --env.
+  Env vars (for CI): GIO_APIM_URL, GIO_APIM_TOKEN, GIO_AM_URL, GIO_AM_TOKEN,
+      GIO_ORG, GIO_ENV. These bypass the config file entirely.`,
+		Example: `  gio login apim    # interactive for APIM
+  gio login am      # interactive for AM`,
 		Args: cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
-			return runInteractiveLogin(f)
-		},
 	}
 
 	cmd.AddCommand(newLoginProductCmd(f, "apim"))
@@ -44,36 +57,73 @@ func newLoginCmd(f *factory.Factory) *cobra.Command {
 
 func newLoginProductCmd(f *factory.Factory, product string) *cobra.Command {
 	opts := &loginProductOptions{factory: f, product: product}
+	productUpper := strings.ToUpper(product)
 
 	cmd := &cobra.Command{
 		Use:   product,
-		Short: fmt.Sprintf("Configure credentials for a Gravitee %s instance", strings.ToUpper(product)),
-		Example: fmt.Sprintf(`  gio login %s --url https://%s.company.com --token gioat_abc123
-  gio login %s --url https://%s.company.com --token gioat_abc123 --context prod --org ACME --env production`,
-			product, product, product, product),
+		Short: fmt.Sprintf("Configure credentials for a Gravitee %s instance", productUpper),
+		Long:  fmt.Sprintf(loginLongFmt, productUpper, productUpper, productUpper),
+		Example: fmt.Sprintf(`  gio login %s
+      Interactive: paste the curl command from Gravitee's UI.
+
+  gio login %s --url https://%s.example.com --token gioat_abc123 --context prod
+      Non-interactive with flags (for CI / scripts).`,
+			product, product, product),
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return opts.run(cmd)
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.url, "url", "", "URL of the Gravitee control plane (required)")
-	cmd.Flags().StringVar(&opts.token, "token", "", "Personal Access Token (required)")
+	cmd.Flags().StringVar(&opts.url, "url", "", "URL of the Gravitee control plane")
+	cmd.Flags().StringVar(&opts.token, "token", "", "Personal Access Token")
 	cmd.Flags().StringVar(&opts.contextName, "context", "default", "Context name")
 	cmd.Flags().StringVar(&opts.org, "org", config.DefaultOrg, "Organization ID")
-	cmd.Flags().StringVar(&opts.envID, "env-id", config.DefaultEnv, "Environment ID")
-	cmd.Flags().BoolVar(&opts.readOnly, "read-only", false, "Enable read-only mode")
-	_ = cmd.MarkFlagRequired("url")
-	_ = cmd.MarkFlagRequired("token")
+	cmd.Flags().StringVar(&opts.envID, "env", config.DefaultEnv, "Environment ID")
 
 	return cmd
 }
 
 func (o *loginProductOptions) run(cmd *cobra.Command) error {
-	if err := cmdutil.ValidateURL(o.url); err != nil {
+	o.contextName = config.NormalizeContextName(o.contextName)
+
+	if o.url == "" && o.token == "" {
+		return runInteractiveLogin(o.factory, o.product)
+	}
+
+	if o.url == "" {
+		return fmt.Errorf("--url is required\nHint: run 'gio login %s' without flags for interactive mode", o.product)
+	}
+
+	if o.token == "" {
+		return fmt.Errorf("--token is required\nHint: run 'gio login %s' without flags for interactive mode", o.product)
+	}
+
+	baseURL, org, env, err := cmdutil.ParseLoginURL(o.url)
+	if err != nil {
 		return err
 	}
 
+	o.url = baseURL
+
+	orgFromURL := org != ""
+	envFromURL := env != ""
+
+	if orgFromURL && !cmd.Flags().Changed("org") {
+		o.org = org
+	}
+
+	if envFromURL && !cmd.Flags().Changed("env") {
+		o.envID = env
+	}
+
+	return o.save(
+		orgFromURL || cmd.Flags().Changed("org"),
+		envFromURL || cmd.Flags().Changed("env"),
+	)
+}
+
+func (o *loginProductOptions) save(setOrg, setEnv bool) error {
 	if err := cmdutil.SetupConfig(o.factory); err != nil {
 		return err
 	}
@@ -81,16 +131,12 @@ func (o *loginProductOptions) run(cmd *cobra.Command) error {
 	cfg := o.factory.Config
 	ctx := cfg.EnsureContext(o.contextName)
 
-	if cmd.Flags().Changed("org") {
+	if setOrg {
 		ctx.Org = o.org
 	}
 
-	if cmd.Flags().Changed("env-id") {
+	if setEnv {
 		ctx.Env = o.envID
-	}
-
-	if cmd.Flags().Changed("read-only") {
-		ctx.ReadOnly = o.readOnly
 	}
 
 	ctx.SetProductConfig(o.product, &config.ProductConfig{
@@ -109,133 +155,176 @@ func (o *loginProductOptions) run(cmd *cobra.Command) error {
 	return nil
 }
 
-func runInteractiveLogin(f *factory.Factory) error {
+// runInteractiveLogin drives the interactive flow for a given product:
+// context name (default = current) -> URL/curl -> token -> org -> env.
+// Prompts show the existing context's org/env as defaults so Enter preserves them.
+// When a curl is pasted, token/org/env are extracted and the remaining prompts skipped.
+func runInteractiveLogin(f *factory.Factory, product string) error {
 	if err := cmdutil.SetupConfig(f); err != nil {
 		return err
 	}
 
-	out := f.IOStreams.Out
-	in := f.IOStreams.In
+	p := newPrompter(f.IOStreams.In, f.IOStreams.Out)
+	cfg := f.Config
 
-	// Prompt for product.
-	fmt.Fprintln(out, "Which product do you want to configure?")
-	fmt.Fprintln(out, "  [1] apim")
-	fmt.Fprintln(out, "  [2] am")
-	fmt.Fprint(out, "Choice: ")
+	contextName := p.promptContext(cfg)
+	ctx := cfg.EnsureContext(contextName)
 
-	var choice string
-	if _, err := fmt.Fscanln(in, &choice); err != nil {
-		return fmt.Errorf("failed to read input: %w", err)
-	}
-
-	var product string
-
-	switch strings.TrimSpace(choice) {
-	case "1", "apim":
-		product = "apim"
-	case "2", "am":
-		product = "am"
-	default:
-		return fmt.Errorf("invalid choice %q\nHint: enter 1 for apim or 2 for am", choice)
-	}
-
-	// Prompt for URL.
-	fmt.Fprint(out, "URL: ")
-
-	var url string
-	if _, err := fmt.Fscanln(in, &url); err != nil {
-		return fmt.Errorf("failed to read URL: %w", err)
-	}
-
-	if err := cmdutil.ValidateURL(url); err != nil {
+	baseURL, token, org, env, err := p.promptURLOrCurl()
+	if err != nil {
 		return err
 	}
 
-	// Prompt for token.
-	fmt.Fprint(out, "Token: ")
-
-	var token string
-	if _, err := fmt.Fscanln(in, &token); err != nil {
-		return fmt.Errorf("failed to read token: %w", err)
-	}
-
 	if token == "" {
-		return fmt.Errorf("token is required")
-	}
-
-	// Prompt for context name.
-	cfg := f.Config
-	names := cfg.ContextNames()
-
-	if len(names) > 0 {
-		fmt.Fprintln(out, "Existing contexts:")
-
-		for i, name := range names {
-			marker := "  "
-			if name == cfg.Current {
-				marker = "* "
-			}
-
-			fmt.Fprintf(out, "  %s[%d] %s\n", marker, i+1, name)
-		}
-
-		fmt.Fprintf(out, "  [%d] Create new context\n", len(names)+1)
-	}
-
-	fmt.Fprint(out, "Context name (default): ")
-
-	var contextName string
-	if _, err := fmt.Fscanln(in, &contextName); err != nil {
-		// Empty input means use default.
-		contextName = "default"
-	}
-
-	if contextName == "" {
-		contextName = "default"
-	}
-
-	ctx := cfg.EnsureContext(contextName)
-
-	// Prompt for org (only if not already set on the context).
-	if ctx.Org == "" {
-		fmt.Fprintf(out, "Organization ID (%s): ", config.DefaultOrg)
-
-		var org string
-		if _, err := fmt.Fscanln(in, &org); err != nil {
-			org = ""
-		}
-
-		if org != "" {
-			ctx.Org = org
+		token, err = p.promptToken()
+		if err != nil {
+			return err
 		}
 	}
 
-	// Prompt for env (only if not already set on the context).
-	if ctx.Env == "" {
-		fmt.Fprintf(out, "Environment ID (%s): ", config.DefaultEnv)
-
-		var env string
-		if _, err := fmt.Fscanln(in, &env); err != nil {
-			env = ""
-		}
-
-		if env != "" {
-			ctx.Env = env
-		}
+	if org == "" {
+		org = p.promptOrg(defaultOr(ctx.Org, config.DefaultOrg))
 	}
 
-	ctx.SetProductConfig(product, &config.ProductConfig{
-		URL:   url,
-		Token: token,
-	})
+	if env == "" {
+		env = p.promptEnv(defaultOr(ctx.Env, config.DefaultEnv))
+	}
 
+	ctx.Org = org
+	ctx.Env = env
+	ctx.SetProductConfig(product, &config.ProductConfig{URL: baseURL, Token: token})
 	cfg.Current = contextName
 
 	if err := cfg.SaveTo(f.ConfigPath); err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
 
-	fmt.Fprintf(out, "Context '%s' saved and set as current (%s configured).\n", contextName, strings.ToUpper(product))
+	fmt.Fprintf(p.out, "Context '%s' saved and set as current (%s configured).\n", contextName, strings.ToUpper(product))
 
 	return nil
+}
+
+func defaultOr(value, fallback string) string {
+	if value != "" {
+		return value
+	}
+
+	return fallback
+}
+
+// prompter wraps stdin in a single bufio.Reader so all prompts read through
+// the same buffer. Multiple readers on the same underlying stream would cause
+// the second reader to miss bytes already buffered by the first.
+type prompter struct {
+	out    io.Writer
+	reader *bufio.Reader
+}
+
+func newPrompter(in io.Reader, out io.Writer) *prompter {
+	return &prompter{out: out, reader: bufio.NewReader(in)}
+}
+
+// readLine reads one line from stdin, trimmed. Returns "" on blank input,
+// EOF, or read error.
+func (p *prompter) readLine() string {
+	line, _ := p.reader.ReadString('\n')
+
+	return strings.TrimSpace(line)
+}
+
+// promptURLOrCurl asks for either a bare URL or a full "curl ..." command.
+// When a curl is detected, token / org / env are extracted from it; otherwise
+// the returned token is empty and the caller falls back to promptToken.
+func (p *prompter) promptURLOrCurl() (baseURL, token, org, env string, err error) {
+	fmt.Fprint(p.out, "URL (or paste full curl command): ")
+
+	input := p.readLine()
+
+	if strings.HasPrefix(input, "curl ") || strings.HasPrefix(input, "curl\t") {
+		rawURL, tok, perr := cmdutil.ParseCurl(input)
+		if perr != nil {
+			return "", "", "", "", perr
+		}
+
+		base, o, e, perr := cmdutil.ParseLoginURL(rawURL)
+		if perr != nil {
+			return "", "", "", "", perr
+		}
+
+		return base, tok, o, e, nil
+	}
+
+	base, o, e, perr := cmdutil.ParseLoginURL(input)
+	if perr != nil {
+		return "", "", "", "", perr
+	}
+
+	return base, "", o, e, nil
+}
+
+func (p *prompter) promptToken() (string, error) {
+	fmt.Fprint(p.out, "Token: ")
+
+	token := p.readLine()
+	if token == "" {
+		return "", fmt.Errorf("token is required")
+	}
+
+	return token, nil
+}
+
+// promptOrg asks for the organization ID, showing the given default. Enter
+// returns the default (which is the existing context's value when reusing it,
+// or DefaultOrg for a new context) so the prompt is honest about what applies.
+func (p *prompter) promptOrg(defaultValue string) string {
+	fmt.Fprintf(p.out, "Organization ID (%s): ", defaultValue)
+
+	if s := p.readLine(); s != "" {
+		return s
+	}
+
+	return defaultValue
+}
+
+// promptEnv asks for the environment ID, showing the given default. Enter
+// returns the default (existing context's value when reusing, or DefaultEnv
+// for a new context).
+func (p *prompter) promptEnv(defaultValue string) string {
+	fmt.Fprintf(p.out, "Environment ID (%s): ", defaultValue)
+
+	if s := p.readLine(); s != "" {
+		return s
+	}
+
+	return defaultValue
+}
+
+func (p *prompter) promptContext(cfg *config.Config) string {
+	names := cfg.ContextNames()
+
+	defaultName := cfg.Current
+	if defaultName == "" {
+		defaultName = "default"
+	}
+
+	if len(names) > 0 {
+		fmt.Fprintln(p.out, "Existing contexts (reuse a name to update, or type a new name to create):")
+
+		for _, name := range names {
+			marker := "  "
+			if name == cfg.Current {
+				marker = "* "
+			}
+
+			fmt.Fprintf(p.out, "  %s%s\n", marker, name)
+		}
+	}
+
+	fmt.Fprintf(p.out, "Context name (%s): ", defaultName)
+
+	if name := p.readLine(); name != "" {
+		return config.NormalizeContextName(name)
+	}
+
+	return defaultName
 }

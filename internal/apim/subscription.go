@@ -3,8 +3,9 @@ package apim
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gravitee-io/gio-cli/internal/client"
 	"strings"
+
+	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
 // ListSubscriptionsParams holds parameters for listing subscriptions.
@@ -69,10 +70,6 @@ func (s *service) GetSubscription(apiID, subID string) (json.RawMessage, error) 
 }
 
 func (s *service) CreateSubscription(apiID string, body CreateSubscriptionBody) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions", apiID)), body)
 	if err != nil {
 		return nil, fmt.Errorf("subscription creation failed: %w", err)
@@ -82,10 +79,6 @@ func (s *service) CreateSubscription(apiID string, body CreateSubscriptionBody) 
 }
 
 func (s *service) AcceptSubscription(apiID, subID string, body AcceptSubscriptionBody) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/_accept", apiID, subID)), body)
 	if err != nil {
 		return nil, fmt.Errorf("subscription accept failed: %w", err)
@@ -95,14 +88,8 @@ func (s *service) AcceptSubscription(apiID, subID string, body AcceptSubscriptio
 }
 
 func (s *service) RejectSubscription(apiID, subID, reason string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
-	var body any
-	if reason != "" {
-		body = map[string]string{"reason": reason}
-	}
+	// The API requires a non-null body even when the reason is empty.
+	body := map[string]string{"reason": reason}
 
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/_reject", apiID, subID)), body)
 	if err != nil {
@@ -113,10 +100,6 @@ func (s *service) RejectSubscription(apiID, subID, reason string) (json.RawMessa
 }
 
 func (s *service) PauseSubscription(apiID, subID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/_pause", apiID, subID)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("subscription pause failed: %w", err)
@@ -126,10 +109,6 @@ func (s *service) PauseSubscription(apiID, subID string) (json.RawMessage, error
 }
 
 func (s *service) ResumeSubscription(apiID, subID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/_resume", apiID, subID)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("subscription resume failed: %w", err)
@@ -139,10 +118,6 @@ func (s *service) ResumeSubscription(apiID, subID string) (json.RawMessage, erro
 }
 
 func (s *service) CloseSubscription(apiID, subID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/_close", apiID, subID)), nil)
 	if err != nil {
 		return nil, fmt.Errorf("subscription close failed: %w", err)
@@ -152,10 +127,6 @@ func (s *service) CloseSubscription(apiID, subID string) (json.RawMessage, error
 }
 
 func (s *service) TransferSubscription(apiID, subID, planID string) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	body := map[string]string{"planId": planID}
 
 	data, err := s.client.Post(s.v2(fmt.Sprintf("apis/%s/subscriptions/%s/_transfer", apiID, subID)), body)

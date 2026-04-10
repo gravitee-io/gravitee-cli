@@ -3,10 +3,11 @@ package context
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-
 	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"github.com/gravitee-io/gio-cli/internal/config"
 	"github.com/gravitee-io/gio-cli/internal/factory"
+
+	"github.com/spf13/cobra"
 )
 
 func newDeleteCmd(f *factory.Factory) *cobra.Command {
@@ -23,6 +24,8 @@ func newDeleteCmd(f *factory.Factory) *cobra.Command {
 }
 
 func runDelete(f *factory.Factory, name string) error {
+	name = config.NormalizeContextName(name)
+
 	if err := cmdutil.SetupConfig(f); err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
 package plan
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	"github.com/gravitee-io/gio-cli/internal/apim"
@@ -25,7 +27,7 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list --api <apiId>",
 		Short: "List plans for an API",
-		Example: `  gio apim plan list --api 8a7b3c4d-1234-5678-abcd-ef0123456789
+		Example: `  gio apim plan list --api /my/api
   gio apim plan list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --status STAGING`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
@@ -41,13 +43,12 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
-	cmd.Flags().StringVar(&opts.status, "status", "PUBLISHED", "Filter by status: STAGING, PUBLISHED, DEPRECATED, CLOSED")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
+	cmd.Flags().StringVar(&opts.status, "status", "", "Filter by status: STAGING, PUBLISHED, DEPRECATED, CLOSED (default: all)")
 	cmd.Flags().StringVar(&opts.security, "security", "", "Filter by security type: KEY_LESS, API_KEY, OAUTH2, JWT, MTLS")
 	cmd.Flags().IntVar(&opts.page, "page", 1, "Page number")
 	cmd.Flags().IntVar(&opts.perPage, "per-page", 10, "Results per page")
 	cmd.Flags().BoolVar(&opts.all, "all", false, "Fetch all pages")
-	_ = cmd.MarkFlagRequired("api")
 
 	return cmd
 }
@@ -58,8 +59,10 @@ var (
 )
 
 func (o *listOptions) validate() error {
-	if err := cmdutil.ValidateEnum(o.status, "status", validPlanStatuses); err != nil {
-		return err
+	if o.status != "" {
+		if err := cmdutil.ValidateEnum(o.status, "status", validPlanStatuses); err != nil {
+			return err
+		}
 	}
 
 	if o.security != "" {
@@ -86,8 +89,13 @@ func (o *listOptions) run() error {
 }
 
 func (o *listOptions) params(page int) apim.ListPlansParams {
+	status := o.status
+	if status == "" {
+		status = strings.Join(validPlanStatuses, ",")
+	}
+
 	return apim.ListPlansParams{
-		Status:   o.status,
+		Status:   status,
 		Security: o.security,
 		Page:     page,
 		PerPage:  o.perPage,
@@ -100,7 +108,7 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(resp)
 	}
 
@@ -122,7 +130,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
+	if printer.IsStructured(f.OutputFormat) {
 		return p.PrintDetail(allData)
 	}
 
@@ -131,7 +139,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 	}
 
 	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
+		p.PrintHint("Showing %d results.", len(allData))
 	}
 
 	return nil

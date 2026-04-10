@@ -22,7 +22,7 @@ func TestCreateGroup(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestGroup(tc, mock, domainID)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--name", "Admins")
@@ -41,7 +41,7 @@ func TestCreateGroup(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestGroup(tc, mock, domainID)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--name", "Admins", "--description", "Admin group")
@@ -57,7 +57,7 @@ func TestCreateGroup(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "new-grp", "name": "Admins"})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestGroup(tc, mock, domainID)
 		tc.Factory.OutputFormat = "json"
 
@@ -69,7 +69,7 @@ func TestCreateGroup(t *testing.T) {
 
 	t.Run("requires name flag", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID))
 
@@ -78,7 +78,7 @@ func TestCreateGroup(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--name", "Admins")

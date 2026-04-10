@@ -24,7 +24,7 @@ func TestListMembers(t *testing.T) {
 				"type":        "USER",
 			},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1")
 
@@ -36,7 +36,7 @@ func TestListMembers(t *testing.T) {
 
 	t.Run("rejects invalid token with hint", func(t *testing.T) {
 		fake := testutil.APIFailingWith(401, "authentication failed")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1")
 
@@ -59,7 +59,7 @@ func TestAddMember(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newAddCmd(tc.Factory), "--api", "api-1", "--user", "bbbb1111-2222-3333-4444-555566667777", "--role", "OWNER")
 
@@ -67,7 +67,6 @@ func TestAddMember(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "Bob Dupont")
 		testutil.AssertOutputContains(t, tc.Out, "OWNER")
 	})
-
 }
 
 func TestRemoveMember(t *testing.T) {
@@ -79,12 +78,11 @@ func TestRemoveMember(t *testing.T) {
 				return nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newRemoveCmd(tc.Factory), "member-1", "--api", "api-1")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "Member 'member-1' removed.")
 	})
-
 }

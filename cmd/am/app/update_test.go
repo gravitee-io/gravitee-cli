@@ -10,7 +10,7 @@ import (
 
 func TestUpdateApplication(t *testing.T) {
 	t.Run("updates application name", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			PatchApplicationFunc: func(domainID, appID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -36,7 +36,7 @@ func TestUpdateApplication(t *testing.T) {
 	})
 
 	t.Run("updates application enabled status", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			PatchApplicationFunc: func(_ string, _ string, body json.RawMessage) (json.RawMessage, error) {
 				var m map[string]any
@@ -60,7 +60,7 @@ func TestUpdateApplication(t *testing.T) {
 	})
 
 	t.Run("rejects invalid enabled value", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAppCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "app-1", "--enabled", "maybe")
@@ -69,7 +69,7 @@ func TestUpdateApplication(t *testing.T) {
 	})
 
 	t.Run("requires at least one flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAppCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "app-1")
@@ -78,7 +78,7 @@ func TestUpdateApplication(t *testing.T) {
 	})
 
 	t.Run("requires app ID argument", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAppCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update")
@@ -87,7 +87,7 @@ func TestUpdateApplication(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAppCmd(tc.Factory)

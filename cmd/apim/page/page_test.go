@@ -24,12 +24,12 @@ func pageJSON() map[string]any {
 
 func TestListPages(t *testing.T) {
 	t.Run("returns pages from the API", func(t *testing.T) {
-		fake := paginatedPages(map[string]any{
+		fake := fakePagesResponse(map[string]any{
 			"id": "page-1", "name": "Getting Started", "type": "MARKDOWN",
 			"visibility": "PUBLIC", "published": true,
 			"updatedAt": "2026-03-25T14:30:00Z",
 		})
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1")
 
@@ -42,7 +42,7 @@ func TestListPages(t *testing.T) {
 func TestGetPage(t *testing.T) {
 	t.Run("returns page details", func(t *testing.T) {
 		fake := testutil.APIReturningItem(pageJSON())
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "page-1", "--api", "api-1")
 
@@ -54,7 +54,7 @@ func TestGetPage(t *testing.T) {
 
 	t.Run("reports not found error", func(t *testing.T) {
 		fake := testutil.APIFailingWith(404, "resource not found (HTTP 404)")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "page-999", "--api", "api-1")
 
@@ -73,14 +73,13 @@ func TestCreatePage(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--api", "api-1", "-f", file)
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "Getting Started")
 	})
-
 }
 
 func TestDeletePage(t *testing.T) {
@@ -92,14 +91,13 @@ func TestDeletePage(t *testing.T) {
 				return nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory), "page-1", "--api", "api-1")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "Page 'page-1' deleted.")
 	})
-
 }
 
 func TestPublishPage(t *testing.T) {
@@ -116,7 +114,7 @@ func TestPublishPage(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newPublishCmd(tc.Factory), "page-1", "--api", "api-1")
 
@@ -124,7 +122,6 @@ func TestPublishPage(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "true")
 		testutil.AssertOutputContains(t, tc.Out, "Getting Started")
 	})
-
 }
 
 func TestUnpublishPage(t *testing.T) {
@@ -141,7 +138,7 @@ func TestUnpublishPage(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newUnpublishCmd(tc.Factory), "page-1", "--api", "api-1")
 
@@ -149,5 +146,4 @@ func TestUnpublishPage(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "false")
 		testutil.AssertOutputContains(t, tc.Out, "Getting Started")
 	})
-
 }

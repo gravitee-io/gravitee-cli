@@ -1,8 +1,6 @@
 package api
 
 import (
-	"encoding/json"
-
 	"github.com/spf13/cobra"
 
 	"github.com/gravitee-io/gio-cli/internal/apim"
@@ -38,7 +36,12 @@ func newLogsCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
-			opts.apiID = args[0]
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
+				return err
+			}
+
+			opts.apiID = apiID
 
 			return opts.run()
 		},
@@ -75,17 +78,6 @@ func (o *logsOptions) run() error {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
-		resp, err := f.APIM().ListAPILogs(o.apiID, o.params(o.page))
-		if err != nil {
-			return err
-		}
-
-		raw, _ := json.Marshal(resp)
-
-		return p.PrintDetail(json.RawMessage(raw))
-	}
-
 	if o.all {
 		return o.fetchAllLogs(f, p)
 	}
@@ -97,6 +89,10 @@ func (o *logsOptions) fetchLogsPage(f *factory.Factory, p *printer.Printer, page
 	resp, err := f.APIM().ListAPILogs(o.apiID, o.params(page))
 	if err != nil {
 		return err
+	}
+
+	if printer.IsStructured(f.OutputFormat) {
+		return p.PrintDetail(resp)
 	}
 
 	if err := p.PrintList(resp.Data, logColumns()); err != nil {
@@ -117,12 +113,16 @@ func (o *logsOptions) fetchAllLogs(f *factory.Factory, p *printer.Printer) error
 		return err
 	}
 
+	if printer.IsStructured(f.OutputFormat) {
+		return p.PrintDetail(allData)
+	}
+
 	if err := p.PrintList(allData, logColumns()); err != nil {
 		return err
 	}
 
 	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
+		p.PrintHint("Showing %d results.", len(allData))
 	}
 
 	return nil

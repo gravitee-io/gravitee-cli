@@ -25,7 +25,7 @@ func TestUpdateUser(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "user-1", "--email", "new@example.com")
@@ -43,7 +43,7 @@ func TestUpdateUser(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, mock, domainID)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "user-1", "--firstName", "Alice")
@@ -54,7 +54,7 @@ func TestUpdateUser(t *testing.T) {
 
 	t.Run("rejects invalid enabled value", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestUser(tc, &am.MockService{}, domainID)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "user-1", "--enabled", "maybe")
@@ -64,7 +64,7 @@ func TestUpdateUser(t *testing.T) {
 
 	t.Run("requires at least one flag", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "user-1")
 
@@ -73,7 +73,7 @@ func TestUpdateUser(t *testing.T) {
 
 	t.Run("requires user ID argument", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID))
 
@@ -82,7 +82,7 @@ func TestUpdateUser(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "user-1", "--email", "test@example.com")

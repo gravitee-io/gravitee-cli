@@ -12,7 +12,7 @@ import (
 
 func TestGetEntrypoints(t *testing.T) {
 	t.Run("returns entrypoint data", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetEntrypointsFunc: func(domainID string) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -34,7 +34,7 @@ func TestGetEntrypoints(t *testing.T) {
 	})
 
 	t.Run("returns full JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			GetEntrypointsFunc: func(_ string) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"url": "https://example.com"})
@@ -50,7 +50,7 @@ func TestGetEntrypoints(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewEntrypointCmd(tc.Factory)
@@ -60,7 +60,7 @@ func TestGetEntrypoints(t *testing.T) {
 	})
 
 	t.Run("requires domain flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewEntrypointCmd(tc.Factory)
 		err := testutil.Execute(cmd, "get")

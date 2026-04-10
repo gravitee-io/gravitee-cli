@@ -2,6 +2,7 @@ package plan
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/gravitee-io/gio-cli/internal/client"
@@ -17,7 +18,7 @@ func TestListPlans(t *testing.T) {
 				"updatedAt": "2026-03-25T14:30:00Z",
 			},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1")
 
@@ -26,9 +27,71 @@ func TestListPlans(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "API_KEY")
 	})
 
+	t.Run("defaults to all statuses when --status is not set", func(t *testing.T) {
+		var calledPath string
+
+		fake := &client.FakeClient{
+			GetFunc: func(path string) ([]byte, error) {
+				calledPath = path
+
+				resp := map[string]any{
+					"data":       []any{},
+					"pagination": map[string]int{"page": 1, "perPage": 10, "pageCount": 0, "totalCount": 0, "pageItemsCount": 0},
+				}
+
+				data, _ := json.Marshal(resp)
+
+				return data, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1")
+
+		testutil.AssertNoError(t, err)
+
+		for _, s := range []string{"STAGING", "PUBLISHED", "DEPRECATED", "CLOSED"} {
+			if !strings.Contains(calledPath, s) {
+				t.Fatalf("expected default query to include status %q, got %s", s, calledPath)
+			}
+		}
+	})
+
+	t.Run("passes user-supplied --status as-is", func(t *testing.T) {
+		var calledPath string
+
+		fake := &client.FakeClient{
+			GetFunc: func(path string) ([]byte, error) {
+				calledPath = path
+
+				resp := map[string]any{
+					"data":       []any{},
+					"pagination": map[string]int{"page": 1, "perPage": 10, "pageCount": 0, "totalCount": 0, "pageItemsCount": 0},
+				}
+
+				data, _ := json.Marshal(resp)
+
+				return data, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1", "--status", "STAGING")
+
+		testutil.AssertNoError(t, err)
+
+		if !strings.Contains(calledPath, "statuses=STAGING") {
+			t.Fatalf("expected query to include statuses=STAGING, got %s", calledPath)
+		}
+
+		if strings.Contains(calledPath, "PUBLISHED") {
+			t.Fatalf("expected query to exclude PUBLISHED when --status=STAGING, got %s", calledPath)
+		}
+	})
+
 	t.Run("rejects invalid token with hint", func(t *testing.T) {
 		fake := testutil.APIFailingWith(401, "authentication failed")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1")
 
@@ -51,7 +114,7 @@ func TestGetPlan(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "plan-1", "--api", "api-1")
 
@@ -63,7 +126,7 @@ func TestGetPlan(t *testing.T) {
 
 	t.Run("reports not found", func(t *testing.T) {
 		fake := testutil.APIFailingWith(404, "resource not found (HTTP 404)")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newGetCmd(tc.Factory), "plan-999", "--api", "api-1")
 
@@ -87,14 +150,13 @@ func TestCreatePlan(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory), "--api", "api-1", "-f", file)
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "Gold Plan")
 	})
-
 }
 
 func TestUpdatePlan(t *testing.T) {
@@ -111,14 +173,13 @@ func TestUpdatePlan(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory), "plan-1", "--api", "api-1", "-f", file)
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "Gold Plan v2")
 	})
-
 }
 
 func TestDeletePlan(t *testing.T) {
@@ -130,14 +191,13 @@ func TestDeletePlan(t *testing.T) {
 				return nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newDeleteCmd(tc.Factory), "plan-1", "--api", "api-1")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "deleted")
 	})
-
 }
 
 func TestPublishPlan(t *testing.T) {
@@ -154,7 +214,7 @@ func TestPublishPlan(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newPublishCmd(tc.Factory), "plan-1", "--api", "api-1")
 
@@ -165,7 +225,7 @@ func TestPublishPlan(t *testing.T) {
 
 	t.Run("reports API error when already published", func(t *testing.T) {
 		fake := testutil.PostFailingWith(400, "invalid request (HTTP 400): plan is already published")
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newPublishCmd(tc.Factory), "plan-1", "--api", "api-1")
 
@@ -187,14 +247,13 @@ func TestDeprecatePlan(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newDeprecateCmd(tc.Factory), "plan-1", "--api", "api-1")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "DEPRECATED")
 	})
-
 }
 
 func TestClosePlan(t *testing.T) {
@@ -212,7 +271,7 @@ func TestClosePlan(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newCloseCmd(tc.Factory), "plan-1", "--api", "api-1")
 
@@ -220,5 +279,4 @@ func TestClosePlan(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "CLOSED")
 		testutil.AssertOutputContains(t, tc.Out, "2026-03-27T15:00:00Z")
 	})
-
 }

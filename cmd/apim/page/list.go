@@ -3,18 +3,15 @@ package page
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/apim"
 	"github.com/gravitee-io/gio-cli/internal/cmdutil"
 	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/gravitee-io/gio-cli/internal/printer"
 )
 
 type listOptions struct {
-	factory *factory.Factory
-	apiID   string
-	page    int
-	perPage int
-	all     bool
+	factory  *factory.Factory
+	apiID    string
+	parentID string
 }
 
 func newListCmd(f *factory.Factory) *cobra.Command {
@@ -23,8 +20,8 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list --api <apiId>",
 		Short: "List pages for an API",
-		Example: `  gio apim page list --api 8a7b3c4d-1234-5678-abcd-ef0123456789
-  gio apim page list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --all`,
+		Example: `  gio apim page list --api /my/api
+  gio apim page list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --parent ROOT`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -35,11 +32,8 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
-	cmd.Flags().IntVar(&opts.page, "page", 1, "Page number")
-	cmd.Flags().IntVar(&opts.perPage, "per-page", 10, "Results per page")
-	cmd.Flags().BoolVar(&opts.all, "all", false, "Fetch all pages")
-	_ = cmd.MarkFlagRequired("api")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
+	cmd.Flags().StringVar(&opts.parentID, "parent", "", "Parent folder ID (or ROOT for top-level pages)")
 
 	return cmd
 }
@@ -51,54 +45,16 @@ func (o *listOptions) run() error {
 		return err
 	}
 
-	if o.all {
-		return o.fetchAll(f, p)
-	}
-
-	return o.fetchPage(f, p, o.page)
-}
-
-func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int) error {
-	resp, err := f.APIM().ListPages(o.apiID, page, o.perPage)
+	pages, err := f.APIM().ListPages(o.apiID, o.parentID)
 	if err != nil {
 		return err
 	}
 
-	if f.OutputFormat != printer.FormatTable {
-		return p.PrintDetail(resp)
+	if printer.IsStructured(f.OutputFormat) {
+		return p.PrintDetail(pages)
 	}
 
-	if err := p.PrintList(resp.Data, pageColumns()); err != nil {
-		return err
-	}
-
-	pg := resp.Pagination
-	cmdutil.PrintPaginationHint(p, pg.Page, pg.PerPage, pg.PageCount, pg.TotalCount, pg.PageItemsCount, o.all)
-
-	return nil
-}
-
-func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
-	allData, err := apim.FetchAllPages(func(page int) (*apim.PaginatedResponse, error) {
-		return f.APIM().ListPages(o.apiID, page, o.perPage)
-	})
-	if err != nil {
-		return err
-	}
-
-	if f.OutputFormat != printer.FormatTable {
-		return p.PrintDetail(allData)
-	}
-
-	if err := p.PrintList(allData, pageColumns()); err != nil {
-		return err
-	}
-
-	if len(allData) > 0 {
-		p.PrintMessage("Showing %d results.", len(allData))
-	}
-
-	return nil
+	return p.PrintList(pages, pageColumns())
 }
 
 func pageColumns() []printer.Column {

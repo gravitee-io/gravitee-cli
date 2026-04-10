@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  e2e-am:
+  e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -17,19 +17,19 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Start AM services
+      - name: Start services
         working-directory: e2e
         run: docker compose up -d --wait --wait-timeout 180
 
-      - name: Show AM logs on failure
+      - name: Show logs on failure
         if: failure()
         working-directory: e2e
-        run: docker compose logs management
+        run: docker compose logs
 
       - name: Run E2E tests
         run: make test-e2e
 
-      - name: Stop AM services
+      - name: Stop services
         if: always()
         working-directory: e2e
         run: docker compose down -v

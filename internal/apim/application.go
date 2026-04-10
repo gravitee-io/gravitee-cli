@@ -3,6 +3,7 @@ package apim
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
@@ -10,7 +11,6 @@ import (
 type ListApplicationsParams struct {
 	Query   string
 	Status  string
-	Order   string
 	Page    int
 	PerPage int
 }
@@ -20,13 +20,14 @@ type ApplicationService interface {
 	ListApplications(params ListApplicationsParams) (*PaginatedResponse, error)
 	GetApplication(appID string) (json.RawMessage, error)
 	CreateApplication(body json.RawMessage) (json.RawMessage, error)
+	UpdateApplication(appID string, body json.RawMessage) (json.RawMessage, error)
 	DeleteApplication(appID string) error
 }
 
 func (s *service) ListApplications(params ListApplicationsParams) (*PaginatedResponse, error) {
 	q := client.BuildQuery(map[string]string{
 		"page": client.Itoa(params.Page), "size": client.Itoa(params.PerPage),
-		"query": params.Query, "status": params.Status, "order": params.Order,
+		"query": params.Query, "status": params.Status,
 	})
 
 	data, err := s.client.Get(s.v1(fmt.Sprintf("applications/_paged?%s", q)))
@@ -34,7 +35,31 @@ func (s *service) ListApplications(params ListApplicationsParams) (*PaginatedRes
 		return nil, fmt.Errorf("application list failed: %w", err)
 	}
 
-	return parsePaginatedResponse(data)
+	// V1 wraps pagination in a "page" object with snake_case fields;
+	// translate to the V2 shape the rest of the code expects.
+	var v1 struct {
+		Data []json.RawMessage `json:"data"`
+		Page struct {
+			Current       int `json:"current"`
+			PerPage       int `json:"per_page"`
+			TotalPages    int `json:"total_pages"`
+			TotalElements int `json:"total_elements"`
+		} `json:"page"`
+	}
+	if err := json.Unmarshal(data, &v1); err != nil {
+		return nil, fmt.Errorf("failed to parse paginated response: %w", err)
+	}
+
+	return &PaginatedResponse{
+		Data: v1.Data,
+		Pagination: Pagination{
+			Page:           v1.Page.Current,
+			PerPage:        v1.Page.PerPage,
+			PageCount:      v1.Page.TotalPages,
+			TotalCount:     v1.Page.TotalElements,
+			PageItemsCount: len(v1.Data),
+		},
+	}, nil
 }
 
 func (s *service) GetApplication(appID string) (json.RawMessage, error) {
@@ -47,10 +72,6 @@ func (s *service) GetApplication(appID string) (json.RawMessage, error) {
 }
 
 func (s *service) CreateApplication(body json.RawMessage) (json.RawMessage, error) {
-	if err := s.requireWrite(); err != nil {
-		return nil, err
-	}
-
 	data, err := s.client.Post(s.v1("applications"), body)
 	if err != nil {
 		return nil, fmt.Errorf("application creation failed: %w", err)
@@ -59,11 +80,16 @@ func (s *service) CreateApplication(body json.RawMessage) (json.RawMessage, erro
 	return raw(data), nil
 }
 
-func (s *service) DeleteApplication(appID string) error {
-	if err := s.requireWrite(); err != nil {
-		return err
+func (s *service) UpdateApplication(appID string, body json.RawMessage) (json.RawMessage, error) {
+	data, err := s.client.Put(s.v1(fmt.Sprintf("applications/%s", appID)), body)
+	if err != nil {
+		return nil, fmt.Errorf("application update failed: %w", err)
 	}
 
+	return raw(data), nil
+}
+
+func (s *service) DeleteApplication(appID string) error {
 	if err := s.client.Delete(s.v1(fmt.Sprintf("applications/%s", appID))); err != nil {
 		return fmt.Errorf("application deletion failed: %w", err)
 	}

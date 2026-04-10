@@ -35,10 +35,9 @@ func newRenewCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.apiID, "api", "", "API ID (required)")
+	cmdutil.AddAPIFlag(cmd, &opts.apiID)
 	cmd.Flags().StringVar(&opts.subscription, "subscription", "", "Subscription ID (required)")
 
-	_ = cmd.MarkFlagRequired("api")
 	_ = cmd.MarkFlagRequired("subscription")
 
 	return cmd

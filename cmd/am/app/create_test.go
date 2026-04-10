@@ -10,7 +10,7 @@ import (
 
 func TestCreateApplication(t *testing.T) {
 	t.Run("creates an application with name and type", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateApplicationFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
 				if domainID != "dom-1" {
@@ -33,7 +33,7 @@ func TestCreateApplication(t *testing.T) {
 	})
 
 	t.Run("creates with description and redirect URIs", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateApplicationFunc: func(_ string, body json.RawMessage) (json.RawMessage, error) {
 				var m map[string]any
@@ -64,7 +64,7 @@ func TestCreateApplication(t *testing.T) {
 	})
 
 	t.Run("returns JSON with -o json", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		mock := &am.MockService{
 			CreateApplicationFunc: func(_ string, _ json.RawMessage) (json.RawMessage, error) {
 				return json.Marshal(map[string]any{"id": "new-app", "name": "Test"})
@@ -80,7 +80,7 @@ func TestCreateApplication(t *testing.T) {
 	})
 
 	t.Run("requires name flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAppCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create", "--type", "web")
@@ -89,7 +89,7 @@ func TestCreateApplication(t *testing.T) {
 	})
 
 	t.Run("requires type flag", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAppCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create", "--name", "Test")
@@ -98,7 +98,7 @@ func TestCreateApplication(t *testing.T) {
 	})
 
 	t.Run("rejects invalid app type", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAppCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create", "--name", "Test", "--type", "invalid")
@@ -107,7 +107,7 @@ func TestCreateApplication(t *testing.T) {
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
-		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc := testutil.NewFactory(&testutil.NoOpClient)
 		tc.Factory.Resolved = nil
 
 		cmd := NewAppCmd(tc.Factory)

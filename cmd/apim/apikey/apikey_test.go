@@ -15,7 +15,7 @@ func TestListAPIKeys(t *testing.T) {
 			map[string]any{"key": "key-1", "revoked": false, "expired": false, "createdAt": "2026-03-20T10:00:00Z"},
 			map[string]any{"key": "key-2", "revoked": true, "expired": false, "createdAt": "2026-03-15T08:00:00Z"},
 		)
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newListCmd(tc.Factory), "--api", "api-1", "--subscription", "sub-1")
 
@@ -38,7 +38,7 @@ func TestRenewAPIKey(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newRenewCmd(tc.Factory), "--api", "api-1", "--subscription", "sub-1")
 
@@ -46,7 +46,6 @@ func TestRenewAPIKey(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "new-key-1")
 		testutil.AssertOutputContains(t, tc.Out, "sub-1")
 	})
-
 }
 
 func TestRevokeAPIKey(t *testing.T) {
@@ -58,14 +57,13 @@ func TestRevokeAPIKey(t *testing.T) {
 				return nil, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newRevokeCmd(tc.Factory), "key-1", "--api", "api-1", "--subscription", "sub-1")
 
 		testutil.AssertNoError(t, err)
 		testutil.AssertOutputContains(t, tc.Out, "revoked")
 	})
-
 }
 
 func TestReactivateAPIKey(t *testing.T) {
@@ -81,7 +79,7 @@ func TestReactivateAPIKey(t *testing.T) {
 				return resp, nil
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newReactivateCmd(tc.Factory), "key-1", "--api", "api-1", "--subscription", "sub-1")
 
@@ -96,7 +94,7 @@ func TestReactivateAPIKey(t *testing.T) {
 				return nil, fmt.Errorf("resource not found (HTTP 404)")
 			},
 		}
-		tc := testutil.NewFactory(fake, false)
+		tc := testutil.NewFactory(fake)
 
 		err := testutil.Execute(newReactivateCmd(tc.Factory), "key-999", "--api", "api-1", "--subscription", "sub-1")
 

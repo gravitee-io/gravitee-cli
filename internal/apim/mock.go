@@ -7,32 +7,30 @@ import (
 
 // MockService implements Service with injectable functions for testing.
 type MockService struct {
-	// API
-	ListAPIsFunc     func(ListAPIsParams) (*PaginatedResponse, error)
-	GetAPIFunc       func(string) (json.RawMessage, error)
-	CreateAPIFunc    func(json.RawMessage) (json.RawMessage, error)
-	UpdateAPIFunc    func(string, json.RawMessage) (json.RawMessage, error)
-	DeleteAPIFunc    func(string, bool) error
-	StartAPIFunc     func(string) error
-	StopAPIFunc      func(string) error
-	DeployAPIFunc    func(string, string) error
-	ImportAPIFunc    func(json.RawMessage) (json.RawMessage, error)
-	ExportAPIFunc    func(string, []string) (json.RawMessage, error)
-	RollbackAPIFunc  func(string, string) error
-	GetAnalyticsFunc func(string, AnalyticsParams) (json.RawMessage, error)
-	GetHealthFunc    func(string, string) (json.RawMessage, error)
-	ListLogsFunc     func(string, ListAPILogsParams) (*PaginatedResponse, error)
-	GetLogFunc       func(string, string) (json.RawMessage, error)
-	// Plan
-	ListPlansFunc     func(string, ListPlansParams) (*PaginatedResponse, error)
-	GetPlanFunc       func(string, string) (json.RawMessage, error)
-	CreatePlanFunc    func(string, json.RawMessage) (json.RawMessage, error)
-	UpdatePlanFunc    func(string, string, json.RawMessage) (json.RawMessage, error)
-	DeletePlanFunc    func(string, string) error
-	PublishPlanFunc   func(string, string) (json.RawMessage, error)
-	DeprecatePlanFunc func(string, string) (json.RawMessage, error)
-	ClosePlanFunc     func(string, string) (json.RawMessage, error)
-	// Subscription
+	ListAPIsFunc           func(ListAPIsParams) (*PaginatedResponse, error)
+	ResolveAPIFunc         func(string) (string, error)
+	GetAPIFunc             func(string) (json.RawMessage, error)
+	CreateAPIFunc          func(json.RawMessage) (json.RawMessage, error)
+	UpdateAPIFunc          func(string, json.RawMessage) (json.RawMessage, error)
+	DeleteAPIFunc          func(string, bool) error
+	StartAPIFunc           func(string) error
+	StopAPIFunc            func(string) error
+	DeployAPIFunc          func(string, string) error
+	ImportAPIFunc          func(json.RawMessage) (json.RawMessage, error)
+	ExportAPIFunc          func(string, []string) (json.RawMessage, error)
+	RollbackAPIFunc        func(string, string) error
+	GetAnalyticsFunc       func(string, AnalyticsParams) (json.RawMessage, error)
+	GetHealthFunc          func(string, string) (json.RawMessage, error)
+	ListLogsFunc           func(string, ListAPILogsParams) (*PaginatedResponse, error)
+	GetLogFunc             func(string, string) (json.RawMessage, error)
+	ListPlansFunc          func(string, ListPlansParams) (*PaginatedResponse, error)
+	GetPlanFunc            func(string, string) (json.RawMessage, error)
+	CreatePlanFunc         func(string, json.RawMessage) (json.RawMessage, error)
+	UpdatePlanFunc         func(string, string, json.RawMessage) (json.RawMessage, error)
+	DeletePlanFunc         func(string, string) error
+	PublishPlanFunc        func(string, string) (json.RawMessage, error)
+	DeprecatePlanFunc      func(string, string) (json.RawMessage, error)
+	ClosePlanFunc          func(string, string) (json.RawMessage, error)
 	ListSubscriptionsFunc  func(string, ListSubscriptionsParams) (*PaginatedResponse, error)
 	GetSubscriptionFunc    func(string, string) (json.RawMessage, error)
 	CreateSubscriptionFunc func(string, CreateSubscriptionBody) (json.RawMessage, error)
@@ -42,48 +40,48 @@ type MockService struct {
 	ResumeSubFunc          func(string, string) (json.RawMessage, error)
 	CloseSubFunc           func(string, string) (json.RawMessage, error)
 	TransferSubFunc        func(string, string, string) (json.RawMessage, error)
-	// API Key
-	ListAPIKeysFunc      func(string, string, int, int) (*PaginatedResponse, error)
-	RenewAPIKeyFunc      func(string, string) (json.RawMessage, error)
-	RevokeAPIKeyFunc     func(string, string, string) error
-	ReactivateAPIKeyFunc func(string, string, string) (json.RawMessage, error)
-	// Member
-	ListMembersFunc  func(string, int, int) (*PaginatedResponse, error)
-	AddMemberFunc    func(string, string, string) (json.RawMessage, error)
-	RemoveMemberFunc func(string, string) error
-	// Page
-	ListPagesFunc     func(string, int, int) (*PaginatedResponse, error)
-	GetPageFunc       func(string, string) (json.RawMessage, error)
-	CreatePageFunc    func(string, json.RawMessage) (json.RawMessage, error)
-	UpdatePageFunc    func(string, string, json.RawMessage) (json.RawMessage, error)
-	DeletePageFunc    func(string, string) error
-	PublishPageFunc   func(string, string) (json.RawMessage, error)
-	UnpublishPageFunc func(string, string) (json.RawMessage, error)
-	// Metadata
-	ListMetadataFunc   func(string, int, int) (*PaginatedResponse, error)
-	CreateMetadataFunc func(string, json.RawMessage) (json.RawMessage, error)
-	UpdateMetadataFunc func(string, string, json.RawMessage) (json.RawMessage, error)
-	DeleteMetadataFunc func(string, string) error
-	// Application
-	ListAppsFunc  func(ListApplicationsParams) (*PaginatedResponse, error)
-	GetAppFunc    func(string) (json.RawMessage, error)
-	CreateAppFunc func(json.RawMessage) (json.RawMessage, error)
-	DeleteAppFunc func(string) error
-	// Environment
-	ListEnvsFunc func() (json.RawMessage, error)
-	GetEnvFunc   func(string) (json.RawMessage, error)
-	// Plugin
-	ListPluginsFunc func(string) (json.RawMessage, error)
+	ListAPIKeysFunc        func(string, string, int, int) (*PaginatedResponse, error)
+	RenewAPIKeyFunc        func(string, string) (json.RawMessage, error)
+	RevokeAPIKeyFunc       func(string, string, string) error
+	ReactivateAPIKeyFunc   func(string, string, string) (json.RawMessage, error)
+	ListMembersFunc        func(string, int, int) (*PaginatedResponse, error)
+	AddMemberFunc          func(string, string, string) (json.RawMessage, error)
+	RemoveMemberFunc       func(string, string) error
+	ListPagesFunc          func(string, string) ([]json.RawMessage, error)
+	GetPageFunc            func(string, string) (json.RawMessage, error)
+	CreatePageFunc         func(string, json.RawMessage) (json.RawMessage, error)
+	UpdatePageFunc         func(string, string, json.RawMessage) (json.RawMessage, error)
+	DeletePageFunc         func(string, string) error
+	PublishPageFunc        func(string, string) (json.RawMessage, error)
+	UnpublishPageFunc      func(string, string) (json.RawMessage, error)
+	ListMetadataFunc       func(string, int, int) (*PaginatedResponse, error)
+	CreateMetadataFunc     func(string, json.RawMessage) (json.RawMessage, error)
+	UpdateMetadataFunc     func(string, string, json.RawMessage) (json.RawMessage, error)
+	DeleteMetadataFunc     func(string, string) error
+	ListAppsFunc           func(ListApplicationsParams) (*PaginatedResponse, error)
+	GetAppFunc             func(string) (json.RawMessage, error)
+	CreateAppFunc          func(json.RawMessage) (json.RawMessage, error)
+	UpdateAppFunc          func(string, json.RawMessage) (json.RawMessage, error)
+	DeleteAppFunc          func(string) error
+	ListEnvsFunc           func() (json.RawMessage, error)
+	GetEnvFunc             func(string) (json.RawMessage, error)
+	ListPluginsFunc        func(string) (json.RawMessage, error)
 }
 
 func unexpected(name string) error { return fmt.Errorf("unexpected call: %s", name) }
 
-// API.
 func (m *MockService) ListAPIs(p ListAPIsParams) (*PaginatedResponse, error) {
 	if m.ListAPIsFunc != nil {
 		return m.ListAPIsFunc(p)
 	}
 	return nil, unexpected("ListAPIs")
+}
+func (m *MockService) ResolveAPI(p string) (string, error) {
+	if m.ResolveAPIFunc != nil {
+		return m.ResolveAPIFunc(p)
+	}
+	// default passthrough: tests that don't care about resolution pass UUIDs
+	return p, nil
 }
 func (m *MockService) GetAPI(id string) (json.RawMessage, error) {
 	if m.GetAPIFunc != nil {
@@ -170,7 +168,6 @@ func (m *MockService) GetAPILog(id, rid string) (json.RawMessage, error) {
 	return nil, unexpected("GetAPILog")
 }
 
-// Plan.
 func (m *MockService) ListPlans(a string, p ListPlansParams) (*PaginatedResponse, error) {
 	if m.ListPlansFunc != nil {
 		return m.ListPlansFunc(a, p)
@@ -220,7 +217,6 @@ func (m *MockService) ClosePlan(a, p string) (json.RawMessage, error) {
 	return nil, unexpected("ClosePlan")
 }
 
-// Subscription.
 func (m *MockService) ListSubscriptions(a string, p ListSubscriptionsParams) (*PaginatedResponse, error) {
 	if m.ListSubscriptionsFunc != nil {
 		return m.ListSubscriptionsFunc(a, p)
@@ -276,7 +272,6 @@ func (m *MockService) TransferSubscription(a, s, p string) (json.RawMessage, err
 	return nil, unexpected("TransferSubscription")
 }
 
-// API Key.
 func (m *MockService) ListAPIKeys(a, s string, pg, pp int) (*PaginatedResponse, error) {
 	if m.ListAPIKeysFunc != nil {
 		return m.ListAPIKeysFunc(a, s, pg, pp)
@@ -302,7 +297,6 @@ func (m *MockService) ReactivateAPIKey(a, s, k string) (json.RawMessage, error) 
 	return nil, unexpected("ReactivateAPIKey")
 }
 
-// Member.
 func (m *MockService) ListMembers(a string, pg, pp int) (*PaginatedResponse, error) {
 	if m.ListMembersFunc != nil {
 		return m.ListMembersFunc(a, pg, pp)
@@ -322,10 +316,9 @@ func (m *MockService) RemoveMember(a, mid string) error {
 	return unexpected("RemoveMember")
 }
 
-// Page.
-func (m *MockService) ListPages(a string, pg, pp int) (*PaginatedResponse, error) {
+func (m *MockService) ListPages(a, parent string) ([]json.RawMessage, error) {
 	if m.ListPagesFunc != nil {
-		return m.ListPagesFunc(a, pg, pp)
+		return m.ListPagesFunc(a, parent)
 	}
 	return nil, unexpected("ListPages")
 }
@@ -366,7 +359,6 @@ func (m *MockService) UnpublishPage(a, p string) (json.RawMessage, error) {
 	return nil, unexpected("UnpublishPage")
 }
 
-// Metadata.
 func (m *MockService) ListMetadata(a string, pg, pp int) (*PaginatedResponse, error) {
 	if m.ListMetadataFunc != nil {
 		return m.ListMetadataFunc(a, pg, pp)
@@ -392,7 +384,6 @@ func (m *MockService) DeleteMetadata(a, k string) error {
 	return unexpected("DeleteMetadata")
 }
 
-// Application.
 func (m *MockService) ListApplications(p ListApplicationsParams) (*PaginatedResponse, error) {
 	if m.ListAppsFunc != nil {
 		return m.ListAppsFunc(p)
@@ -411,6 +402,12 @@ func (m *MockService) CreateApplication(b json.RawMessage) (json.RawMessage, err
 	}
 	return nil, unexpected("CreateApplication")
 }
+func (m *MockService) UpdateApplication(id string, b json.RawMessage) (json.RawMessage, error) {
+	if m.UpdateAppFunc != nil {
+		return m.UpdateAppFunc(id, b)
+	}
+	return nil, unexpected("UpdateApplication")
+}
 func (m *MockService) DeleteApplication(id string) error {
 	if m.DeleteAppFunc != nil {
 		return m.DeleteAppFunc(id)
@@ -418,7 +415,6 @@ func (m *MockService) DeleteApplication(id string) error {
 	return unexpected("DeleteApplication")
 }
 
-// Environment.
 func (m *MockService) ListEnvironments() (json.RawMessage, error) {
 	if m.ListEnvsFunc != nil {
 		return m.ListEnvsFunc()
@@ -432,7 +428,6 @@ func (m *MockService) GetEnvironment(id string) (json.RawMessage, error) {
 	return nil, unexpected("GetEnvironment")
 }
 
-// Plugin.
 func (m *MockService) ListPlugins(t string) (json.RawMessage, error) {
 	if m.ListPluginsFunc != nil {
 		return m.ListPluginsFunc(t)

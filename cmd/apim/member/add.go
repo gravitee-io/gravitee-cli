@@ -21,7 +21,7 @@ func newAddCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add --api <apiId> --user <userId> --role <role>",
 		Short:   "Add a user as a member of an API with the specified role",
-		Example: `  gio apim member add --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --user bbbb1111-2222-3333-4444-555566667777 --role OWNER`,
+		Example: `  gio apim member add --api /my/api --user bbbb1111-2222-3333-4444-555566667777 --role OWNER`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -32,10 +32,9 @@ func newAddCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&apiID, "api", "", "API ID (required)")
+	cmdutil.AddAPIFlag(cmd, &apiID)
 	cmd.Flags().StringVar(&userID, "user", "", "User ID to add as member (required)")
 	cmd.Flags().StringVar(&role, "role", "", "Role to assign to the member (required)")
-	_ = cmd.MarkFlagRequired("api")
 	_ = cmd.MarkFlagRequired("user")
 	_ = cmd.MarkFlagRequired("role")
 

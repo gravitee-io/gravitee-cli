@@ -25,7 +25,7 @@ func TestUpdateRole(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestRole(tc, mock, domainID)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "role-1", "--name", "Updated")
@@ -43,7 +43,7 @@ func TestUpdateRole(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestRole(tc, mock, domainID)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "role-1", "--description", "New desc")
@@ -54,7 +54,7 @@ func TestUpdateRole(t *testing.T) {
 
 	t.Run("requires at least one flag", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "role-1")
 
@@ -63,7 +63,7 @@ func TestUpdateRole(t *testing.T) {
 
 	t.Run("requires role ID argument", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID))
 
@@ -72,7 +72,7 @@ func TestUpdateRole(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newUpdateCmd(tc.Factory, &domainID), "role-1", "--name", "Test")

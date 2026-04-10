@@ -1,0 +1,8 @@
+{
+  "name": "Smoke Test Plan (Manual)",
+  "description": "API Key plan with manual validation - smoke test",
+  "definitionVersion": "V4",
+  "validation": "MANUAL",
+  "security": { "type": "API_KEY" },
+  "characteristics": []
+}

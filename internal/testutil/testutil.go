@@ -19,8 +19,8 @@ type TestContext struct {
 	Out     *bytes.Buffer
 }
 
-// NewFactory creates a Factory configured for testing with the given client and read-only setting.
-func NewFactory(c client.GraviteeClient, readOnly bool) *TestContext {
+// NewFactory creates a Factory configured for testing with the given client.
+func NewFactory(c client.GraviteeClient) *TestContext {
 	out := &bytes.Buffer{}
 
 	return &TestContext{
@@ -29,7 +29,8 @@ func NewFactory(c client.GraviteeClient, readOnly bool) *TestContext {
 				Current: "test",
 				Contexts: map[string]*config.Context{
 					"test": {
-						Org: "DEFAULT", Env: "DEFAULT", ReadOnly: readOnly,
+						Org:  "DEFAULT",
+						Env:  "DEFAULT",
 						APIM: &config.ProductConfig{URL: "https://test.com", Token: "tok"},
 						AM:   &config.ProductConfig{URL: "https://test.com", Token: "tok"},
 					},
@@ -37,7 +38,7 @@ func NewFactory(c client.GraviteeClient, readOnly bool) *TestContext {
 			},
 			Resolved: &config.ResolvedContext{
 				Name: "test", URL: "https://test.com", Token: "tok",
-				Org: "DEFAULT", Env: "DEFAULT", ReadOnly: readOnly,
+				Org: "DEFAULT", Env: "DEFAULT",
 			},
 			Client:       c,
 			IOStreams:    factory.IOStreams{Out: out, Err: &bytes.Buffer{}, In: &bytes.Buffer{}},
@@ -49,8 +50,6 @@ func NewFactory(c client.GraviteeClient, readOnly bool) *TestContext {
 
 // NoOpClient is a FakeClient with no configured methods. Any call will error.
 var NoOpClient = client.FakeClient{}
-
-// --- Fake API builders ---
 
 // APIReturning creates a FakeClient whose Get returns a paginated response with the given items.
 func APIReturning(items []map[string]any) *client.FakeClient {
@@ -79,12 +78,13 @@ func APIReturningItem(item map[string]any) *client.FakeClient {
 	}
 }
 
-// APIFailingWith creates a FakeClient whose Get returns an API error.
+// APIFailingWith creates a FakeClient whose Get and Post return an API error.
 func APIFailingWith(status int, message string) *client.FakeClient {
+	err := &client.APIError{Status: status, Message: message}
+
 	return &client.FakeClient{
-		GetFunc: func(_ string) ([]byte, error) {
-			return nil, &client.APIError{Status: status, Message: message}
-		},
+		GetFunc:  func(_ string) ([]byte, error) { return nil, err },
+		PostFunc: func(_ string, _ any) ([]byte, error) { return nil, err },
 	}
 }
 
@@ -115,8 +115,6 @@ func DeleteSucceeding() *client.FakeClient {
 	}
 }
 
-// --- Command execution ---
-
 // Execute runs a cobra command with the given args and silences usage/error output.
 func Execute(cmd *cobra.Command, args ...string) error {
 	cmd.SetArgs(args)
@@ -125,8 +123,6 @@ func Execute(cmd *cobra.Command, args ...string) error {
 
 	return cmd.Execute()
 }
-
-// --- Assertions ---
 
 // AssertNoError fails the test if err is not nil.
 func AssertNoError(t *testing.T, err error) {

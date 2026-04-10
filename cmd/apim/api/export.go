@@ -13,7 +13,7 @@ func newExportCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "export <apiId>",
 		Short: "Export an API definition",
-		Example: `  gio apim api export 8a7b3c4d-1234-5678-abcd-ef0123456789
+		Example: `  gio apim api export /my/api
   gio apim api export 8a7b3c4d-1234-5678-abcd-ef0123456789 --exclude members --exclude pages`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
@@ -21,7 +21,12 @@ func newExportCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
-			return runExport(f, args[0], exclude)
+			apiID, err := f.APIM().ResolveAPI(args[0])
+			if err != nil {
+				return err
+			}
+
+			return runExport(f, apiID, exclude)
 		},
 	}
 

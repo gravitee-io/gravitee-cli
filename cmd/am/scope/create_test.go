@@ -22,7 +22,7 @@ func TestCreateScope(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestScope(tc, mock, domainID)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--key", "openid", "--name", "OpenID")
@@ -41,7 +41,7 @@ func TestCreateScope(t *testing.T) {
 				})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestScope(tc, mock, domainID)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--key", "openid", "--name", "OpenID", "--description", "OpenID scope")
@@ -57,7 +57,7 @@ func TestCreateScope(t *testing.T) {
 				return json.Marshal(map[string]any{"id": "new-scope", "key": "openid", "name": "OpenID"})
 			},
 		}
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		newTestScope(tc, mock, domainID)
 		tc.Factory.OutputFormat = "json"
 
@@ -69,7 +69,7 @@ func TestCreateScope(t *testing.T) {
 
 	t.Run("requires key flag", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--name", "OpenID")
 
@@ -78,7 +78,7 @@ func TestCreateScope(t *testing.T) {
 
 	t.Run("requires name flag", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--key", "openid")
 
@@ -87,7 +87,7 @@ func TestCreateScope(t *testing.T) {
 
 	t.Run("requires a configured context", func(t *testing.T) {
 		domainID := "dom-1"
-		tc := testutil.NewFactory(nil, false)
+		tc := testutil.NewFactory(nil)
 		tc.Factory.Resolved = nil
 
 		err := testutil.Execute(newCreateCmd(tc.Factory, &domainID), "--key", "openid", "--name", "OpenID")

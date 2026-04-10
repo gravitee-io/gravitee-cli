@@ -9,12 +9,11 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
-func paginatedPages(items ...map[string]any) *client.FakeClient {
+func fakePagesResponse(items ...map[string]any) *client.FakeClient {
 	return &client.FakeClient{
 		GetFunc: func(_ string) ([]byte, error) {
 			resp := map[string]any{
-				"data":       items,
-				"pagination": map[string]int{"page": 1, "perPage": 10, "pageCount": 1, "totalCount": len(items), "pageItemsCount": len(items)},
+				"pages": items,
 			}
 
 			data, _ := json.Marshal(resp)
