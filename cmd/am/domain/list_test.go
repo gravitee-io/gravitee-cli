@@ -59,6 +59,22 @@ func TestListDomains(t *testing.T) {
 		testutil.AssertErrorContains(t, err, "authentication failed")
 	})
 
+	t.Run("rejects page zero", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		err := testutil.Execute(newListCmd(tc.Factory), "--page", "0")
+
+		testutil.AssertErrorContains(t, err, "--page must be >= 1")
+	})
+
+	t.Run("rejects per-page zero", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		err := testutil.Execute(newListCmd(tc.Factory), "--per-page", "0")
+
+		testutil.AssertErrorContains(t, err, "--per-page must be >= 1")
+	})
+
 	t.Run("requires a configured context", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient, false)
 		tc.Factory.Resolved = nil

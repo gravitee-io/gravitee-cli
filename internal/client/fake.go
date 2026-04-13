@@ -7,6 +7,7 @@ type FakeClient struct {
 	GetFunc    func(path string) ([]byte, error)
 	PostFunc   func(path string, body any) ([]byte, error)
 	PutFunc    func(path string, body any) ([]byte, error)
+	PatchFunc  func(path string, body any) ([]byte, error)
 	DeleteFunc func(path string) error
 }
 
@@ -32,6 +33,14 @@ func (f *FakeClient) Put(path string, body any) ([]byte, error) {
 	}
 
 	return f.PutFunc(path, body)
+}
+
+func (f *FakeClient) Patch(path string, body any) ([]byte, error) {
+	if f.PatchFunc == nil {
+		return nil, fmt.Errorf("unexpected Patch call: %s", path)
+	}
+
+	return f.PatchFunc(path, body)
 }
 
 func (f *FakeClient) Delete(path string) error {

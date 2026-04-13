@@ -61,6 +61,10 @@ func (c *HTTPClient) Put(path string, body any) ([]byte, error) {
 	return c.doRequest(http.MethodPut, path, body)
 }
 
+func (c *HTTPClient) Patch(path string, body any) ([]byte, error) {
+	return c.doRequest(http.MethodPatch, path, body)
+}
+
 func (c *HTTPClient) Delete(path string) error {
 	_, err := c.doRequest(http.MethodDelete, path, nil)
 

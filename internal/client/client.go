@@ -10,6 +10,7 @@ type GraviteeClient interface {
 	Get(path string) ([]byte, error)
 	Post(path string, body any) ([]byte, error)
 	Put(path string, body any) ([]byte, error)
+	Patch(path string, body any) ([]byte, error)
 	Delete(path string) error
 }
 

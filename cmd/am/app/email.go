@@ -1,0 +1,176 @@
+package app
+
+import (
+	"github.com/spf13/cobra"
+
+	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+	"github.com/gravitee-io/gio-cli/internal/printer"
+)
+
+func newAppEmailCmd(f *factory.Factory, domainID *string) *cobra.Command {
+	var appID string
+
+	cmd := &cobra.Command{
+		Use:   "email",
+		Short: "Manage application email templates",
+	}
+
+	cmd.PersistentFlags().StringVar(&appID, "app-id", "", "Application ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("app-id")
+
+	cmd.AddCommand(newAppEmailGetCmd(f, domainID, &appID))
+	cmd.AddCommand(newAppEmailCreateCmd(f, domainID, &appID))
+	cmd.AddCommand(newAppEmailUpdateCmd(f, domainID, &appID))
+	cmd.AddCommand(newAppEmailDeleteCmd(f, domainID, &appID))
+
+	return cmd
+}
+
+func newAppEmailGetCmd(f *factory.Factory, domainID, appID *string) *cobra.Command {
+	var template string
+
+	cmd := &cobra.Command{
+		Use:     "get",
+		Short:   "Get an application email template",
+		Example: `  gio am app email get --domain my-domain --app-id my-app --template RESET_PASSWORD`,
+		Args:    cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			data, err := f.AM().GetAppEmail(*domainID, *appID, template)
+			if err != nil {
+				return err
+			}
+
+			p, err := cmdutil.NewPrinter(f)
+			if err != nil {
+				return err
+			}
+
+			return p.PrintDetail(data)
+		},
+	}
+
+	cmd.Flags().StringVar(&template, "template", "", "Email template name (required)")
+	_ = cmd.MarkFlagRequired("template")
+
+	return cmd
+}
+
+func newAppEmailCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Command {
+	var file string
+
+	cmd := &cobra.Command{
+		Use:     "create --file <email.json>",
+		Short:   "Create an application email template",
+		Example: `  gio am app email create --domain my-domain --app-id my-app --file email.json`,
+		Args:    cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			body, err := cmdutil.ReadJSONFile(file)
+			if err != nil {
+				return err
+			}
+
+			data, err := f.AM().CreateAppEmail(*domainID, *appID, body)
+			if err != nil {
+				return err
+			}
+
+			p, err := cmdutil.NewPrinter(f)
+			if err != nil {
+				return err
+			}
+
+			if f.OutputFormat != printer.FormatTable {
+				return p.PrintDetail(data)
+			}
+
+			p.PrintMessage("Email template created successfully.")
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
+	_ = cmd.MarkFlagRequired("file")
+
+	return cmd
+}
+
+func newAppEmailUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Command {
+	var file string
+
+	cmd := &cobra.Command{
+		Use:     "update <emailID> --file <email.json>",
+		Short:   "Update an application email template",
+		Example: `  gio am app email update email-1 --domain my-domain --app-id my-app --file email.json`,
+		Args:    cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			body, err := cmdutil.ReadJSONFile(file)
+			if err != nil {
+				return err
+			}
+
+			data, err := f.AM().UpdateAppEmail(*domainID, *appID, args[0], body)
+			if err != nil {
+				return err
+			}
+
+			p, err := cmdutil.NewPrinter(f)
+			if err != nil {
+				return err
+			}
+
+			if f.OutputFormat != printer.FormatTable {
+				return p.PrintDetail(data)
+			}
+
+			p.PrintMessage("Email template updated successfully.")
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
+	_ = cmd.MarkFlagRequired("file")
+
+	return cmd
+}
+
+func newAppEmailDeleteCmd(f *factory.Factory, domainID, appID *string) *cobra.Command {
+	return &cobra.Command{
+		Use:     "delete <emailID>",
+		Short:   "Delete an application email template",
+		Example: `  gio am app email delete email-1 --domain my-domain --app-id my-app`,
+		Args:    cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			if err := f.AM().DeleteAppEmail(*domainID, *appID, args[0]); err != nil {
+				return err
+			}
+
+			p, err := cmdutil.NewPrinter(f)
+			if err != nil {
+				return err
+			}
+
+			p.PrintMessage("Email template '%s' deleted.", args[0])
+
+			return nil
+		},
+	}
+}

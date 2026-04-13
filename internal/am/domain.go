@@ -18,6 +18,13 @@ type ListDomainsParams struct {
 type DomainService interface {
 	ListDomains(params ListDomainsParams) (*PaginatedResponse, error)
 	GetDomain(domainID string) (json.RawMessage, error)
+	GetDomainByHRID(hrid string) (json.RawMessage, error)
+	CreateDomain(body json.RawMessage) (json.RawMessage, error)
+	UpdateDomain(domainID string, body json.RawMessage) (json.RawMessage, error)
+	PatchDomain(domainID string, body json.RawMessage) (json.RawMessage, error)
+	DeleteDomain(domainID string) error
+	UpdateDomainCertificateSettings(domainID string, body json.RawMessage) (json.RawMessage, error)
+	ListDataPlanes() (json.RawMessage, error)
 }
 
 func (s *service) ListDomains(params ListDomainsParams) (*PaginatedResponse, error) {
@@ -39,6 +46,69 @@ func (s *service) GetDomain(domainID string) (json.RawMessage, error) {
 	data, err := s.client.Get(s.basePath(fmt.Sprintf("domains/%s", domainID)))
 	if err != nil {
 		return nil, err
+	}
+
+	return json.RawMessage(data), nil
+}
+
+func (s *service) CreateDomain(body json.RawMessage) (json.RawMessage, error) {
+	data, err := s.client.Post(s.basePath("domains"), body)
+	if err != nil {
+		return nil, fmt.Errorf("domain create failed: %w", err)
+	}
+
+	return json.RawMessage(data), nil
+}
+
+func (s *service) UpdateDomain(domainID string, body json.RawMessage) (json.RawMessage, error) {
+	data, err := s.client.Put(s.basePath(fmt.Sprintf("domains/%s", domainID)), body)
+	if err != nil {
+		return nil, fmt.Errorf("domain update failed: %w", err)
+	}
+
+	return json.RawMessage(data), nil
+}
+
+func (s *service) PatchDomain(domainID string, body json.RawMessage) (json.RawMessage, error) {
+	data, err := s.client.Patch(s.basePath(fmt.Sprintf("domains/%s", domainID)), body)
+	if err != nil {
+		return nil, fmt.Errorf("domain patch failed: %w", err)
+	}
+
+	return json.RawMessage(data), nil
+}
+
+func (s *service) DeleteDomain(domainID string) error {
+	err := s.client.Delete(s.basePath(fmt.Sprintf("domains/%s", domainID)))
+	if err != nil {
+		return fmt.Errorf("domain delete failed: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) GetDomainByHRID(hrid string) (json.RawMessage, error) {
+	data, err := s.client.Get(s.basePath(fmt.Sprintf("domains/_hrid/%s", hrid)))
+	if err != nil {
+		return nil, fmt.Errorf("domain get by HRID failed: %w", err)
+	}
+
+	return json.RawMessage(data), nil
+}
+
+func (s *service) UpdateDomainCertificateSettings(domainID string, body json.RawMessage) (json.RawMessage, error) {
+	data, err := s.client.Put(s.domainPath(domainID, "certificate-settings"), body)
+	if err != nil {
+		return nil, fmt.Errorf("domain certificate settings update failed: %w", err)
+	}
+
+	return json.RawMessage(data), nil
+}
+
+func (s *service) ListDataPlanes() (json.RawMessage, error) {
+	data, err := s.client.Get(s.basePath("data-planes"))
+	if err != nil {
+		return nil, fmt.Errorf("data plane list failed: %w", err)
 	}
 
 	return json.RawMessage(data), nil

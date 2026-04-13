@@ -1,0 +1,77 @@
+package scope
+
+import (
+	"encoding/json"
+
+	"github.com/spf13/cobra"
+
+	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+	"github.com/gravitee-io/gio-cli/internal/printer"
+)
+
+type createOptions struct {
+	factory     *factory.Factory
+	domainID    *string
+	key         string
+	name        string
+	description string
+}
+
+func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
+	opts := &createOptions{factory: f, domainID: domainID}
+
+	cmd := &cobra.Command{
+		Use:   "create --key <key> --name <name>",
+		Short: "Create a scope",
+		Example: `  gio am scope create --domain my-domain --key openid --name "OpenID"
+  gio am scope create --domain my-domain --key profile --name "Profile" --description "Access to profile"`,
+		Args: cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			return opts.run()
+		},
+	}
+
+	cmd.Flags().StringVar(&opts.key, "key", "", "Scope key (required)")
+	cmd.Flags().StringVar(&opts.name, "name", "", "Scope name (required)")
+	cmd.Flags().StringVar(&opts.description, "description", "", "Scope description")
+	_ = cmd.MarkFlagRequired("key")
+	_ = cmd.MarkFlagRequired("name")
+
+	return cmd
+}
+
+func (o *createOptions) run() error {
+	f := o.factory
+
+	body := map[string]any{
+		"key":  o.key,
+		"name": o.name,
+	}
+
+	if o.description != "" {
+		body["description"] = o.description
+	}
+
+	raw, _ := json.Marshal(body)
+
+	data, err := f.AM().CreateScope(*o.domainID, json.RawMessage(raw))
+	if err != nil {
+		return err
+	}
+
+	p, err := cmdutil.NewPrinter(f)
+	if err != nil {
+		return err
+	}
+
+	if f.OutputFormat != printer.FormatTable {
+		return p.PrintDetail(data)
+	}
+
+	return printScopeDetail(p, data)
+}

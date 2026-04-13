@@ -33,6 +33,10 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
+			if err := cmdutil.ValidatePagination(opts.page, opts.perPage); err != nil {
+				return err
+			}
+
 			return opts.run()
 		},
 	}

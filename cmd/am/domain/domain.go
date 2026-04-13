@@ -18,6 +18,13 @@ func NewDomainCmd(f *factory.Factory) *cobra.Command {
 	cmdutil.AddOutputFlags(cmd, f)
 
 	cmd.AddCommand(newListCmd(f))
+	cmd.AddCommand(newGetCmd(f))
+	cmd.AddCommand(newCreateCmd(f))
+	cmd.AddCommand(newUpdateCmd(f))
+	cmd.AddCommand(newDeleteCmd(f))
+	cmd.AddCommand(newEnableCmd(f))
+	cmd.AddCommand(newDisableCmd(f))
+	cmd.AddCommand(newUpdateCertSettingsCmd(f))
 
 	return cmd
 }

@@ -199,6 +199,19 @@ func StringField(item any, key string) string {
 	return s
 }
 
+// ValidatePagination checks that page and perPage are positive.
+func ValidatePagination(page, perPage int) error {
+	if page < 1 {
+		return fmt.Errorf("--page must be >= 1, got %d", page)
+	}
+
+	if perPage < 1 {
+		return fmt.Errorf("--per-page must be >= 1, got %d", perPage)
+	}
+
+	return nil
+}
+
 // ValidateEnum checks that a value is in the allowed set.
 func ValidateEnum(value, flag string, allowed []string) error {
 	for _, a := range allowed {

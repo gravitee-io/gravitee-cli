@@ -1,0 +1,81 @@
+package group
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/spf13/cobra"
+
+	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+	"github.com/gravitee-io/gio-cli/internal/printer"
+)
+
+type updateOptions struct {
+	factory     *factory.Factory
+	domainID    *string
+	groupID     string
+	name        string
+	description string
+}
+
+func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
+	opts := &updateOptions{factory: f, domainID: domainID}
+
+	cmd := &cobra.Command{
+		Use:   "update <groupID>",
+		Short: "Update a group",
+		Example: `  gio am group update my-group-id --domain my-domain --name "New Name"
+  gio am group update my-group-id --domain my-domain --description "Updated description"`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			opts.groupID = args[0]
+
+			return opts.run()
+		},
+	}
+
+	cmd.Flags().StringVar(&opts.name, "name", "", "Group name")
+	cmd.Flags().StringVar(&opts.description, "description", "", "Group description")
+
+	return cmd
+}
+
+func (o *updateOptions) run() error {
+	f := o.factory
+
+	body := map[string]any{}
+	if o.name != "" {
+		body["name"] = o.name
+	}
+
+	if o.description != "" {
+		body["description"] = o.description
+	}
+
+	if len(body) == 0 {
+		return fmt.Errorf("at least one flag (--name, --description) is required")
+	}
+
+	raw, _ := json.Marshal(body)
+
+	data, err := f.AM().UpdateGroup(*o.domainID, o.groupID, json.RawMessage(raw))
+	if err != nil {
+		return err
+	}
+
+	p, err := cmdutil.NewPrinter(f)
+	if err != nil {
+		return err
+	}
+
+	if f.OutputFormat != printer.FormatTable {
+		return p.PrintDetail(data)
+	}
+
+	return printGroupDetail(p, data)
+}

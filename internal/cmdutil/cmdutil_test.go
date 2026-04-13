@@ -106,6 +106,39 @@ func TestMaskToken(t *testing.T) {
 	}
 }
 
+func TestValidatePagination(t *testing.T) {
+	tests := []struct {
+		name    string
+		page    int
+		perPage int
+		wantErr string
+	}{
+		{"valid", 1, 10, ""},
+		{"page zero", 0, 10, "--page must be >= 1"},
+		{"page negative", -1, 10, "--page must be >= 1"},
+		{"per-page zero", 1, 0, "--per-page must be >= 1"},
+		{"per-page negative", 1, -5, "--per-page must be >= 1"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidatePagination(tt.page, tt.perPage)
+			if tt.wantErr == "" {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			} else {
+				if err == nil {
+					t.Fatal("expected error, got nil")
+				}
+				if !contains(err.Error(), tt.wantErr) {
+					t.Errorf("expected %q, got %q", tt.wantErr, err.Error())
+				}
+			}
+		})
+	}
+}
+
 func TestResolveProductContext_StoresError(t *testing.T) {
 	f := &factory.Factory{
 		Config: &config.Config{

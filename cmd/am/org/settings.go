@@ -1,0 +1,104 @@
+package org
+
+import (
+	"github.com/spf13/cobra"
+
+	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+	"github.com/gravitee-io/gio-cli/internal/printer"
+)
+
+func newOrgSettingsCmd(f *factory.Factory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "settings",
+		Short: "Manage organization settings",
+	}
+
+	cmd.AddCommand(newOrgSettingsGetCmd(f))
+	cmd.AddCommand(newOrgSettingsUpdateCmd(f))
+
+	return cmd
+}
+
+// get
+
+func newOrgSettingsGetCmd(f *factory.Factory) *cobra.Command {
+	return &cobra.Command{
+		Use:     "get",
+		Short:   "Get organization settings",
+		Example: `  gio am org settings get`,
+		Args:    cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			return runOrgSettingsGet(f)
+		},
+	}
+}
+
+func runOrgSettingsGet(f *factory.Factory) error {
+	data, err := f.AM().GetOrgSettings()
+	if err != nil {
+		return err
+	}
+
+	p, err := cmdutil.NewPrinter(f)
+	if err != nil {
+		return err
+	}
+
+	return p.PrintDetail(data)
+}
+
+// update
+
+func newOrgSettingsUpdateCmd(f *factory.Factory) *cobra.Command {
+	var file string
+
+	cmd := &cobra.Command{
+		Use:   "update --file <settings.json>",
+		Short: "Update organization settings from a JSON file",
+		Example: `  gio am org settings update --file settings.json
+  gio am org settings update -f settings.json`,
+		Args: cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			return runOrgSettingsUpdate(f, file)
+		},
+	}
+
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON settings file (required)")
+	_ = cmd.MarkFlagRequired("file")
+
+	return cmd
+}
+
+func runOrgSettingsUpdate(f *factory.Factory, file string) error {
+	body, err := cmdutil.ReadJSONFile(file)
+	if err != nil {
+		return err
+	}
+
+	data, err := f.AM().PatchOrgSettings(body)
+	if err != nil {
+		return err
+	}
+
+	p, err := cmdutil.NewPrinter(f)
+	if err != nil {
+		return err
+	}
+
+	if f.OutputFormat != printer.FormatTable {
+		return p.PrintDetail(data)
+	}
+
+	p.PrintMessage("Organization settings updated.")
+
+	return nil
+}

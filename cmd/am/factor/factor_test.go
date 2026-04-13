@@ -1,0 +1,334 @@
+package factor
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/gravitee-io/gio-cli/internal/am"
+	"github.com/gravitee-io/gio-cli/internal/client"
+	"github.com/gravitee-io/gio-cli/internal/testutil"
+)
+
+// --- List ---
+
+func TestListFactors(t *testing.T) {
+	t.Run("returns factors", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			ListFactorsFunc: func(domainID string) ([]json.RawMessage, error) {
+				if domainID != "dom-1" {
+					t.Errorf("expected domainID 'dom-1', got %q", domainID)
+				}
+
+				return []json.RawMessage{
+					json.RawMessage(`{"id":"fac-1","name":"My Factor","type":"otp"}`),
+					json.RawMessage(`{"id":"fac-2","name":"Other","type":"sms"}`),
+				}, nil
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "list")
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, "My Factor")
+		testutil.AssertOutputContains(t, tc.Out, "Other")
+	})
+
+	t.Run("returns full JSON with -o json", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			ListFactorsFunc: func(_ string) ([]json.RawMessage, error) {
+				return []json.RawMessage{
+					json.RawMessage(`{"id":"fac-1","name":"Test"}`),
+				}, nil
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "-o", "json", "list")
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, `"id"`)
+	})
+
+	t.Run("requires a configured context", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc.Factory.Resolved = nil
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "list")
+
+		testutil.AssertErrorContains(t, err, "no context configured")
+	})
+
+	t.Run("requires domain flag", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "list")
+
+		testutil.AssertErrorContains(t, err, "required")
+	})
+}
+
+// --- Get ---
+
+func TestGetFactor(t *testing.T) {
+	t.Run("returns factor details", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			GetFactorFunc: func(domainID, factorID string) (json.RawMessage, error) {
+				if domainID != "dom-1" {
+					t.Errorf("expected domainID 'dom-1', got %q", domainID)
+				}
+
+				if factorID != "fac-1" {
+					t.Errorf("expected factorID 'fac-1', got %q", factorID)
+				}
+
+				return json.Marshal(map[string]any{
+					"id": "fac-1", "name": "My Factor", "type": "otp",
+				})
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "get", "fac-1")
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, "My Factor")
+		testutil.AssertOutputContains(t, tc.Out, "fac-1")
+	})
+
+	t.Run("returns full JSON with -o json", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			GetFactorFunc: func(_, _ string) (json.RawMessage, error) {
+				return json.Marshal(map[string]any{"id": "fac-1", "name": "Test"})
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "-o", "json", "get", "fac-1")
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, `"id"`)
+	})
+
+	t.Run("requires factor ID argument", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "get")
+
+		testutil.AssertErrorContains(t, err, "accepts 1 arg")
+	})
+
+	t.Run("requires a configured context", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc.Factory.Resolved = nil
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "get", "fac-1")
+
+		testutil.AssertErrorContains(t, err, "no context configured")
+	})
+}
+
+// --- Create ---
+
+func TestCreateFactor(t *testing.T) {
+	t.Run("creates a factor from file", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			CreateFactorFunc: func(domainID string, body json.RawMessage) (json.RawMessage, error) {
+				if domainID != "dom-1" {
+					t.Errorf("expected domainID 'dom-1', got %q", domainID)
+				}
+
+				return json.Marshal(map[string]any{
+					"id": "new-fac", "name": "My Factor", "type": "otp",
+				})
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		tmpFile := writeTempJSON(t, `{"name":"My Factor","type":"otp"}`)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "create", "--file", tmpFile)
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, "My Factor")
+		testutil.AssertOutputContains(t, tc.Out, "new-fac")
+	})
+
+	t.Run("requires file flag", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
+
+		testutil.AssertErrorContains(t, err, "required")
+	})
+
+	t.Run("requires a configured context", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc.Factory.Resolved = nil
+
+		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "create", "--file", tmpFile)
+
+		testutil.AssertErrorContains(t, err, "no context configured")
+	})
+}
+
+// --- Update ---
+
+func TestUpdateFactor(t *testing.T) {
+	t.Run("updates a factor from file", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			UpdateFactorFunc: func(domainID, factorID string, body json.RawMessage) (json.RawMessage, error) {
+				if domainID != "dom-1" {
+					t.Errorf("expected domainID 'dom-1', got %q", domainID)
+				}
+
+				if factorID != "fac-1" {
+					t.Errorf("expected factorID 'fac-1', got %q", factorID)
+				}
+
+				return json.Marshal(map[string]any{
+					"id": "fac-1", "name": "Updated", "type": "otp",
+				})
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		tmpFile := writeTempJSON(t, `{"name":"Updated"}`)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "fac-1", "--file", tmpFile)
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, "Updated")
+	})
+
+	t.Run("requires file flag", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "fac-1")
+
+		testutil.AssertErrorContains(t, err, "required")
+	})
+
+	t.Run("requires factor ID argument", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "--file", tmpFile)
+
+		testutil.AssertErrorContains(t, err, "accepts 1 arg")
+	})
+
+	t.Run("requires a configured context", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc.Factory.Resolved = nil
+
+		tmpFile := writeTempJSON(t, `{"name":"Test"}`)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "fac-1", "--file", tmpFile)
+
+		testutil.AssertErrorContains(t, err, "no context configured")
+	})
+}
+
+// --- Delete ---
+
+func TestDeleteFactor(t *testing.T) {
+	t.Run("deletes a factor", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			DeleteFactorFunc: func(domainID, factorID string) error {
+				if domainID != "dom-1" {
+					t.Errorf("expected domainID 'dom-1', got %q", domainID)
+				}
+
+				if factorID != "fac-1" {
+					t.Errorf("expected factorID 'fac-1', got %q", factorID)
+				}
+
+				return nil
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "delete", "fac-1")
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, "Factor 'fac-1' deleted.")
+	})
+
+	t.Run("returns error on API failure", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		mock := &am.MockService{
+			DeleteFactorFunc: func(_, _ string) error {
+				return &client.APIError{Status: 404, Message: "resource not found (HTTP 404)"}
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "delete", "fac-1")
+
+		testutil.AssertErrorContains(t, err, "not found")
+	})
+
+	t.Run("requires factor ID argument", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "delete")
+
+		testutil.AssertErrorContains(t, err, "accepts 1 arg")
+	})
+
+	t.Run("requires a configured context", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient, false)
+		tc.Factory.Resolved = nil
+
+		cmd := NewFactorCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "delete", "fac-1")
+
+		testutil.AssertErrorContains(t, err, "no context configured")
+	})
+}
+
+// --- Helper ---
+
+func writeTempJSON(t *testing.T, content string) string {
+	t.Helper()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "test.json")
+
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatalf("failed to write temp file: %v", err)
+	}
+
+	return path
+}
