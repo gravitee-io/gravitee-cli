@@ -71,10 +71,10 @@ release:
 
     | `uname -sm` output | Archive to download                          |
     |--------------------|----------------------------------------------|
-    | `Darwin arm64`     | `darwin_arm64` (Mac Apple Silicon, M1/M2/...) |
-    | `Darwin x86_64`    | `darwin_amd64` (Mac Intel)                    |
-    | `Linux x86_64`     | `linux_amd64` (most PCs and servers)          |
-    | `Linux aarch64`    | `linux_arm64` (Raspberry Pi 4+, Graviton, ...) |
+    | `Darwin arm64`     | [`gio_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_arm64.tar.gz) (Mac Apple Silicon, M1/M2/...) |
+    | `Darwin x86_64`    | [`gio_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_amd64.tar.gz) (Mac Intel) |
+    | `Linux x86_64`     | [`gio_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_amd64.tar.gz) (most PCs and servers) |
+    | `Linux aarch64`    | [`gio_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_arm64.tar.gz) (Raspberry Pi 4+, Graviton, ...) |
 
     **2. Download and extract** (replace `linux_amd64` with your archive):
 
@@ -84,15 +84,7 @@ release:
     ./gio version
     ```
 
-    **3. (Optional) Make `gio` available from anywhere.** Move it to a folder in your `PATH`:
-
-    ```bash
-    # User-scope, no admin needed (make sure ~/.local/bin is in your PATH):
-    mkdir -p ~/.local/bin && mv gio ~/.local/bin/
-
-    # Or system-wide (requires admin):
-    sudo install gio /usr/local/bin/
-    ```
+    Move the resulting `gio` binary to a directory in your `PATH` to use it from anywhere.
 
     ### Windows
 
@@ -101,7 +93,11 @@ release:
     3. Add that folder to your `PATH` so `gio` works from any terminal (run once in PowerShell):
 
        ```powershell
-       [Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Tools\gio", "User")
+       $target = "C:\Tools\gio"
+       $userPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+       if (-not ($userPath -split ";" -contains $target)) {
+           [Environment]::SetEnvironmentVariable("PATH", "$userPath;$target", "User")
+       }
        ```
 
     4. Open a new terminal and verify:
@@ -109,10 +105,3 @@ release:
        ```powershell
        gio version
        ```
-
-    ### Verify the archive (optional)
-
-    ```bash
-    curl -LO https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/checksums.txt
-    sha256sum -c checksums.txt --ignore-missing
-    ```
