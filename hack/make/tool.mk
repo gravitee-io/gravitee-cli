@@ -6,6 +6,7 @@ ROOT_DIR ?= $(shell git -C $(CURDIR) rev-parse --show-toplevel)
 LOCALBIN ?= $(ROOT_DIR)/bin
 
 ADDLICENSE ?= $(LOCALBIN)/addlicense
+GORELEASER ?= $(LOCALBIN)/goreleaser
 
 $(LOCALBIN):
 	@mkdir -p $(LOCALBIN)

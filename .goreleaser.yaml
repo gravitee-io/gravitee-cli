@@ -1,0 +1,118 @@
+# Copyright (C) 2015 The Gravitee team (http://gravitee.io)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 2
+
+project_name: gio
+
+builds:
+  - id: gio
+    binary: gio
+    main: .
+    env: [CGO_ENABLED=0]
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - id: gio
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files: [LICENSE.txt, README.md]
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^feat(\(.+\))?!?:'
+      order: 0
+    - title: Bug fixes
+      regexp: '^fix(\(.+\))?!?:'
+      order: 1
+    - title: Other changes
+      order: 999
+  filters:
+    exclude: ['^docs', '^chore', '^test', '^ci', '^style', '^refactor']
+
+release:
+  header: |
+    ## gio {{ .Tag }}
+
+    gio is the Gravitee CLI for APIM & AM.
+  footer: |
+    ## Install
+
+    ### Linux / macOS
+
+    **1. Identify your platform.** Run `uname -sm` in a terminal and match the output:
+
+    | `uname -sm` output | Archive to download                          |
+    |--------------------|----------------------------------------------|
+    | `Darwin arm64`     | `darwin_arm64` (Mac Apple Silicon, M1/M2/...) |
+    | `Darwin x86_64`    | `darwin_amd64` (Mac Intel)                    |
+    | `Linux x86_64`     | `linux_amd64` (most PCs and servers)          |
+    | `Linux aarch64`    | `linux_arm64` (Raspberry Pi 4+, Graviton, ...) |
+
+    **2. Download and extract** (replace `linux_amd64` with your archive):
+
+    ```bash
+    curl -LO https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_amd64.tar.gz
+    tar -xzf gio_{{ .Version }}_linux_amd64.tar.gz
+    ./gio version
+    ```
+
+    **3. (Optional) Make `gio` available from anywhere.** Move it to a folder in your `PATH`:
+
+    ```bash
+    # User-scope, no admin needed (make sure ~/.local/bin is in your PATH):
+    mkdir -p ~/.local/bin && mv gio ~/.local/bin/
+
+    # Or system-wide (requires admin):
+    sudo install gio /usr/local/bin/
+    ```
+
+    ### Windows
+
+    1. Download [`gio_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_windows_amd64.zip)
+    2. Unzip it into a folder of your choice (e.g. `C:\Tools\gio`)
+    3. Add that folder to your `PATH` so `gio` works from any terminal (run once in PowerShell):
+
+       ```powershell
+       [Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Tools\gio", "User")
+       ```
+
+    4. Open a new terminal and verify:
+
+       ```powershell
+       gio version
+       ```
+
+    ### Verify the archive (optional)
+
+    ```bash
+    curl -LO https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/checksums.txt
+    sha256sum -c checksums.txt --ignore-missing
+    ```

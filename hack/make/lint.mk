@@ -1,10 +1,8 @@
 ##@ 🧹 Lint
 
 ROOT_DIR ?= $(shell git -C $(CURDIR) rev-parse --show-toplevel)
-LOCALBIN ?= $(ROOT_DIR)/bin
-ADDLICENSE ?= $(LOCALBIN)/addlicense
 
-## Pull in tool.mk when run standalone so install-tools is reachable.
+## Pull in tool.mk when run standalone so $(ADDLICENSE) + install-tools resolve.
 ## Guard prevents re-inclusion when already loaded by the root Makefile.
 ifndef GIO_TOOL_MK_LOADED
 include $(ROOT_DIR)/hack/make/tool.mk

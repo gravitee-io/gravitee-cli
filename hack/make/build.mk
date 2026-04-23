@@ -7,16 +7,27 @@ ROOT_DIR ?= $(shell git -C $(CURDIR) rev-parse --show-toplevel)
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 LDFLAGS = -ldflags "-X main.version=$(VERSION)"
 
+## Pull in tool.mk when run standalone so $(GORELEASER) + install-tools resolve.
+ifndef GIO_TOOL_MK_LOADED
+include $(ROOT_DIR)/hack/make/tool.mk
+endif
+
 .PHONY: build
 build: ## Build gio for the current platform into dist/gio
 	@echo "Building gio $(VERSION) ..."
 	@cd $(ROOT_DIR) && go build $(LDFLAGS) -o dist/gio .
 
-.PHONY: build-all
-build-all: ## Cross-compile gio for linux/macos/windows (amd64 + arm64) into dist/
-	@echo "Cross-compiling gio $(VERSION) ..."
-	@cd $(ROOT_DIR) && GOOS=linux   GOARCH=amd64 go build $(LDFLAGS) -o dist/gio-linux-amd64 .
-	@cd $(ROOT_DIR) && GOOS=linux   GOARCH=arm64 go build $(LDFLAGS) -o dist/gio-linux-arm64 .
-	@cd $(ROOT_DIR) && GOOS=darwin  GOARCH=amd64 go build $(LDFLAGS) -o dist/gio-darwin-amd64 .
-	@cd $(ROOT_DIR) && GOOS=darwin  GOARCH=arm64 go build $(LDFLAGS) -o dist/gio-darwin-arm64 .
-	@cd $(ROOT_DIR) && GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o dist/gio-windows-amd64.exe .
+.PHONY: release-check
+release-check: $(GORELEASER) ## Validate .goreleaser.yaml
+	@echo "Checking goreleaser config ..."
+	@cd $(ROOT_DIR) && $(GORELEASER) check
+
+.PHONY: release-snapshot
+release-snapshot: $(GORELEASER) ## Cross-compile all platforms and build archives into dist/ (no publish)
+	@echo "Building snapshot release $(VERSION) ..."
+	@cd $(ROOT_DIR) && $(GORELEASER) release --snapshot --clean --skip=publish
+
+## File-target: let any release-* target trigger install-tools when the binary
+## is missing.
+$(GORELEASER):
+	@$(MAKE) install-tools
