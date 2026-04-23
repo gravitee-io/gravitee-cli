@@ -1,3 +1,17 @@
+// Copyright (C) 2015 The Gravitee team (http://gravitee.io)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cmd
 
 import (
@@ -10,7 +24,7 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-func setupInteractiveTest(t *testing.T, cfg *config.Config, input string) (*factory.Factory, string, *bytes.Buffer) {
+func setupInteractiveTest(t *testing.T, cfg *config.Config, input string) (*factory.Factory, *bytes.Buffer) {
 	t.Helper()
 
 	dir := t.TempDir()
@@ -39,14 +53,14 @@ func setupInteractiveTest(t *testing.T, cfg *config.Config, input string) (*fact
 		},
 	}
 
-	return f, path, out
+	return f, out
 }
 
 func TestInteractive_CurlPaste_NewContext(t *testing.T) {
 	input := "master\n" +
 		`curl -H "Authorization: Bearer tok_abc" "https://apim.example.com/management/organizations/ACME/environments/prod"` + "\n"
 
-	f, _, _ := setupInteractiveTest(t, &config.Config{}, input)
+	f, _ := setupInteractiveTest(t, &config.Config{}, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)
@@ -85,7 +99,7 @@ func TestInteractive_CurlPaste_OverwritesExistingContext(t *testing.T) {
 	input := "prod\n" +
 		`curl -H "Authorization: Bearer new_tok" "https://new.example.com/management/organizations/NEW_ORG/environments/NEW_ENV"` + "\n"
 
-	f, _, _ := setupInteractiveTest(t, seed, input)
+	f, _ := setupInteractiveTest(t, seed, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)
@@ -105,7 +119,7 @@ func TestInteractive_CurlPaste_OverwritesExistingContext(t *testing.T) {
 func TestInteractive_URLBare_NewContext_ExplicitOrgEnv(t *testing.T) {
 	input := "dev\nhttps://apim.example.com\ntok_xyz\nMYORG\nMYENV\n"
 
-	f, _, _ := setupInteractiveTest(t, &config.Config{}, input)
+	f, _ := setupInteractiveTest(t, &config.Config{}, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)
@@ -124,7 +138,7 @@ func TestInteractive_URLBare_NewContext_ExplicitOrgEnv(t *testing.T) {
 func TestInteractive_URLBare_NewContext_EnterDefaults(t *testing.T) {
 	input := "dev\nhttps://apim.example.com\ntok_xyz\n\n\n"
 
-	f, _, _ := setupInteractiveTest(t, &config.Config{}, input)
+	f, _ := setupInteractiveTest(t, &config.Config{}, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)
@@ -152,7 +166,7 @@ func TestInteractive_URLBare_ReuseContext_EnterPreservesExistingOrgEnv(t *testin
 
 	input := "prod\nhttps://new.example.com\ntok_new\n\n\n"
 
-	f, _, _ := setupInteractiveTest(t, seed, input)
+	f, _ := setupInteractiveTest(t, seed, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)
@@ -187,7 +201,7 @@ func TestInteractive_ReuseContext_PromptsShowExistingValuesAsDefaults(t *testing
 
 	input := "\nhttps://x.example.com\ntok\n\n\n"
 
-	f, _, out := setupInteractiveTest(t, seed, input)
+	f, out := setupInteractiveTest(t, seed, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)
@@ -215,7 +229,7 @@ func TestInteractive_ReuseContext_PromptsShowExistingValuesAsDefaults(t *testing
 func TestInteractive_ContextPrompt_DefaultsToDefault_WhenNoCurrent(t *testing.T) {
 	input := "\nhttps://x.example.com\ntok\n\n\n"
 
-	f, _, out := setupInteractiveTest(t, &config.Config{}, input)
+	f, out := setupInteractiveTest(t, &config.Config{}, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)
@@ -236,7 +250,7 @@ func TestInteractive_ContextPrompt_NormalizesName(t *testing.T) {
 	input := "Local Master\n" +
 		`curl -H "Authorization: Bearer tok" "https://apim.example.com/management/organizations/ACME/environments/prod"` + "\n"
 
-	f, _, _ := setupInteractiveTest(t, &config.Config{}, input)
+	f, _ := setupInteractiveTest(t, &config.Config{}, input)
 
 	if err := runInteractiveLogin(f, "apim"); err != nil {
 		t.Fatalf("runInteractiveLogin: %v", err)

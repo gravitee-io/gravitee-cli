@@ -1,3 +1,17 @@
+// Copyright (C) 2015 The Gravitee team (http://gravitee.io)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cmdutil
 
 import (
@@ -292,6 +306,20 @@ func ParseCurl(cmd string) (rawURL, token string, err error) {
 		return "", "", fmt.Errorf("curl command: %w", err)
 	}
 
+	rawURL, token = scanCurlTokens(tokens)
+
+	if rawURL == "" {
+		return "", "", fmt.Errorf("curl command: missing URL\nHint: use devtools \"Copy as cURL\" so the request URL is included")
+	}
+
+	if token == "" {
+		return "", "", fmt.Errorf("curl command: missing Authorization: Bearer header\nHint: the curl must include -H 'Authorization: Bearer <token>'")
+	}
+
+	return rawURL, token, nil
+}
+
+func scanCurlTokens(tokens []string) (rawURL, token string) {
 	for i := 0; i < len(tokens); i++ {
 		tk := tokens[i]
 
@@ -306,6 +334,7 @@ func ParseCurl(cmd string) (rawURL, token string, err error) {
 				if t := extractBearer(tokens[i+1]); t != "" && token == "" {
 					token = t
 				}
+
 				i++
 			}
 		case strings.HasPrefix(tk, "--header="):
@@ -315,15 +344,7 @@ func ParseCurl(cmd string) (rawURL, token string, err error) {
 		}
 	}
 
-	if rawURL == "" {
-		return "", "", fmt.Errorf("curl command: missing URL\nHint: use devtools \"Copy as cURL\" so the request URL is included")
-	}
-
-	if token == "" {
-		return "", "", fmt.Errorf("curl command: missing Authorization: Bearer header\nHint: the curl must include -H 'Authorization: Bearer <token>'")
-	}
-
-	return rawURL, token, nil
+	return rawURL, token
 }
 
 // extractBearer returns the token from a header value like
@@ -352,80 +373,115 @@ func extractBearer(headerValue string) string {
 // quotes (literal), double quotes (with \" and \\ escapes), backslash escapes
 // outside quotes, and whitespace as token separators.
 func shellSplit(s string) ([]string, error) {
-	var (
-		tokens     []string
-		cur        strings.Builder
-		hasContent bool
-		inSingle   bool
-		inDouble   bool
-	)
+	l := &shellLexer{s: s}
 
 	for i := 0; i < len(s); i++ {
-		c := s[i]
-
-		switch {
-		case inSingle:
-			if c == '\'' {
-				inSingle = false
-			} else {
-				cur.WriteByte(c)
-			}
-		case inDouble:
-			if c == '\\' && i+1 < len(s) {
-				next := s[i+1]
-				if next == '"' || next == '\\' || next == '$' || next == '`' {
-					cur.WriteByte(next)
-					i++
-
-					continue
-				}
-
-				cur.WriteByte(c)
-			} else if c == '"' {
-				inDouble = false
-			} else {
-				cur.WriteByte(c)
-			}
-		default:
-			switch c {
-			case '\'':
-				inSingle = true
-				hasContent = true
-			case '"':
-				inDouble = true
-				hasContent = true
-			case '\\':
-				if i+1 >= len(s) {
-					return nil, fmt.Errorf("trailing backslash")
-				}
-
-				cur.WriteByte(s[i+1])
-				i++
-
-				hasContent = true
-			case ' ', '\t', '\n', '\r':
-				if hasContent {
-					tokens = append(tokens, cur.String())
-					cur.Reset()
-
-					hasContent = false
-				}
-			default:
-				cur.WriteByte(c)
-				hasContent = true
-			}
+		skip, err := l.step(i)
+		if err != nil {
+			return nil, err
 		}
+
+		i += skip
 	}
 
-	if inSingle || inDouble {
+	if l.inSingle || l.inDouble {
 		return nil, fmt.Errorf("unterminated quoted string")
 	}
 
-	if hasContent {
-		tokens = append(tokens, cur.String())
+	l.flush()
+
+	return l.tokens, nil
+}
+
+type shellLexer struct {
+	s          string
+	tokens     []string
+	cur        strings.Builder
+	hasContent bool
+	inSingle   bool
+	inDouble   bool
+}
+
+func (l *shellLexer) step(i int) (int, error) {
+	switch {
+	case l.inSingle:
+		l.stepSingle(l.s[i])
+
+		return 0, nil
+	case l.inDouble:
+		return l.stepDouble(i), nil
+	default:
+		return l.stepUnquoted(i)
+	}
+}
+
+func (l *shellLexer) stepSingle(c byte) {
+	if c == '\'' {
+		l.inSingle = false
+	} else {
+		l.cur.WriteByte(c)
+	}
+}
+
+func (l *shellLexer) stepDouble(i int) int {
+	c := l.s[i]
+
+	if c == '"' {
+		l.inDouble = false
+
+		return 0
 	}
 
-	return tokens, nil
+	if c == '\\' && i+1 < len(l.s) {
+		next := l.s[i+1]
+		if next == '"' || next == '\\' || next == '$' || next == '`' {
+			l.cur.WriteByte(next)
+
+			return 1
+		}
+	}
+
+	l.cur.WriteByte(c)
+
+	return 0
+}
+
+func (l *shellLexer) stepUnquoted(i int) (int, error) {
+	c := l.s[i]
+
+	switch c {
+	case '\'':
+		l.inSingle = true
+		l.hasContent = true
+	case '"':
+		l.inDouble = true
+		l.hasContent = true
+	case '\\':
+		if i+1 >= len(l.s) {
+			return 0, fmt.Errorf("trailing backslash")
+		}
+
+		l.cur.WriteByte(l.s[i+1])
+		l.hasContent = true
+
+		return 1, nil
+	case ' ', '\t', '\n', '\r':
+		l.flush()
+	default:
+		l.cur.WriteByte(c)
+		l.hasContent = true
+	}
+
+	return 0, nil
+}
+
+func (l *shellLexer) flush() {
+	if l.hasContent {
+		l.tokens = append(l.tokens, l.cur.String())
+		l.cur.Reset()
+
+		l.hasContent = false
+	}
 }
 
 // StringField extracts a string value from a map[string]any.

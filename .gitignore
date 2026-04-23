@@ -7,6 +7,7 @@
 **/.vscode
 
 # Go
+bin/
 dist/
 cover.out
 *.test
