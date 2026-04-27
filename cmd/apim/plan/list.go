@@ -166,6 +166,6 @@ func planColumns() []printer.Column {
 		{Name: "Status", Value: func(i any) string { return cmdutil.StringField(i, "status") }},
 		{Name: "Validation", Value: func(i any) string { return cmdutil.StringField(i, "validation") }},
 		{Name: "ID", Value: func(i any) string { return cmdutil.StringField(i, "id") }},
-		{Name: "Updated", Value: func(i any) string { return cmdutil.StringField(i, "updatedAt") }},
+		{Name: "Updated", Value: func(i any) string { return cmdutil.TimestampField(i, "updatedAt") }},
 	}
 }

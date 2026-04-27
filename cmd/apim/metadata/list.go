@@ -120,6 +120,6 @@ func metadataColumns() []printer.Column {
 		{Name: "Name", Value: func(i any) string { return cmdutil.StringField(i, "name") }},
 		{Name: "Value", Value: func(i any) string { return cmdutil.StringField(i, "value") }},
 		{Name: "Format", Value: func(i any) string { return cmdutil.StringField(i, "format") }},
-		{Name: "Updated", Value: func(i any) string { return cmdutil.StringField(i, "updatedAt") }},
+		{Name: "Updated", Value: func(i any) string { return cmdutil.TimestampField(i, "updatedAt") }},
 	}
 }

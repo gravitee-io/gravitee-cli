@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -484,16 +485,23 @@ func (l *shellLexer) flush() {
 	}
 }
 
-// StringField extracts a string value from a map[string]any.
+// StringField extracts a value from a map[string]any and formats it as a string.
 func StringField(item any, key string) string {
 	m, ok := item.(map[string]any)
 	if !ok {
 		return ""
 	}
 
-	s, _ := m[key].(string)
+	v, ok := m[key]
+	if !ok || v == nil {
+		return ""
+	}
 
-	return s
+	if f, ok := v.(float64); ok {
+		return strconv.FormatInt(int64(f), 10)
+	}
+
+	return fmt.Sprintf("%v", v)
 }
 
 // ValidatePagination checks that page and perPage are positive.

@@ -123,7 +123,7 @@ func apiKeyColumns() []printer.Column {
 		{Name: "Key", Value: func(i any) string { return cmdutil.StringField(i, "key") }},
 		{Name: "Revoked", Value: func(i any) string { return boolField(i, "revoked") }},
 		{Name: "Expired", Value: func(i any) string { return boolField(i, "expired") }},
-		{Name: "Created", Value: func(i any) string { return cmdutil.StringField(i, "createdAt") }},
+		{Name: "Created", Value: func(i any) string { return cmdutil.TimestampField(i, "createdAt") }},
 		{Name: "Expire At", Value: func(i any) string {
 			s := cmdutil.StringField(i, "expireAt")
 			if s == "" {

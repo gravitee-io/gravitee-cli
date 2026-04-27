@@ -168,6 +168,6 @@ func subColumns() []printer.Column {
 		{Name: "Plan", Value: func(i any) string { return nestedID(i, "plan") }},
 		{Name: "Application", Value: func(i any) string { return nestedID(i, "application") }},
 		{Name: "Status", Value: func(i any) string { return cmdutil.StringField(i, "status") }},
-		{Name: "Created", Value: func(i any) string { return cmdutil.StringField(i, "createdAt") }},
+		{Name: "Created", Value: func(i any) string { return cmdutil.TimestampField(i, "createdAt") }},
 	}
 }

@@ -42,10 +42,6 @@ func NewAPICmd(f *factory.Factory) *cobra.Command {
 	cmd.AddCommand(newImportCmd(f))
 	cmd.AddCommand(newExportCmd(f))
 	cmd.AddCommand(newRollbackCmd(f))
-	cmd.AddCommand(newAnalyticsCmd(f))
-	cmd.AddCommand(newHealthCmd(f))
-	cmd.AddCommand(newLogsCmd(f))
-	cmd.AddCommand(newLogCmd(f))
 
 	return cmd
 }

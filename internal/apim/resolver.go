@@ -63,10 +63,21 @@ func (s *service) ResolveAPI(pathOrID string) (string, error) {
 	}
 }
 
+// normalizePath strips trailing slashes, preserving the root "/".
+func normalizePath(p string) string {
+	n := strings.TrimRight(p, "/")
+	if n == "" {
+		return "/"
+	}
+	return n
+}
+
 // matchesContextPath reports whether any of the API's access paths equals target.
 // V2 APIs expose contextPath directly; V4 APIs expose listeners[].paths[].path.
 func matchesContextPath(item map[string]any, target string) bool {
-	if cp, _ := item["contextPath"].(string); cp == target {
+	t := normalizePath(target)
+
+	if cp, _ := item["contextPath"].(string); normalizePath(cp) == t {
 		return true
 	}
 
@@ -84,7 +95,7 @@ func matchesContextPath(item map[string]any, target string) bool {
 				continue
 			}
 
-			if path, _ := pm["path"].(string); path == target {
+			if path, _ := pm["path"].(string); normalizePath(path) == t {
 				return true
 			}
 		}

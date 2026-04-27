@@ -108,10 +108,10 @@ func TestAPIMAPILifecycle(t *testing.T) {
 	t.Run("observability wiring", func(t *testing.T) {
 		// These commands must not error even if the underlying data is empty
 		// (no traffic means logs/analytics return empty paginated responses).
-		runCLIExpectSuccess(t, "apim", "api", "health", apiID)
-		runCLIExpectSuccess(t, "apim", "api", "logs", apiID, "-o", "json")
-		runCLIExpectSuccess(t, "apim", "api",
-			"analytics", apiID,
+		runCLIExpectSuccess(t, "apim", "health", "--api", apiID)
+		runCLIExpectSuccess(t, "apim", "log", "list", "--api", apiID, "-o", "json")
+		runCLIExpectSuccess(t, "apim", "analytics",
+			"--api", apiID,
 			"--type", "COUNT",
 			"--from", "1",
 			"--to", "9999999999999",

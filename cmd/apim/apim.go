@@ -19,10 +19,13 @@ import (
 
 	"github.com/spf13/cobra"
 
+	analyticscmd "github.com/gravitee-io/gio-cli/cmd/apim/analytics"
 	apicmd "github.com/gravitee-io/gio-cli/cmd/apim/api"
 	apikeycmd "github.com/gravitee-io/gio-cli/cmd/apim/apikey"
 	appcmd "github.com/gravitee-io/gio-cli/cmd/apim/application"
 	envcmd "github.com/gravitee-io/gio-cli/cmd/apim/environment"
+	healthcmd "github.com/gravitee-io/gio-cli/cmd/apim/health"
+	logcmd "github.com/gravitee-io/gio-cli/cmd/apim/log"
 	membercmd "github.com/gravitee-io/gio-cli/cmd/apim/member"
 	metadatacmd "github.com/gravitee-io/gio-cli/cmd/apim/metadata"
 	pagecmd "github.com/gravitee-io/gio-cli/cmd/apim/page"
@@ -65,6 +68,9 @@ func NewAPIMCmd(f *factory.Factory) *cobra.Command {
 	})
 
 	cmd.AddCommand(apicmd.NewAPICmd(f))
+	cmd.AddCommand(logcmd.NewLogCmd(f))
+	cmd.AddCommand(analyticscmd.NewAnalyticsCmd(f))
+	cmd.AddCommand(healthcmd.NewHealthCmd(f))
 	cmd.AddCommand(plancmd.NewPlanCmd(f))
 	cmd.AddCommand(subcmd.NewSubscriptionCmd(f))
 	cmd.AddCommand(apikeycmd.NewAPIKeyCmd(f))

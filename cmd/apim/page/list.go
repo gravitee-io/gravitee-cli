@@ -78,6 +78,6 @@ func pageColumns() []printer.Column {
 		{Name: "Visibility", Value: func(i any) string { return cmdutil.StringField(i, "visibility") }},
 		{Name: "Published", Value: func(i any) string { return boolField(i, "published") }},
 		{Name: "ID", Value: func(i any) string { return cmdutil.StringField(i, "id") }},
-		{Name: "Updated", Value: func(i any) string { return cmdutil.StringField(i, "updatedAt") }},
+		{Name: "Updated", Value: func(i any) string { return cmdutil.TimestampField(i, "updatedAt") }},
 	}
 }

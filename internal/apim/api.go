@@ -297,7 +297,7 @@ func (s *service) ListAPILogs(apiID string, p ListAPILogsParams) (*PaginatedResp
 }
 
 func (s *service) GetAPILog(apiID, requestID string) (json.RawMessage, error) {
-	data, err := s.client.Get(s.v2(fmt.Sprintf("apis/%s/logs/%s", apiID, requestID)))
+	data, err := s.client.Get(s.v2(fmt.Sprintf("apis/%s/analytics/%s", apiID, requestID)))
 	if err != nil {
 		return nil, err
 	}
