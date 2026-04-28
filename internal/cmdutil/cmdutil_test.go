@@ -18,6 +18,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -522,6 +524,108 @@ func TestParseLoginURL(t *testing.T) {
 				t.Errorf("env: got %q, want %q", env, tt.wantEnv)
 			}
 		})
+	}
+}
+
+func TestExpandEnvVars(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		env     map[string]string
+		want    string
+		wantErr string
+	}{
+		{
+			name:  "single var",
+			input: `{"client_id": "${CLIENT_ID}"}`,
+			env:   map[string]string{"CLIENT_ID": "abc123"},
+			want:  `{"client_id": "abc123"}`,
+		},
+		{
+			name:  "multiple vars",
+			input: `{"id": "${CLIENT_ID}", "secret": "${CLIENT_SECRET}", "env": "${ENV}"}`,
+			env:   map[string]string{"CLIENT_ID": "id-xyz", "CLIENT_SECRET": "s3cr3t", "ENV": "prod"},
+			want:  `{"id": "id-xyz", "secret": "s3cr3t", "env": "prod"}`,
+		},
+		{
+			name:  "no vars",
+			input: `{"key": "value"}`,
+			env:   nil,
+			want:  `{"key": "value"}`,
+		},
+		{
+			name:    "undefined var",
+			input:   `{"id": "${MISSING_VAR}"}`,
+			env:     nil,
+			wantErr: "environment variable 'MISSING_VAR' is not defined",
+		},
+		{
+			name:    "first undefined var reported",
+			input:   `{"a": "${DEFINED}", "b": "${MISSING}"}`,
+			env:     map[string]string{"DEFINED": "ok"},
+			wantErr: "environment variable 'MISSING' is not defined",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for k, v := range tt.env {
+				t.Setenv(k, v)
+			}
+
+			got, err := expandEnvVars([]byte(tt.input))
+
+			if tt.wantErr != "" {
+				if err == nil || !contains(err.Error(), tt.wantErr) {
+					t.Fatalf("expected error containing %q, got: %v", tt.wantErr, err)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if string(got) != tt.want {
+				t.Errorf("got %q, want %q", string(got), tt.want)
+			}
+		})
+	}
+}
+
+func TestReadJSONFile_EnvExpansion(t *testing.T) {
+	t.Setenv("MY_ID", "client-42")
+	t.Setenv("MY_SECRET", "s3cr3t")
+
+	content := `{"client_id": "${MY_ID}", "client_secret": "${MY_SECRET}"}`
+	tmp := filepath.Join(t.TempDir(), "body.json")
+
+	if err := os.WriteFile(tmp, []byte(content), 0o600); err != nil {
+		t.Fatalf("write temp file: %v", err)
+	}
+
+	got, err := ReadJSONFile(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	want := `{"client_id": "client-42", "client_secret": "s3cr3t"}`
+	if string(got) != want {
+		t.Errorf("got %q, want %q", string(got), want)
+	}
+}
+
+func TestReadJSONFile_UndefinedVar(t *testing.T) {
+	content := `{"id": "${NOT_SET}"}`
+	tmp := filepath.Join(t.TempDir(), "body.json")
+
+	if err := os.WriteFile(tmp, []byte(content), 0o600); err != nil {
+		t.Fatalf("write temp file: %v", err)
+	}
+
+	_, err := ReadJSONFile(tmp)
+	if err == nil || !contains(err.Error(), "NOT_SET") {
+		t.Fatalf("expected error about NOT_SET, got: %v", err)
 	}
 }
 
