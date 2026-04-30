@@ -23,7 +23,7 @@ import (
 
 // PageService defines page-related operations.
 type PageService interface {
-	ListPages(apiID, parentID string) ([]json.RawMessage, error)
+	ListPages(apiID, parentID string) (*PaginatedResponse, error)
 	GetPage(apiID, pageID string) (json.RawMessage, error)
 	CreatePage(apiID string, body json.RawMessage) (json.RawMessage, error)
 	UpdatePage(apiID, pageID string, body json.RawMessage) (json.RawMessage, error)
@@ -32,7 +32,7 @@ type PageService interface {
 	UnpublishPage(apiID, pageID string) (json.RawMessage, error)
 }
 
-func (s *service) ListPages(apiID, parentID string) ([]json.RawMessage, error) {
+func (s *service) ListPages(apiID, parentID string) (*PaginatedResponse, error) {
 	q := client.BuildQuery(map[string]string{"parentId": parentID})
 
 	path := fmt.Sprintf("apis/%s/pages", apiID)
@@ -52,7 +52,7 @@ func (s *service) ListPages(apiID, parentID string) ([]json.RawMessage, error) {
 		return nil, fmt.Errorf("failed to parse pages response: %w", err)
 	}
 
-	return resp.Pages, nil
+	return &PaginatedResponse{Data: resp.Pages}, nil
 }
 
 func (s *service) GetPage(apiID, pageID string) (json.RawMessage, error) {

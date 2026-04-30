@@ -109,7 +109,7 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
+	if f.OutputFormat != printer.FormatTable {
 		return p.PrintDetail(resp)
 	}
 
@@ -131,7 +131,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
+	if f.OutputFormat != printer.FormatTable {
 		return p.PrintDetail(allData)
 	}
 

@@ -110,7 +110,6 @@ release:
     **2. Download and extract** (replace `linux_amd64` with your archive):
 
     ```bash
-    curl -LO https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_amd64.tar.gz
     tar -xzf gio_{{ .Version }}_linux_amd64.tar.gz
     ./gio version
     ```

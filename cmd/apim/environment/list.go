@@ -53,7 +53,7 @@ func runList(f *factory.Factory) error {
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
+	if f.OutputFormat != printer.FormatTable {
 		return p.PrintDetail(data)
 	}
 

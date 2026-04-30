@@ -114,7 +114,7 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
-			if printer.IsStructured(f.OutputFormat) {
+			if f.OutputFormat != printer.FormatTable {
 				return p.PrintDetail(data)
 			}
 
@@ -174,7 +174,7 @@ func runList(f *factory.Factory, apiID string, applicationIDs, planIDs, methods 
 			return err
 		}
 
-		if printer.IsStructured(f.OutputFormat) {
+		if f.OutputFormat != printer.FormatTable {
 			return p.PrintDetail(allData)
 		}
 
@@ -194,7 +194,7 @@ func runList(f *factory.Factory, apiID string, applicationIDs, planIDs, methods 
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
+	if f.OutputFormat != printer.FormatTable {
 		return p.PrintDetail(resp)
 	}
 

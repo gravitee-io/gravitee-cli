@@ -61,7 +61,7 @@ type MockService struct {
 	ListMembersFunc        func(string, int, int) (*PaginatedResponse, error)
 	AddMemberFunc          func(string, string, string) (json.RawMessage, error)
 	RemoveMemberFunc       func(string, string) error
-	ListPagesFunc          func(string, string) ([]json.RawMessage, error)
+	ListPagesFunc          func(string, string) (*PaginatedResponse, error)
 	GetPageFunc            func(string, string) (json.RawMessage, error)
 	CreatePageFunc         func(string, json.RawMessage) (json.RawMessage, error)
 	UpdatePageFunc         func(string, string, json.RawMessage) (json.RawMessage, error)
@@ -330,7 +330,7 @@ func (m *MockService) RemoveMember(a, mid string) error {
 	return unexpected("RemoveMember")
 }
 
-func (m *MockService) ListPages(a, parent string) ([]json.RawMessage, error) {
+func (m *MockService) ListPages(a, parent string) (*PaginatedResponse, error) {
 	if m.ListPagesFunc != nil {
 		return m.ListPagesFunc(a, parent)
 	}

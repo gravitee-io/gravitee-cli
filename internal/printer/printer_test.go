@@ -272,6 +272,63 @@ func TestPrintDetailID_MissingID(t *testing.T) {
 	}
 }
 
+func TestPrintDetailID_PaginatedEnvelope(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatID, &buf, &buf, false, false)
+
+	item := map[string]any{
+		"data": []any{
+			map[string]any{"id": "id-1", "name": "A"},
+			map[string]any{"id": "id-2", "name": "B"},
+		},
+		"pagination": map[string]any{"page": 1},
+	}
+
+	if err := p.PrintDetail(item); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := buf.String(); got != "id-1\nid-2\n" {
+		t.Errorf("expected %q, got %q", "id-1\nid-2\n", got)
+	}
+}
+
+func TestPrintDetailID_RawArray(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatID, &buf, &buf, false, false)
+
+	items := []map[string]string{
+		{"id": "id-a", "name": "A"},
+		{"id": "id-b", "name": "B"},
+	}
+
+	if err := p.PrintDetail(items); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := buf.String(); got != "id-a\nid-b\n" {
+		t.Errorf("expected %q, got %q", "id-a\nid-b\n", got)
+	}
+}
+
+func TestPrintDetailID_NonArrayDataField(t *testing.T) {
+	var buf bytes.Buffer
+
+	p := New(FormatID, &buf, &buf, false, false)
+
+	item := map[string]any{"id": "top-level-id", "data": "some string payload"}
+
+	if err := p.PrintDetail(item); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got := buf.String(); got != "top-level-id\n" {
+		t.Errorf("expected %q, got %q", "top-level-id\n", got)
+	}
+}
+
 func TestPrintListID(t *testing.T) {
 	var buf bytes.Buffer
 

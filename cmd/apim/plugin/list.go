@@ -101,7 +101,7 @@ func (o *listOptions) fetchSingleType(f *factory.Factory, p *printer.Printer) er
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
+	if f.OutputFormat != printer.FormatTable {
 		return p.PrintDetail(data)
 	}
 
@@ -132,7 +132,7 @@ func (o *listOptions) fetchAllTypes(f *factory.Factory, p *printer.Printer) erro
 		}
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
+	if f.OutputFormat != printer.FormatTable {
 		return p.PrintDetail(allItems)
 	}
 

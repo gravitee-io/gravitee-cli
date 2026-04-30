@@ -59,16 +59,16 @@ func (o *listOptions) run() error {
 		return err
 	}
 
-	pages, err := f.APIM().ListPages(o.apiID, o.parentID)
+	resp, err := f.APIM().ListPages(o.apiID, o.parentID)
 	if err != nil {
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
-		return p.PrintDetail(pages)
+	if f.OutputFormat != printer.FormatTable {
+		return p.PrintDetail(resp)
 	}
 
-	return p.PrintList(pages, pageColumns())
+	return p.PrintList(resp.Data, pageColumns())
 }
 
 func pageColumns() []printer.Column {

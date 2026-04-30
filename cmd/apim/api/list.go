@@ -15,7 +15,6 @@
 package api
 
 import (
-	"encoding/json"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -93,9 +92,8 @@ func (o *listOptions) fetchPage(f *factory.Factory, p *printer.Printer, page int
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
-		raw, _ := json.Marshal(resp)
-		return p.PrintDetail(json.RawMessage(raw))
+	if f.OutputFormat != printer.FormatTable {
+		return p.PrintDetail(resp)
 	}
 
 	if err := p.PrintList(resp.Data, apiColumns(o.wide)); err != nil {
@@ -116,7 +114,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 		return err
 	}
 
-	if printer.IsStructured(f.OutputFormat) {
+	if f.OutputFormat != printer.FormatTable {
 		return p.PrintDetail(allData)
 	}
 

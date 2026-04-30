@@ -118,9 +118,24 @@ func (p *Printer) PrintHint(format string, args ...any) {
 }
 
 func (p *Printer) printID(item any) error {
-	m, err := toMap(item)
+	raw, err := json.Marshal(item)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal item: %w", err)
+	}
+
+	if len(raw) > 0 && raw[0] == '[' {
+		return p.printIDList(item)
+	}
+
+	var m map[string]any
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return fmt.Errorf("failed to unmarshal item: %w", err)
+	}
+
+	if data, ok := m["data"]; ok {
+		if _, isSlice := data.([]any); isSlice {
+			return p.printIDList(data)
+		}
 	}
 
 	if id := idFromMap(m); id != "" {
@@ -148,20 +163,6 @@ func (p *Printer) printIDList(items any) error {
 	}
 
 	return nil
-}
-
-func toMap(item any) (map[string]any, error) {
-	raw, err := json.Marshal(item)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal item: %w", err)
-	}
-
-	var m map[string]any
-	if err := json.Unmarshal(raw, &m); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal item: %w", err)
-	}
-
-	return m, nil
 }
 
 func idFromMap(m map[string]any) string {
