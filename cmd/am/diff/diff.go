@@ -39,50 +39,7 @@ func NewDiffCmd(f *factory.Factory) *cobra.Command {
 		Short: "Compare domain configuration between two contexts",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			if fromCtx == "" || toCtx == "" {
-				return fmt.Errorf("--from and --to are required")
-			}
-			cfg := f.Config
-			fromResolved, err := cfg.Resolve(config.Overrides{Context: fromCtx, Domain: fromDomain}, "am")
-			if err != nil {
-				return fmt.Errorf("--from: %w", err)
-			}
-			toResolved, err := cfg.Resolve(config.Overrides{Context: toCtx, Domain: toDomain}, "am")
-			if err != nil {
-				return fmt.Errorf("--to: %w", err)
-			}
-			if fromResolved.Domain == "" || toResolved.Domain == "" {
-				return fmt.Errorf("both contexts must have a domain set (use --from-domain / --to-domain to override)")
-			}
-
-			fromClient := client.NewHTTPClient(client.HTTPClientConfig{BaseURL: fromResolved.URL, Token: fromResolved.Token})
-			toClient := client.NewHTTPClient(client.HTTPClientConfig{BaseURL: toResolved.URL, Token: toResolved.Token})
-
-			fmt.Fprintf(f.IOStreams.Out, "Comparing %s/%s → %s/%s\n\n",
-				fromCtx, fromResolved.Domain, toCtx, toResolved.Domain)
-
-			for _, spec := range resourceSpecs {
-				fromItems, err := fetchItems(fromClient, fromResolved, spec.path, spec.paginated)
-				if err != nil {
-					fmt.Fprintf(f.IOStreams.Out, "  [%s] error fetching from: %v\n", spec.name, err)
-					continue
-				}
-				toItems, err := fetchItems(toClient, toResolved, spec.path, spec.paginated)
-				if err != nil {
-					fmt.Fprintf(f.IOStreams.Out, "  [%s] error fetching to: %v\n", spec.name, err)
-					continue
-				}
-				result := compareResources(fromItems, toItems, spec.keyField, spec.compareFields)
-				if result.Added+result.Removed+result.Changed == 0 {
-					fmt.Fprintf(f.IOStreams.Out, "  [%s] no differences\n", spec.name)
-					continue
-				}
-				fmt.Fprintf(f.IOStreams.Out, "  [%s] +%d -%d ~%d\n", spec.name, result.Added, result.Removed, result.Changed)
-				for _, line := range result.Lines {
-					fmt.Fprintf(f.IOStreams.Out, "    %s\n", line)
-				}
-			}
-			return nil
+			return runDiff(f, fromCtx, toCtx, fromDomain, toDomain)
 		},
 	}
 	cmd.Flags().StringVar(&fromCtx, "from", "", "Source context name (required)")
@@ -90,6 +47,61 @@ func NewDiffCmd(f *factory.Factory) *cobra.Command {
 	cmd.Flags().StringVar(&fromDomain, "from-domain", "", "Override domain ID for source context")
 	cmd.Flags().StringVar(&toDomain, "to-domain", "", "Override domain ID for target context")
 	return cmd
+}
+
+func runDiff(f *factory.Factory, fromCtx, toCtx, fromDomain, toDomain string) error {
+	if fromCtx == "" || toCtx == "" {
+		return fmt.Errorf("--from and --to are required")
+	}
+
+	fromResolved, toResolved, err := resolveContexts(f.Config, fromCtx, toCtx, fromDomain, toDomain)
+	if err != nil {
+		return err
+	}
+
+	fromClient := client.NewHTTPClient(client.HTTPClientConfig{BaseURL: fromResolved.URL, Token: fromResolved.Token})
+	toClient := client.NewHTTPClient(client.HTTPClientConfig{BaseURL: toResolved.URL, Token: toResolved.Token})
+
+	fmt.Fprintf(f.IOStreams.Out, "Comparing %s/%s → %s/%s\n\n",
+		fromCtx, fromResolved.Domain, toCtx, toResolved.Domain)
+
+	for _, spec := range resourceSpecs {
+		fromItems, err := fetchItems(fromClient, fromResolved, spec.path, spec.paginated)
+		if err != nil {
+			fmt.Fprintf(f.IOStreams.Out, "  [%s] error fetching from: %v\n", spec.name, err)
+			continue
+		}
+		toItems, err := fetchItems(toClient, toResolved, spec.path, spec.paginated)
+		if err != nil {
+			fmt.Fprintf(f.IOStreams.Out, "  [%s] error fetching to: %v\n", spec.name, err)
+			continue
+		}
+		result := compareResources(fromItems, toItems, spec.keyField, spec.compareFields)
+		if result.Added+result.Removed+result.Changed == 0 {
+			fmt.Fprintf(f.IOStreams.Out, "  [%s] no differences\n", spec.name)
+			continue
+		}
+		fmt.Fprintf(f.IOStreams.Out, "  [%s] +%d -%d ~%d\n", spec.name, result.Added, result.Removed, result.Changed)
+		for _, line := range result.Lines {
+			fmt.Fprintf(f.IOStreams.Out, "    %s\n", line)
+		}
+	}
+	return nil
+}
+
+func resolveContexts(cfg *config.Config, fromCtx, toCtx, fromDomain, toDomain string) (*config.ResolvedContext, *config.ResolvedContext, error) {
+	fromResolved, err := cfg.Resolve(config.Overrides{Context: fromCtx, Domain: fromDomain}, "am")
+	if err != nil {
+		return nil, nil, fmt.Errorf("--from: %w", err)
+	}
+	toResolved, err := cfg.Resolve(config.Overrides{Context: toCtx, Domain: toDomain}, "am")
+	if err != nil {
+		return nil, nil, fmt.Errorf("--to: %w", err)
+	}
+	if fromResolved.Domain == "" || toResolved.Domain == "" {
+		return nil, nil, fmt.Errorf("both contexts must have a domain set (use --from-domain / --to-domain to override)")
+	}
+	return fromResolved, toResolved, nil
 }
 
 func fetchItems(c client.GraviteeClient, r *config.ResolvedContext, path string, paginated bool) ([]map[string]interface{}, error) {

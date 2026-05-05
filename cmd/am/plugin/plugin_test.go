@@ -72,8 +72,14 @@ func TestPluginCreateWithFile(t *testing.T) {
 	}
 	f, out := newTestFactory(fake, false)
 
-	tmp, _ := os.CreateTemp("", "*.json")
-	tmp.WriteString(`{"clientId":"abc","clientSecret":"xyz"}`)
+	tmp, err := os.CreateTemp("", "*.json")
+	if err != nil {
+		t.Fatalf("failed to create temp file: %v", err)
+	}
+	_, err = tmp.WriteString(`{"clientId":"abc","clientSecret":"xyz"}`)
+	if err != nil {
+		t.Fatalf("failed to write to temp file: %v", err)
+	}
 	tmp.Close()
 	defer os.Remove(tmp.Name())
 

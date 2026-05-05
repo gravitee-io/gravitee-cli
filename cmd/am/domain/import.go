@@ -36,8 +36,8 @@ func runImport(f *factory.Factory, file, targetDomainID string) error {
 	}
 
 	var exportData map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &exportData); err != nil {
-		return fmt.Errorf("failed to parse export file: %w", err)
+	if parseErr := json.Unmarshal(raw, &exportData); parseErr != nil {
+		return fmt.Errorf("failed to parse export file: %w", parseErr)
 	}
 
 	p, err := cmdutil.NewPrinter(f)

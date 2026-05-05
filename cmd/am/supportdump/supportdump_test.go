@@ -16,7 +16,10 @@ func TestRedactSecrets(t *testing.T) {
 		"publicKey":    "pk-value",
 	}
 	result := redactSecrets(input)
-	m := result.(map[string]interface{})
+	m, ok := result.(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected map[string]interface{}, got %T", result)
+	}
 	if m["clientSecret"] != "[REDACTED]" {
 		t.Errorf("expected clientSecret to be redacted, got %v", m["clientSecret"])
 	}
@@ -58,8 +61,14 @@ func TestRedactSecretsNested(t *testing.T) {
 		},
 	}
 	result := redactSecrets(input)
-	m := result.(map[string]interface{})
-	conf := m["configuration"].(map[string]interface{})
+	m, ok := result.(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected map[string]interface{}, got %T", result)
+	}
+	conf, ok := m["configuration"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected nested map[string]interface{}, got %T", m["configuration"])
+	}
 	if conf["clientSecret"] != "[REDACTED]" {
 		t.Errorf("expected nested secret to be redacted")
 	}

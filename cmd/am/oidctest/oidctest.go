@@ -48,13 +48,13 @@ func decodeJWT(token string) (header, payload map[string]interface{}, err error)
 		return nil, nil, fmt.Errorf("invalid JWT: expected 3 parts, got %d", len(parts))
 	}
 	decode := func(s string) (map[string]interface{}, error) {
-		b, err := base64.RawURLEncoding.DecodeString(s)
-		if err != nil {
-			return nil, err
+		b, decErr := base64.RawURLEncoding.DecodeString(s)
+		if decErr != nil {
+			return nil, decErr
 		}
 		var m map[string]interface{}
-		if err := json.Unmarshal(b, &m); err != nil {
-			return nil, err
+		if decErr := json.Unmarshal(b, &m); decErr != nil {
+			return nil, decErr
 		}
 		return m, nil
 	}

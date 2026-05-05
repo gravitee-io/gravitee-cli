@@ -61,7 +61,30 @@ func exportToMemory(f *factory.Factory, domainID string) (map[string]json.RawMes
 		return nil, fmt.Errorf("failed to fetch domain: %w", err)
 	}
 
-	jobs := []struct {
+	jobs := buildExportJobs(f, domainID)
+	results, err := runExportJobs(jobs)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]json.RawMessage{
+		"domain":            domainData,
+		"applications":      results["applications"],
+		"identityProviders": results["identityProviders"],
+		"roles":             results["roles"],
+		"scopes":            results["scopes"],
+		"factors":           results["factors"],
+		"groups":            results["groups"],
+		"flows":             results["flows"],
+		"certificates":      results["certificates"],
+	}, nil
+}
+
+func buildExportJobs(f *factory.Factory, domainID string) []struct {
+	key string
+	fn  func() (json.RawMessage, error)
+} {
+	return []struct {
 		key string
 		fn  func() (json.RawMessage, error)
 	}{
@@ -106,7 +129,12 @@ func exportToMemory(f *factory.Factory, domainID string) (map[string]json.RawMes
 			return json.RawMessage(data), nil
 		}},
 	}
+}
 
+func runExportJobs(jobs []struct {
+	key string
+	fn  func() (json.RawMessage, error)
+}) (map[string]json.RawMessage, error) {
 	results := make(map[string]json.RawMessage)
 	var mu sync.Mutex
 	var wg sync.WaitGroup
@@ -134,18 +162,7 @@ func exportToMemory(f *factory.Factory, domainID string) (map[string]json.RawMes
 	if firstErr != nil {
 		return nil, firstErr
 	}
-
-	return map[string]json.RawMessage{
-		"domain":            domainData,
-		"applications":      results["applications"],
-		"identityProviders": results["identityProviders"],
-		"roles":             results["roles"],
-		"scopes":            results["scopes"],
-		"factors":           results["factors"],
-		"groups":            results["groups"],
-		"flows":             results["flows"],
-		"certificates":      results["certificates"],
-	}, nil
+	return results, nil
 }
 
 func fetchAllPaginated(f *factory.Factory, domainID, resource string) (json.RawMessage, error) {

@@ -31,6 +31,7 @@ func NewTraceCmd(f *factory.Factory) *cobra.Command {
 	return cmd
 }
 
+//nolint:funlen
 func runTrace(f *factory.Factory, userArg, appArg string) error {
 	user, err := resolveUser(f, userArg)
 	if err != nil {

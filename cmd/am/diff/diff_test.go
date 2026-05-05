@@ -83,8 +83,9 @@ func TestDiffCmd(t *testing.T) {
 	// from: has scope-a only
 	fromHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		enc := json.NewEncoder(w)
 		if strings.Contains(r.URL.Path, "scopes") {
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = enc.Encode(map[string]interface{}{
 				"data": []map[string]interface{}{{"key": "scope-a", "name": "Scope A"}},
 			})
 			return
@@ -92,16 +93,17 @@ func TestDiffCmd(t *testing.T) {
 		if strings.Contains(r.URL.Path, "roles") ||
 			strings.Contains(r.URL.Path, "groups") ||
 			strings.Contains(r.URL.Path, "applications") {
-			json.NewEncoder(w).Encode(map[string]interface{}{"data": []interface{}{}})
+			_ = enc.Encode(map[string]interface{}{"data": []interface{}{}})
 			return
 		}
-		json.NewEncoder(w).Encode([]interface{}{})
+		_ = enc.Encode([]interface{}{})
 	})
 	// to: has scope-a + scope-b (one extra)
 	toHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		enc := json.NewEncoder(w)
 		if strings.Contains(r.URL.Path, "scopes") {
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = enc.Encode(map[string]interface{}{
 				"data": []map[string]interface{}{
 					{"key": "scope-a", "name": "Scope A"},
 					{"key": "scope-b", "name": "Scope B"},
@@ -112,10 +114,10 @@ func TestDiffCmd(t *testing.T) {
 		if strings.Contains(r.URL.Path, "roles") ||
 			strings.Contains(r.URL.Path, "groups") ||
 			strings.Contains(r.URL.Path, "applications") {
-			json.NewEncoder(w).Encode(map[string]interface{}{"data": []interface{}{}})
+			_ = enc.Encode(map[string]interface{}{"data": []interface{}{}})
 			return
 		}
-		json.NewEncoder(w).Encode([]interface{}{})
+		_ = enc.Encode([]interface{}{})
 	})
 
 	fromServer := httptest.NewServer(fromHandler)

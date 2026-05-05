@@ -66,53 +66,57 @@ func NewShellCmd(f *factory.Factory, parent *cobra.Command) *cobra.Command {
 		Short:   "Start an interactive shell session",
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			out := f.IOStreams.Out
-			fmt.Fprintln(out, "\nGravitee AM CLI - Interactive Shell")
-			fmt.Fprintln(out, "Type commands without the 'am' prefix. Type 'help' for available commands, 'exit' to quit.")
-			fmt.Fprintln(out)
-
-			scanner := bufio.NewScanner(f.IOStreams.In)
-			for {
-				workspace := ""
-				domain := ""
-				if f.Config != nil {
-					workspace = f.Config.Current
-				}
-				if f.Resolved != nil {
-					domain = f.Resolved.Domain
-				}
-				fmt.Fprint(out, buildPrompt(workspace, domain))
-
-				if !scanner.Scan() {
-					fmt.Fprintln(out, "\nGoodbye!")
-					if err := scanner.Err(); err != nil {
-						return err
-					}
-					return nil
-				}
-				line := strings.TrimSpace(scanner.Text())
-				if line == "" {
-					continue
-				}
-				if line == "exit" || line == "quit" {
-					fmt.Fprintln(out, "Goodbye!")
-					return nil
-				}
-				if line == "clear" {
-					fmt.Fprint(out, "\033[2J\033[H")
-					continue
-				}
-				if line == "help" {
-					_ = parent.Help()
-					continue
-				}
-
-				args := splitArgs(line)
-				parent.SetArgs(args)
-				if err := parent.Execute(); err != nil {
-					fmt.Fprintf(f.IOStreams.Err, "Error: %v\n", err)
-				}
-			}
+			return runShell(f, parent)
 		},
+	}
+}
+
+func runShell(f *factory.Factory, parent *cobra.Command) error {
+	out := f.IOStreams.Out
+	fmt.Fprintln(out, "\nGravitee AM CLI - Interactive Shell")
+	fmt.Fprintln(out, "Type commands without the 'am' prefix. Type 'help' for available commands, 'exit' to quit.")
+	fmt.Fprintln(out)
+
+	scanner := bufio.NewScanner(f.IOStreams.In)
+	for {
+		workspace := ""
+		domain := ""
+		if f.Config != nil {
+			workspace = f.Config.Current
+		}
+		if f.Resolved != nil {
+			domain = f.Resolved.Domain
+		}
+		fmt.Fprint(out, buildPrompt(workspace, domain))
+
+		if !scanner.Scan() {
+			fmt.Fprintln(out, "\nGoodbye!")
+			if err := scanner.Err(); err != nil {
+				return err
+			}
+			return nil
+		}
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+		if line == "exit" || line == "quit" {
+			fmt.Fprintln(out, "Goodbye!")
+			return nil
+		}
+		if line == "clear" {
+			fmt.Fprint(out, "\033[2J\033[H")
+			continue
+		}
+		if line == "help" {
+			_ = parent.Help()
+			continue
+		}
+
+		args := splitArgs(line)
+		parent.SetArgs(args)
+		if err := parent.Execute(); err != nil {
+			fmt.Fprintf(f.IOStreams.Err, "Error: %v\n", err)
+		}
 	}
 }

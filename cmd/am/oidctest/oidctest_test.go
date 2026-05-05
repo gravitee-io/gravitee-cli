@@ -24,7 +24,7 @@ func TestDeriveGatewayURL(t *testing.T) {
 func TestDecodeJWT(t *testing.T) {
 	// A valid JWT with known payload (header.payload.signature)
 	// eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImV4cCI6OTk5OTk5OTk5OX0.sig
-	token := "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImV4cCI6OTk5OTk5OTk5OX0.sig"
+	token := "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImV4cCI6OTk5OTk5OTk5OX0.test_signature"
 	header, payload, err := decodeJWT(token)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

@@ -65,8 +65,8 @@ func collectLintData(f *factory.Factory) (lintContext, error) {
 	var appsResp struct {
 		Data []map[string]interface{} `json:"data"`
 	}
-	if err := json.Unmarshal(data, &appsResp); err != nil {
-		return ctx, err
+	if parseErr := json.Unmarshal(data, &appsResp); parseErr != nil {
+		return ctx, parseErr
 	}
 	ctx.apps = appsResp.Data
 

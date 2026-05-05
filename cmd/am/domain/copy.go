@@ -43,8 +43,8 @@ func runCopy(f *factory.Factory, sourceDomainID, targetName string) error {
 		return err
 	}
 	var newDomain map[string]interface{}
-	if err := json.Unmarshal(created, &newDomain); err != nil {
-		return fmt.Errorf("failed to parse CreateDomain response: %w", err)
+	if parseErr := json.Unmarshal(created, &newDomain); parseErr != nil {
+		return fmt.Errorf("failed to parse CreateDomain response: %w", parseErr)
 	}
 	targetDomainID := cmdutil.StringField(newDomain, "id")
 	if targetDomainID == "" {

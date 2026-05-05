@@ -18,9 +18,9 @@ func newTestFactory(c client.GraviteeClient) (*factory.Factory, *bytes.Buffer) {
 		Current: "ctx-a",
 	}
 	f := &factory.Factory{
-		Config:   cfg,
-		Resolved: &config.ResolvedContext{Name: "ctx-a", URL: "http://am-a", Token: "tok-a", Org: "DEFAULT", Env: "DEFAULT", Domain: "dom1", Type: "am"},
-		Client:   c,
+		Config:    cfg,
+		Resolved:  &config.ResolvedContext{Name: "ctx-a", URL: "http://am-a", Token: "tok-a", Org: "DEFAULT", Env: "DEFAULT", Domain: "dom1", Type: "am"},
+		Client:    c,
 		IOStreams: factory.IOStreams{Out: out},
 	}
 	return f, out

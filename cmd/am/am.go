@@ -109,6 +109,7 @@ func NewAMCmd(f *factory.Factory) *cobra.Command {
 	cmd.AddCommand(themecmd.NewThemeCmd(f))
 	cmd.AddCommand(usercmd.NewUserCmd(f))
 	cmd.AddCommand(orgcmd.NewOrgCmd(f))
+	cmd.AddCommand(newLogoutCmd(f))
 
 	return cmd
 }
