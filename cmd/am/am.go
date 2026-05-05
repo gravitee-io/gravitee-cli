@@ -106,6 +106,7 @@ func NewAMCmd(f *factory.Factory) *cobra.Command {
 	cmd.AddCommand(resourcecmd.NewResourceCmd(f))
 	cmd.AddCommand(rolecmd.NewRoleCmd(f))
 	cmd.AddCommand(scopecmd.NewScopeCmd(f))
+	cmd.AddCommand(newSetCmd(f))
 	cmd.AddCommand(themecmd.NewThemeCmd(f))
 	cmd.AddCommand(usercmd.NewUserCmd(f))
 	cmd.AddCommand(orgcmd.NewOrgCmd(f))
