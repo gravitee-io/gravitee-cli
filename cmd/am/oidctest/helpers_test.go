@@ -1,0 +1,24 @@
+package oidctest
+
+import (
+	"bytes"
+
+	"github.com/gravitee-io/gio-cli/internal/client"
+	"github.com/gravitee-io/gio-cli/internal/config"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+)
+
+func newTestFactory(c client.GraviteeClient) (*factory.Factory, *bytes.Buffer) {
+	out := &bytes.Buffer{}
+	cfg := &config.Config{
+		Contexts:       map[string]config.Context{"test": {URL: "http://am:8093", Token: "tok", Org: "DEFAULT", Env: "DEFAULT"}},
+		CurrentContext: "test",
+	}
+	f := &factory.Factory{
+		Config:   cfg,
+		Resolved: &config.ResolvedContext{Name: "test", URL: "http://am:8093", Token: "tok", Org: "DEFAULT", Env: "DEFAULT", Domain: "dom1", Type: "am"},
+		Client:   c,
+		IOStreams: factory.IOStreams{Out: out},
+	}
+	return f, out
+}

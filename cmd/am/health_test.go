@@ -26,10 +26,10 @@ func newAMTestFactory(fc *client.FakeClient) (*factory.Factory, *bytes.Buffer) {
 func newAMTestFactoryWithConfig(fc *client.FakeClient, cfg *config.Config) (*factory.Factory, *bytes.Buffer) {
 	out := &bytes.Buffer{}
 	var resolved *config.ResolvedContext
-	if cfg != nil && cfg.CurrentContext != "" {
-		if ctx, ok := cfg.Contexts[cfg.CurrentContext]; ok {
+	if cfg != nil && cfg.Current != "" {
+		if ctx, ok := cfg.Contexts[cfg.Current]; ok {
 			resolved = &config.ResolvedContext{
-				Name:  cfg.CurrentContext,
+				Name:  cfg.Current,
 				URL:   ctx.URL,
 				Token: ctx.Token,
 				Org:   ctx.Org,

@@ -46,8 +46,8 @@ func TestLoginWithToken(t *testing.T) {
 	if ctx.URL != "https://am.example.com" {
 		t.Errorf("expected URL, got %q", ctx.URL)
 	}
-	if cfg.CurrentContext != "test-am" {
-		t.Errorf("expected current context 'test-am', got %q", cfg.CurrentContext)
+	if cfg.Current != "test-am" {
+		t.Errorf("expected current context 'test-am', got %q", cfg.Current)
 	}
 }
 
