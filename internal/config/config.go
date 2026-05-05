@@ -40,10 +40,12 @@ type ProductConfig struct {
 
 // Context holds shared fields plus per-product config blocks.
 type Context struct {
-	Org  string         `yaml:"org,omitempty"  json:"org,omitempty"`
-	Env  string         `yaml:"env,omitempty"  json:"env,omitempty"`
-	APIM *ProductConfig `yaml:"apim,omitempty" json:"apim,omitempty"`
-	AM   *ProductConfig `yaml:"am,omitempty"   json:"am,omitempty"`
+	Org    string         `yaml:"org,omitempty"    json:"org,omitempty"`
+	Env    string         `yaml:"env,omitempty"    json:"env,omitempty"`
+	Type   string         `yaml:"type,omitempty"   json:"type,omitempty"`
+	Domain string         `yaml:"domain,omitempty" json:"domain,omitempty"`
+	APIM   *ProductConfig `yaml:"apim,omitempty"   json:"apim,omitempty"`
+	AM     *ProductConfig `yaml:"am,omitempty"     json:"am,omitempty"`
 }
 
 // Config holds the unified CLI configuration.
@@ -54,11 +56,13 @@ type Config struct {
 
 // ResolvedContext holds the fully resolved context after applying overrides.
 type ResolvedContext struct {
-	Name  string
-	URL   string
-	Token string
-	Org   string
-	Env   string
+	Name   string
+	URL    string
+	Token  string
+	Org    string
+	Env    string
+	Type   string
+	Domain string
 }
 
 // Overrides holds flag-based overrides applied on top of the config context.
@@ -66,6 +70,7 @@ type Overrides struct {
 	Context string
 	Org     string
 	EnvID   string
+	Domain  string
 }
 
 // NormalizeContextName lowercases the name and replaces spaces with hyphens
@@ -161,11 +166,13 @@ func (c *Config) Resolve(overrides Overrides, product string) (*ResolvedContext,
 	}
 
 	resolved := &ResolvedContext{
-		Name:  contextName,
-		URL:   pc.URL,
-		Token: pc.Token,
-		Org:   withDefault(ctx.Org, DefaultOrg),
-		Env:   withDefault(ctx.Env, DefaultEnv),
+		Name:   contextName,
+		URL:    pc.URL,
+		Token:  pc.Token,
+		Org:    withDefault(ctx.Org, DefaultOrg),
+		Env:    withDefault(ctx.Env, DefaultEnv),
+		Type:   ctx.Type,
+		Domain: ctx.Domain,
 	}
 
 	if overrides.Org != "" {
@@ -174,6 +181,10 @@ func (c *Config) Resolve(overrides Overrides, product string) (*ResolvedContext,
 
 	if overrides.EnvID != "" {
 		resolved.Env = overrides.EnvID
+	}
+
+	if overrides.Domain != "" {
+		resolved.Domain = overrides.Domain
 	}
 
 	return resolved, nil

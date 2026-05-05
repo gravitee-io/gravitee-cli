@@ -197,6 +197,42 @@ func V1EnvPath(f *factory.Factory, path string) string {
 	return client.V1Path(f.Resolved.Org, f.Resolved.Env, path)
 }
 
+// AMEnvPath builds an AM environment-scoped API path using factory context.
+func AMEnvPath(f *factory.Factory, path string) string {
+	return client.AMEnvPath(f.Resolved.Org, f.Resolved.Env, path)
+}
+
+// AMDomainPath builds an AM domain-scoped API path using factory context.
+func AMDomainPath(f *factory.Factory, path string) string {
+	return client.AMDomainPath(f.Resolved.Org, f.Resolved.Env, f.Resolved.Domain, path)
+}
+
+// RequireAMContext returns an error if no AM context is configured.
+func RequireAMContext(f *factory.Factory) error {
+	if f.Resolved == nil {
+		return fmt.Errorf("no AM context configured\nHint: run 'gio am login' to get started")
+	}
+
+	if f.Resolved.Type != "am" {
+		return fmt.Errorf("current context '%s' is not an AM context (type: %s)\nHint: switch to an AM context with 'gio config use-context <am-context>'", f.Resolved.Name, f.Resolved.Type)
+	}
+
+	return nil
+}
+
+// RequireAMDomain returns an error if no AM domain is set in the context.
+func RequireAMDomain(f *factory.Factory) error {
+	if err := RequireAMContext(f); err != nil {
+		return err
+	}
+
+	if f.Resolved.Domain == "" {
+		return fmt.Errorf("no domain selected\nHint: run 'gio am set domain <id>' to select a domain")
+	}
+
+	return nil
+}
+
 // ReadJSONFile reads a JSON file, expands ${VAR} references from the environment, and returns the raw content.
 func ReadJSONFile(path string) (json.RawMessage, error) {
 	path = filepath.Clean(path)

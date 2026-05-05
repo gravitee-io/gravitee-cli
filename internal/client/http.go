@@ -63,6 +63,16 @@ func V1Path(orgID string, envID string, path string) string {
 	return fmt.Sprintf("/management/organizations/%s/environments/%s/%s", orgID, envID, strings.TrimLeft(path, "/"))
 }
 
+// AMEnvPath builds an AM environment-scoped API path.
+func AMEnvPath(orgID, envID, path string) string {
+	return fmt.Sprintf("/management/organizations/%s/environments/%s/%s", orgID, envID, strings.TrimLeft(path, "/"))
+}
+
+// AMDomainPath builds an AM domain-scoped API path.
+func AMDomainPath(orgID, envID, domainID, path string) string {
+	return fmt.Sprintf("/management/organizations/%s/environments/%s/domains/%s/%s", orgID, envID, domainID, strings.TrimLeft(path, "/"))
+}
+
 func (c *HTTPClient) Get(path string) ([]byte, error) {
 	return c.doRequest(http.MethodGet, path, nil)
 }

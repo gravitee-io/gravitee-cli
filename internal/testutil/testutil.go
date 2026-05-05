@@ -33,6 +33,38 @@ type TestContext struct {
 	Out     *bytes.Buffer
 }
 
+// NewAMTestFactory creates a Factory configured for AM testing.
+func NewAMTestFactory(c client.GraviteeClient, domainID string) *TestContext {
+	out := &bytes.Buffer{}
+	errOut := &bytes.Buffer{}
+
+	return &TestContext{
+		Factory: &factory.Factory{
+			Config: &config.Config{
+				Current: "am-test",
+				Contexts: map[string]*config.Context{
+					"am-test": {
+						Org:    "DEFAULT",
+						Env:    "DEFAULT",
+						Type:   "am",
+						Domain: domainID,
+						AM:     &config.ProductConfig{URL: "https://am-test.company.com", Token: "am-test-token"},
+					},
+				},
+			},
+			Resolved: &config.ResolvedContext{
+				Name: "am-test", URL: "https://am-test.company.com", Token: "am-test-token",
+				Org: "DEFAULT", Env: "DEFAULT",
+				Type: "am", Domain: domainID,
+			},
+			Client:       c,
+			IOStreams:     factory.IOStreams{Out: out, Err: errOut, In: &bytes.Buffer{}},
+			OutputFormat: "table",
+		},
+		Out: out,
+	}
+}
+
 // NewFactory creates a Factory configured for testing with the given client.
 func NewFactory(c client.GraviteeClient) *TestContext {
 	out := &bytes.Buffer{}

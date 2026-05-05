@@ -349,6 +349,54 @@ func TestResolve_NormalizesOverrideContext(t *testing.T) {
 	}
 }
 
+func TestResolve_TypeAndDomainFromContext(t *testing.T) {
+	cfg := &Config{
+		Current: "am-ctx",
+		Contexts: map[string]*Context{
+			"am-ctx": {
+				Type:   "am",
+				Domain: "my-domain-id",
+				AM:     &ProductConfig{URL: "https://am.example.com", Token: "am-token"},
+			},
+		},
+	}
+
+	resolved, err := cfg.Resolve(Overrides{}, "am")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if resolved.Type != "am" {
+		t.Errorf("expected type 'am', got %q", resolved.Type)
+	}
+
+	if resolved.Domain != "my-domain-id" {
+		t.Errorf("expected domain 'my-domain-id', got %q", resolved.Domain)
+	}
+}
+
+func TestResolve_DomainOverride(t *testing.T) {
+	cfg := &Config{
+		Current: "am-ctx",
+		Contexts: map[string]*Context{
+			"am-ctx": {
+				Type:   "am",
+				Domain: "original-domain",
+				AM:     &ProductConfig{URL: "https://am.example.com", Token: "tok"},
+			},
+		},
+	}
+
+	resolved, err := cfg.Resolve(Overrides{Domain: "override-domain"}, "am")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if resolved.Domain != "override-domain" {
+		t.Errorf("expected domain 'override-domain', got %q", resolved.Domain)
+	}
+}
+
 func assertNoError(t *testing.T, err error) {
 	t.Helper()
 

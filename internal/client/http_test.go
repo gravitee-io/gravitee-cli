@@ -81,6 +81,40 @@ func TestV1Path(t *testing.T) {
 	}
 }
 
+func TestAMEnvPath(t *testing.T) {
+	tests := []struct {
+		name, orgID, envID, path, want string
+	}{
+		{"domains list", "DEFAULT", "DEFAULT", "domains", "/management/organizations/DEFAULT/environments/DEFAULT/domains"},
+		{"custom org env", "myorg", "staging", "domains", "/management/organizations/myorg/environments/staging/domains"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := AMEnvPath(tt.orgID, tt.envID, tt.path)
+			if got != tt.want {
+				t.Errorf("AMEnvPath() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAMDomainPath(t *testing.T) {
+	tests := []struct {
+		name, orgID, envID, domainID, path, want string
+	}{
+		{"users list", "DEFAULT", "DEFAULT", "abc-123", "users", "/management/organizations/DEFAULT/environments/DEFAULT/domains/abc-123/users"},
+		{"app by id", "myorg", "staging", "my-domain", "applications/app-id", "/management/organizations/myorg/environments/staging/domains/my-domain/applications/app-id"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := AMDomainPath(tt.orgID, tt.envID, tt.domainID, tt.path)
+			if got != tt.want {
+				t.Errorf("AMDomainPath() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestHTTPClientGet(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
@@ -170,6 +204,49 @@ func TestHTTPClientDebugMasksToken(t *testing.T) {
 
 	if !strings.Contains(output, "ken") {
 		t.Error("debug output should contain the last 3 chars of the token")
+	}
+}
+
+func TestHTTPClientPatch(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPatch {
+			t.Errorf("expected PATCH, got %s", r.Method)
+		}
+
+		if !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
+			t.Error("missing Bearer token")
+		}
+
+		var body map[string]interface{}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Errorf("failed to decode request body: %v", err)
+		}
+
+		enabled, ok := body["enabled"]
+		if !ok {
+			t.Error("request body missing 'enabled' field")
+		}
+
+		if enabled != true {
+			t.Errorf("expected enabled=true, got %v", enabled)
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+		resp, _ := json.Marshal(map[string]interface{}{"id": "123", "enabled": true})
+		_, _ = w.Write(resp)
+	}))
+	defer server.Close()
+
+	c := NewHTTPClient(HTTPClientConfig{BaseURL: server.URL, Token: "test-token"})
+
+	data, err := c.Patch("/test", map[string]bool{"enabled": true})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !strings.Contains(string(data), "enabled") {
+		t.Errorf("unexpected response: %s", string(data))
 	}
 }
 
