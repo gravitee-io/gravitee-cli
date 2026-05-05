@@ -207,6 +207,11 @@ func AMDomainPath(f *factory.Factory, path string) string {
 	return client.AMDomainPath(f.Resolved.Org, f.Resolved.Env, f.Resolved.Domain, path)
 }
 
+// AMDomainPathFor builds a domain-scoped path using an explicit domainID.
+func AMDomainPathFor(f *factory.Factory, domainID, path string) string {
+	return client.AMDomainPath(f.Resolved.Org, f.Resolved.Env, domainID, path)
+}
+
 // RequireAMContext returns an error if no AM context is configured.
 func RequireAMContext(f *factory.Factory) error {
 	if f.Resolved == nil {

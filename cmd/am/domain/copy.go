@@ -1,0 +1,71 @@
+package domain
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+	"github.com/spf13/cobra"
+)
+
+func newCopyCmd(f *factory.Factory) *cobra.Command {
+	var targetName string
+	cmd := &cobra.Command{
+		Use:     "copy <sourceDomainId>",
+		Short:   "Copy a domain to a new domain in the same workspace",
+		Example: `  gio am domain copy abc-123 --name my-copy`,
+		Args:    cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			if err := cmdutil.RequireAMContext(f); err != nil {
+				return err
+			}
+			return runCopy(f, args[0], targetName)
+		},
+	}
+	cmd.Flags().StringVar(&targetName, "name", "", "Name for the new domain (required)")
+	_ = cmd.MarkFlagRequired("name")
+	return cmd
+}
+
+func runCopy(f *factory.Factory, sourceDomainID, targetName string) error {
+	p, err := cmdutil.NewPrinter(f)
+	if err != nil {
+		return err
+	}
+
+	body, err := json.Marshal(map[string]interface{}{"name": targetName})
+	if err != nil {
+		return err
+	}
+	created, err := f.Client.Post(cmdutil.AMEnvPath(f, "domains"), body)
+	if err != nil {
+		return err
+	}
+	var newDomain map[string]interface{}
+	if err := json.Unmarshal(created, &newDomain); err != nil {
+		return fmt.Errorf("failed to parse CreateDomain response: %w", err)
+	}
+	targetDomainID := cmdutil.StringField(newDomain, "id")
+	if targetDomainID == "" {
+		return fmt.Errorf("CreateDomain response did not include an ID")
+	}
+
+	p.PrintMessage("Created domain '%s' (%s). Copying resources...", targetName, targetDomainID)
+
+	exported, err := exportToMemory(f, sourceDomainID)
+	if err != nil {
+		return fmt.Errorf("failed to export source domain (new domain '%s' was created but is empty — delete it manually if not needed): %w", targetDomainID, err)
+	}
+
+	imported, skipped := 0, 0
+	add := func(i, s int) { imported += i; skipped += s }
+
+	add(importItems(f, exported, "scopes", targetDomainID, "scopes"))
+	add(importItems(f, exported, "roles", targetDomainID, "roles"))
+	add(importItems(f, exported, "groups", targetDomainID, "groups"))
+	add(importItems(f, exported, "applications", targetDomainID, "applications"))
+
+	p.PrintMessage("Copy complete: %d imported, %d skipped.", imported, skipped)
+	return nil
+}

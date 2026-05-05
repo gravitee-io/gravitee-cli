@@ -1,0 +1,35 @@
+package audit
+
+import (
+	"bytes"
+
+	"github.com/gravitee-io/gio-cli/internal/client"
+	"github.com/gravitee-io/gio-cli/internal/config"
+	"github.com/gravitee-io/gio-cli/internal/factory"
+)
+
+func newTestFactory(fc *client.FakeClient, readOnly bool) (*factory.Factory, *bytes.Buffer) {
+	out := &bytes.Buffer{}
+	return &factory.Factory{
+		Config: &config.Config{
+			CurrentContext: "am-test",
+			Contexts: map[string]config.Context{
+				"am-test": {
+					URL: "https://am-test.com", Token: "tok",
+					Org: "DEFAULT", Env: "DEFAULT",
+					Type: "am", Domain: "test-domain",
+					ReadOnly: readOnly,
+				},
+			},
+		},
+		Resolved: &config.ResolvedContext{
+			Name: "am-test", URL: "https://am-test.com", Token: "tok",
+			Org: "DEFAULT", Env: "DEFAULT",
+			Type: "am", Domain: "test-domain",
+			ReadOnly: readOnly,
+		},
+		Client:       fc,
+		IOStreams:    factory.IOStreams{Out: out, Err: &bytes.Buffer{}},
+		OutputFormat: "table",
+	}, out
+}

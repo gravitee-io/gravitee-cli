@@ -83,3 +83,54 @@ func TestScopeCreateWithFlags(t *testing.T) {
 		t.Errorf("expected 'profile' in output, got: %s", out.String())
 	}
 }
+
+func TestScopeGet(t *testing.T) {
+	fake := &client.FakeClient{
+		GetFunc: func(path string) ([]byte, error) {
+			if !strings.Contains(path, "/scopes/scope-1") {
+				t.Errorf("unexpected path: %s", path)
+			}
+			return []byte(`{"id":"scope-1","key":"openid","name":"OpenID"}`), nil
+		},
+	}
+	f, out := newTestFactory(fake, false)
+	cmd := newGetCmd(f)
+	cmd.SetArgs([]string{"scope-1"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(out.String(), "scope-1") {
+		t.Errorf("expected 'scope-1' in output, got: %s", out.String())
+	}
+}
+
+func TestScopeDelete(t *testing.T) {
+	deleted := false
+	fake := &client.FakeClient{
+		DeleteFunc: func(path string) error {
+			if !strings.Contains(path, "/scopes/scope-1") {
+				t.Errorf("unexpected path: %s", path)
+			}
+			deleted = true
+			return nil
+		},
+	}
+	f, _ := newTestFactory(fake, false)
+	cmd := newDeleteCmd(f)
+	cmd.SetArgs([]string{"scope-1", "--force"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !deleted {
+		t.Error("expected Delete to be called")
+	}
+}
+
+func TestScopeCreateReadOnly(t *testing.T) {
+	f, _ := newTestFactory(&client.FakeClient{}, true)
+	cmd := newCreateCmd(f)
+	cmd.SetArgs([]string{"--key", "openid", "--name", "OpenID"})
+	if err := cmd.Execute(); err == nil {
+		t.Error("expected read-only error")
+	}
+}
