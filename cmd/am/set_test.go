@@ -1,10 +1,11 @@
 package am
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/gravitee-io/gio-cli/internal/config"
 	"github.com/gravitee-io/gio-cli/internal/factory"
@@ -14,9 +15,9 @@ func TestSetDomain(t *testing.T) {
 	tmpDir := t.TempDir()
 	cfgPath := filepath.Join(tmpDir, "config.json")
 	cfg := &config.Config{
-		CurrentContext: "am-test",
-		Contexts: map[string]config.Context{
-			"am-test": {URL: "https://am.example.com", Token: "tok", Type: "am"},
+		Current: "am-test",
+		Contexts: map[string]*config.Context{
+			"am-test": {Type: "am", AM: &config.ProductConfig{URL: "https://am.example.com", Token: "tok"}},
 		},
 	}
 	f := &factory.Factory{
@@ -33,7 +34,7 @@ func TestSetDomain(t *testing.T) {
 	}
 	data, _ := os.ReadFile(cfgPath)
 	var saved config.Config
-	_ = json.Unmarshal(data, &saved)
+	_ = yaml.Unmarshal(data, &saved)
 	ctx := saved.Contexts["am-test"]
 	if ctx.Domain != "my-domain-123" {
 		t.Errorf("expected domain 'my-domain-123', got %q", ctx.Domain)
@@ -44,9 +45,9 @@ func TestSetDomainClear(t *testing.T) {
 	tmpDir := t.TempDir()
 	cfgPath := filepath.Join(tmpDir, "config.json")
 	cfg := &config.Config{
-		CurrentContext: "am-test",
-		Contexts: map[string]config.Context{
-			"am-test": {URL: "https://am.example.com", Token: "tok", Type: "am", Domain: "old-domain"},
+		Current: "am-test",
+		Contexts: map[string]*config.Context{
+			"am-test": {Type: "am", Domain: "old-domain", AM: &config.ProductConfig{URL: "https://am.example.com", Token: "tok"}},
 		},
 	}
 	f := &factory.Factory{
@@ -63,7 +64,7 @@ func TestSetDomainClear(t *testing.T) {
 	}
 	data, _ := os.ReadFile(cfgPath)
 	var saved config.Config
-	_ = json.Unmarshal(data, &saved)
+	_ = yaml.Unmarshal(data, &saved)
 	if saved.Contexts["am-test"].Domain != "" {
 		t.Errorf("expected empty domain after clear, got %q", saved.Contexts["am-test"].Domain)
 	}

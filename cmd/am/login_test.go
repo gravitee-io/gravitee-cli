@@ -1,10 +1,11 @@
 package am
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/gravitee-io/gio-cli/internal/config"
 	"github.com/gravitee-io/gio-cli/internal/factory"
@@ -14,7 +15,7 @@ func TestLoginWithToken(t *testing.T) {
 	tmpDir := t.TempDir()
 	cfgPath := filepath.Join(tmpDir, "config.json")
 	f := &factory.Factory{
-		Config:     &config.Config{Contexts: make(map[string]config.Context)},
+		Config:     &config.Config{Contexts: make(map[string]*config.Context)},
 		ConfigPath: cfgPath,
 		IOStreams:  factory.IOStreams{Out: &discardWriter{}, Err: &discardWriter{}},
 	}
@@ -30,7 +31,7 @@ func TestLoginWithToken(t *testing.T) {
 		t.Fatalf("failed to read config: %v", err)
 	}
 	var cfg config.Config
-	if err := json.Unmarshal(data, &cfg); err != nil {
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		t.Fatalf("failed to parse config: %v", err)
 	}
 	ctx, ok := cfg.Contexts["test-am"]
@@ -40,11 +41,14 @@ func TestLoginWithToken(t *testing.T) {
 	if ctx.Type != "am" {
 		t.Errorf("expected type 'am', got %q", ctx.Type)
 	}
-	if ctx.Token != "my-token" {
-		t.Errorf("expected token 'my-token', got %q", ctx.Token)
+	if ctx.AM == nil {
+		t.Fatal("expected AM config to be set")
 	}
-	if ctx.URL != "https://am.example.com" {
-		t.Errorf("expected URL, got %q", ctx.URL)
+	if ctx.AM.Token != "my-token" {
+		t.Errorf("expected token 'my-token', got %q", ctx.AM.Token)
+	}
+	if ctx.AM.URL != "https://am.example.com" {
+		t.Errorf("expected URL, got %q", ctx.AM.URL)
 	}
 	if cfg.Current != "test-am" {
 		t.Errorf("expected current context 'test-am', got %q", cfg.Current)
@@ -53,7 +57,7 @@ func TestLoginWithToken(t *testing.T) {
 
 func TestLoginRequiresCredentials(t *testing.T) {
 	f := &factory.Factory{
-		Config:   &config.Config{Contexts: make(map[string]config.Context)},
+		Config:   &config.Config{Contexts: make(map[string]*config.Context)},
 		IOStreams: factory.IOStreams{Out: &discardWriter{}, Err: &discardWriter{}},
 	}
 	opts := &loginOptions{factory: f, url: "https://am.example.com"}

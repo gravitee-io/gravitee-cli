@@ -8,17 +8,16 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-func newTestFactory(fc *client.FakeClient, readOnly bool) (*factory.Factory, *bytes.Buffer) {
+func newTestFactory(fc *client.FakeClient, _ bool) (*factory.Factory, *bytes.Buffer) {
 	out := &bytes.Buffer{}
 	return &factory.Factory{
 		Config: &config.Config{
-			CurrentContext: "am-test",
-			Contexts: map[string]config.Context{
+			Current: "am-test",
+			Contexts: map[string]*config.Context{
 				"am-test": {
-					URL: "https://am-test.com", Token: "tok",
 					Org: "DEFAULT", Env: "DEFAULT",
 					Type: "am", Domain: "test-domain",
-					ReadOnly: readOnly,
+					AM: &config.ProductConfig{URL: "https://am-test.com", Token: "tok"},
 				},
 			},
 		},
@@ -26,7 +25,6 @@ func newTestFactory(fc *client.FakeClient, readOnly bool) (*factory.Factory, *by
 			Name: "am-test", URL: "https://am-test.com", Token: "tok",
 			Org: "DEFAULT", Env: "DEFAULT",
 			Type: "am", Domain: "test-domain",
-			ReadOnly: readOnly,
 		},
 		Client:       fc,
 		IOStreams:    factory.IOStreams{Out: out, Err: &bytes.Buffer{}},

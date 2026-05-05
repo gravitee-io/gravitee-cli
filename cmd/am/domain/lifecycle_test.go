@@ -95,7 +95,7 @@ func TestDomainDelete(t *testing.T) {
 	f, out := newTestFactory(fake, false)
 
 	cmd := newDeleteCmd(f)
-	cmd.SetArgs([]string{"domain-1", "--force"})
+	cmd.SetArgs([]string{"domain-1"})
 
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -106,17 +106,3 @@ func TestDomainDelete(t *testing.T) {
 	}
 }
 
-func TestDomainDeleteNoForce(t *testing.T) {
-	f, out := newTestFactory(&client.FakeClient{}, false)
-
-	cmd := newDeleteCmd(f)
-	cmd.SetArgs([]string{"domain-1"})
-
-	if err := cmd.Execute(); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if !strings.Contains(out.String(), "--force") {
-		t.Errorf("expected '--force' hint in output, got: %s", out.String())
-	}
-}

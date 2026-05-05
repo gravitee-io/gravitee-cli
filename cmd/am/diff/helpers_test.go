@@ -11,11 +11,11 @@ import (
 func newTestFactory(c client.GraviteeClient) (*factory.Factory, *bytes.Buffer) {
 	out := &bytes.Buffer{}
 	cfg := &config.Config{
-		Contexts: map[string]config.Context{
-			"ctx-a": {URL: "http://am-a", Token: "tok-a", Org: "DEFAULT", Env: "DEFAULT"},
-			"ctx-b": {URL: "http://am-b", Token: "tok-b", Org: "DEFAULT", Env: "DEFAULT"},
+		Contexts: map[string]*config.Context{
+			"ctx-a": {Org: "DEFAULT", Env: "DEFAULT", AM: &config.ProductConfig{URL: "http://am-a", Token: "tok-a"}},
+			"ctx-b": {Org: "DEFAULT", Env: "DEFAULT", AM: &config.ProductConfig{URL: "http://am-b", Token: "tok-b"}},
 		},
-		CurrentContext: "ctx-a",
+		Current: "ctx-a",
 	}
 	f := &factory.Factory{
 		Config:   cfg,

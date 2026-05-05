@@ -15,11 +15,41 @@
 package group
 
 import (
+	"bytes"
+
 	"github.com/gravitee-io/gio-cli/internal/am"
+	"github.com/gravitee-io/gio-cli/internal/client"
+	"github.com/gravitee-io/gio-cli/internal/config"
+	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/gravitee-io/gio-cli/internal/testutil"
 )
 
 // newTestGroup wires the mock service into the factory for testing.
 func newTestGroup(tc *testutil.TestContext, mock *am.MockService, _ string) {
 	tc.Factory.SetAMService(mock)
+}
+
+// newTestFactory creates a legacy-style factory for tests that use FakeClient directly.
+func newTestFactory(fc *client.FakeClient, _ bool) (*factory.Factory, *bytes.Buffer) {
+	out := &bytes.Buffer{}
+	return &factory.Factory{
+		Config: &config.Config{
+			Current: "am-test",
+			Contexts: map[string]*config.Context{
+				"am-test": {
+					Org: "DEFAULT", Env: "DEFAULT",
+					Type: "am", Domain: "test-domain",
+					AM: &config.ProductConfig{URL: "https://am-test.com", Token: "tok"},
+				},
+			},
+		},
+		Resolved: &config.ResolvedContext{
+			Name: "am-test", URL: "https://am-test.com", Token: "tok",
+			Org: "DEFAULT", Env: "DEFAULT",
+			Type: "am", Domain: "test-domain",
+		},
+		Client:       fc,
+		IOStreams:    factory.IOStreams{Out: out, Err: &bytes.Buffer{}},
+		OutputFormat: "table",
+	}, out
 }

@@ -1,8 +1,13 @@
 package diff
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gravitee-io/gio-cli/internal/config"
 )
 
 func TestDiffObjects(t *testing.T) {
@@ -71,5 +76,74 @@ func TestFormatDiffLine(t *testing.T) {
 	}
 	if !strings.Contains(line, "scope-b") {
 		t.Error("expected resource name")
+	}
+}
+
+func TestDiffCmd(t *testing.T) {
+	// from: has scope-a only
+	fromHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(r.URL.Path, "scopes") {
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"data": []map[string]interface{}{{"key": "scope-a", "name": "Scope A"}},
+			})
+			return
+		}
+		if strings.Contains(r.URL.Path, "roles") ||
+			strings.Contains(r.URL.Path, "groups") ||
+			strings.Contains(r.URL.Path, "applications") {
+			json.NewEncoder(w).Encode(map[string]interface{}{"data": []interface{}{}})
+			return
+		}
+		json.NewEncoder(w).Encode([]interface{}{})
+	})
+	// to: has scope-a + scope-b (one extra)
+	toHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(r.URL.Path, "scopes") {
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"data": []map[string]interface{}{
+					{"key": "scope-a", "name": "Scope A"},
+					{"key": "scope-b", "name": "Scope B"},
+				},
+			})
+			return
+		}
+		if strings.Contains(r.URL.Path, "roles") ||
+			strings.Contains(r.URL.Path, "groups") ||
+			strings.Contains(r.URL.Path, "applications") {
+			json.NewEncoder(w).Encode(map[string]interface{}{"data": []interface{}{}})
+			return
+		}
+		json.NewEncoder(w).Encode([]interface{}{})
+	})
+
+	fromServer := httptest.NewServer(fromHandler)
+	defer fromServer.Close()
+	toServer := httptest.NewServer(toHandler)
+	defer toServer.Close()
+
+	f, out := newTestFactory(nil)
+	// Point ctx-a and ctx-b at the httptest servers
+	f.Config.Contexts["ctx-a"] = &config.Context{
+		Org: "DEFAULT", Env: "DEFAULT", Domain: "dom-a", Type: "am",
+		AM: &config.ProductConfig{URL: fromServer.URL, Token: "tok-a"},
+	}
+	f.Config.Contexts["ctx-b"] = &config.Context{
+		Org: "DEFAULT", Env: "DEFAULT", Domain: "dom-b", Type: "am",
+		AM: &config.ProductConfig{URL: toServer.URL, Token: "tok-b"},
+	}
+
+	cmd := NewDiffCmd(f)
+	cmd.SetArgs([]string{"--from", "ctx-a", "--to", "ctx-b"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	output := out.String()
+	if !strings.Contains(output, "scopes") {
+		t.Errorf("expected 'scopes' in output, got: %s", output)
+	}
+	if !strings.Contains(output, "+1") {
+		t.Errorf("expected '+1' added scope in diff output, got: %s", output)
 	}
 }

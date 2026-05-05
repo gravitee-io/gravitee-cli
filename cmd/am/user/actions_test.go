@@ -10,8 +10,8 @@ import (
 
 func TestUserLock(t *testing.T) {
 	fake := &client.FakeClient{
-		PostFunc: func(path string, body interface{}) ([]byte, error) {
-			if !strings.Contains(path, "/users/user-1/lock") {
+		PutFunc: func(path string, body interface{}) ([]byte, error) {
+			if !strings.Contains(path, "/users/user-1/status") {
 				t.Errorf("unexpected path: %s", path)
 			}
 			return nil, nil
@@ -19,8 +19,9 @@ func TestUserLock(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newLockCmd(f)
+	cmd := newLockCmd(f, &domainID)
 	cmd.SetArgs([]string{"user-1"})
 
 	if err := cmd.Execute(); err != nil {
@@ -34,8 +35,8 @@ func TestUserLock(t *testing.T) {
 
 func TestUserUnlock(t *testing.T) {
 	fake := &client.FakeClient{
-		PostFunc: func(path string, body interface{}) ([]byte, error) {
-			if !strings.Contains(path, "/users/user-1/unlock") {
+		PutFunc: func(path string, body interface{}) ([]byte, error) {
+			if !strings.Contains(path, "/users/user-1/status") {
 				t.Errorf("unexpected path: %s", path)
 			}
 			return nil, nil
@@ -43,8 +44,9 @@ func TestUserUnlock(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newUnlockCmd(f)
+	cmd := newUnlockCmd(f, &domainID)
 	cmd.SetArgs([]string{"user-1"})
 
 	if err := cmd.Execute(); err != nil {
@@ -81,8 +83,9 @@ func TestUserResetPassword(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newResetPasswordCmd(f)
+	cmd := newResetPasswordCmd(f, &domainID)
 	cmd.SetArgs([]string{"user-1", "--password", "newSecret123"})
 
 	if err := cmd.Execute(); err != nil {
@@ -105,9 +108,10 @@ func TestUserDelete(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newDeleteCmd(f)
-	cmd.SetArgs([]string{"user-1", "--force"})
+	cmd := newDeleteCmd(f, &domainID)
+	cmd.SetArgs([]string{"user-1"})
 
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)

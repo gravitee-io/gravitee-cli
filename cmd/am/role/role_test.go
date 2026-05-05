@@ -29,8 +29,9 @@ func TestRoleList(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newListCmd(f)
+	cmd := newListCmd(f, &domainID)
 	cmd.SetArgs([]string{})
 
 	if err := cmd.Execute(); err != nil {
@@ -60,9 +61,6 @@ func TestRoleCreateWithFlags(t *testing.T) {
 			if name, ok := m["name"].(string); !ok || name != "Admin Role" {
 				t.Errorf("expected name 'Admin Role', got: %v", m["name"])
 			}
-			if assignableType, ok := m["assignableType"].(string); !ok || assignableType != "DOMAIN" {
-				t.Errorf("expected assignableType 'DOMAIN', got: %v", m["assignableType"])
-			}
 
 			resp := map[string]interface{}{"id": "role-new", "name": "Admin Role"}
 			data, _ := json.Marshal(resp)
@@ -71,9 +69,10 @@ func TestRoleCreateWithFlags(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newCreateCmd(f)
-	cmd.SetArgs([]string{"--name", "Admin Role", "--description", "Admin desc", "--type", "DOMAIN"})
+	cmd := newCreateCmd(f, &domainID)
+	cmd.SetArgs([]string{"--name", "Admin Role", "--description", "Admin desc"})
 
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -94,7 +93,8 @@ func TestRoleGet(t *testing.T) {
 		},
 	}
 	f, out := newTestFactory(fake, false)
-	cmd := newGetCmd(f)
+	domainID := "test-domain"
+	cmd := newGetCmd(f, &domainID)
 	cmd.SetArgs([]string{"role-1"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -116,8 +116,9 @@ func TestRoleDelete(t *testing.T) {
 		},
 	}
 	f, _ := newTestFactory(fake, false)
-	cmd := newDeleteCmd(f)
-	cmd.SetArgs([]string{"role-1", "--force"})
+	domainID := "test-domain"
+	cmd := newDeleteCmd(f, &domainID)
+	cmd.SetArgs([]string{"role-1"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -126,11 +127,3 @@ func TestRoleDelete(t *testing.T) {
 	}
 }
 
-func TestRoleCreateReadOnly(t *testing.T) {
-	f, _ := newTestFactory(&client.FakeClient{}, true)
-	cmd := newCreateCmd(f)
-	cmd.SetArgs([]string{"--name", "Admin", "--type", "DOMAIN"})
-	if err := cmd.Execute(); err == nil {
-		t.Error("expected read-only error")
-	}
-}

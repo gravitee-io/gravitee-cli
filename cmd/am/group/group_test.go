@@ -24,7 +24,8 @@ func TestGroupList(t *testing.T) {
 		},
 	}
 	f, out := newTestFactory(fake, false)
-	cmd := newListCmd(f)
+	domainID := "test-domain"
+	cmd := newListCmd(f, &domainID)
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -43,7 +44,8 @@ func TestGroupGet(t *testing.T) {
 		},
 	}
 	f, out := newTestFactory(fake, false)
-	cmd := newGetCmd(f)
+	domainID := "test-domain"
+	cmd := newGetCmd(f, &domainID)
 	cmd.SetArgs([]string{"group-1"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -63,7 +65,8 @@ func TestGroupCreate(t *testing.T) {
 		},
 	}
 	f, out := newTestFactory(fake, false)
-	cmd := newCreateCmd(f)
+	domainID := "test-domain"
+	cmd := newCreateCmd(f, &domainID)
 	cmd.SetArgs([]string{"--name", "DevTeam", "--description", "Developers"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -85,7 +88,8 @@ func TestGroupDelete(t *testing.T) {
 		},
 	}
 	f, _ := newTestFactory(fake, false)
-	cmd := newDeleteCmd(f)
+	domainID := "test-domain"
+	cmd := newDeleteCmd(f, &domainID)
 	cmd.SetArgs([]string{"group-1"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)

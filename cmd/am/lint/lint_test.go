@@ -1,9 +1,12 @@
 package lint
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gravitee-io/gio-cli/internal/client"
 )
 
 func TestRuleImplicitGrant(t *testing.T) {
@@ -192,6 +195,51 @@ func TestRuleHttpRedirect(t *testing.T) {
 	}
 	if f := ruleHttpRedirect([]map[string]interface{}{localApp}); len(f) != 0 {
 		t.Errorf("expected no findings for localhost http, got %d", len(f))
+	}
+}
+
+func TestLintCmd(t *testing.T) {
+	// App with implicit grant triggers a critical finding
+	apps := map[string]interface{}{
+		"data": []map[string]interface{}{
+			{
+				"name": "bad-app",
+				"settings": map[string]interface{}{
+					"oauth": map[string]interface{}{
+						"grantTypes": []interface{}{"implicit"},
+					},
+				},
+			},
+		},
+		"totalCount": 1,
+	}
+	appsBytes, _ := json.Marshal(apps)
+	emptyArr, _ := json.Marshal([]interface{}{})
+	emptyList, _ := json.Marshal(map[string]interface{}{"data": []interface{}{}, "totalCount": 0})
+
+	fake := &client.FakeClient{
+		GetFunc: func(path string) ([]byte, error) {
+			switch {
+			case strings.Contains(path, "applications"):
+				return appsBytes, nil
+			case strings.Contains(path, "scopes"):
+				return emptyList, nil
+			default:
+				return emptyArr, nil
+			}
+		},
+	}
+	f, out := newTestFactory(fake, false)
+	cmd := NewLintCmd(f)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	output := out.String()
+	if !strings.Contains(output, "critical") {
+		t.Errorf("expected 'critical' finding in output, got: %s", output)
+	}
+	if !strings.Contains(output, "Score:") {
+		t.Errorf("expected 'Score:' in output, got: %s", output)
 	}
 }
 

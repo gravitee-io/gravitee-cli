@@ -2,12 +2,13 @@ package am
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/gravitee-io/gio-cli/internal/client"
 	"github.com/gravitee-io/gio-cli/internal/config"
@@ -16,9 +17,9 @@ import (
 
 func newAMTestFactory(fc *client.FakeClient) (*factory.Factory, *bytes.Buffer) {
 	return newAMTestFactoryWithConfig(fc, &config.Config{
-		CurrentContext: "am-test",
-		Contexts: map[string]config.Context{
-			"am-test": {URL: "https://am.example.com", Token: "tok", Type: "am", Org: "DEFAULT", Env: "DEFAULT"},
+		Current: "am-test",
+		Contexts: map[string]*config.Context{
+			"am-test": {Org: "DEFAULT", Env: "DEFAULT", Type: "am", AM: &config.ProductConfig{URL: "https://am.example.com", Token: "tok"}},
 		},
 	})
 }
@@ -28,10 +29,16 @@ func newAMTestFactoryWithConfig(fc *client.FakeClient, cfg *config.Config) (*fac
 	var resolved *config.ResolvedContext
 	if cfg != nil && cfg.Current != "" {
 		if ctx, ok := cfg.Contexts[cfg.Current]; ok {
+			url := ""
+			token := ""
+			if ctx.AM != nil {
+				url = ctx.AM.URL
+				token = ctx.AM.Token
+			}
 			resolved = &config.ResolvedContext{
 				Name:  cfg.Current,
-				URL:   ctx.URL,
-				Token: ctx.Token,
+				URL:   url,
+				Token: token,
 				Org:   ctx.Org,
 				Env:   ctx.Env,
 				Type:  ctx.Type,
@@ -87,8 +94,8 @@ func TestWhoami(t *testing.T) {
 
 func TestLogout(t *testing.T) {
 	cfg := &config.Config{
-		Contexts:       map[string]config.Context{"ctx1": {Token: "tok"}},
-		CurrentContext: "ctx1",
+		Contexts: map[string]*config.Context{"ctx1": {AM: &config.ProductConfig{Token: "tok"}}},
+		Current:  "ctx1",
 	}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)
 	cmd := newLogoutCmd(f)
@@ -96,7 +103,7 @@ func TestLogout(t *testing.T) {
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if f.Config.Contexts["ctx1"].Token != "" {
+	if f.Config.Contexts["ctx1"].AM.Token != "" {
 		t.Error("expected token to be cleared")
 	}
 	if !strings.Contains(out.String(), "Logged out") {
@@ -108,8 +115,8 @@ func TestLogoutPersists(t *testing.T) {
 	tmpDir := t.TempDir()
 	cfgPath := filepath.Join(tmpDir, "config.json")
 	cfg := &config.Config{
-		Contexts:       map[string]config.Context{"ctx1": {Token: "tok"}},
-		CurrentContext: "ctx1",
+		Contexts: map[string]*config.Context{"ctx1": {AM: &config.ProductConfig{Token: "tok"}}},
+		Current:  "ctx1",
 	}
 	f, _ := newAMTestFactoryWithConfig(nil, cfg)
 	f.ConfigPath = cfgPath
@@ -124,21 +131,21 @@ func TestLogoutPersists(t *testing.T) {
 		t.Fatalf("config not written: %v", err)
 	}
 	var saved config.Config
-	if err := json.Unmarshal(data, &saved); err != nil {
+	if err := yaml.Unmarshal(data, &saved); err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	if saved.Contexts["ctx1"].Token != "" {
+	if saved.Contexts["ctx1"].AM != nil && saved.Contexts["ctx1"].AM.Token != "" {
 		t.Error("token not cleared in saved config")
 	}
 }
 
 func TestLogoutAll(t *testing.T) {
 	cfg := &config.Config{
-		Contexts: map[string]config.Context{
-			"ctx1": {Token: "tok1"},
-			"ctx2": {Token: "tok2"},
+		Contexts: map[string]*config.Context{
+			"ctx1": {AM: &config.ProductConfig{Token: "tok1"}},
+			"ctx2": {AM: &config.ProductConfig{Token: "tok2"}},
 		},
-		CurrentContext: "ctx1",
+		Current: "ctx1",
 	}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)
 	cmd := newLogoutCmd(f)
@@ -147,7 +154,7 @@ func TestLogoutAll(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	for name, ctx := range f.Config.Contexts {
-		if ctx.Token != "" {
+		if ctx.AM != nil && ctx.AM.Token != "" {
 			t.Errorf("expected token cleared for %s", name)
 		}
 	}
@@ -158,10 +165,10 @@ func TestLogoutAll(t *testing.T) {
 
 func TestStatus(t *testing.T) {
 	cfg := &config.Config{
-		Contexts: map[string]config.Context{
-			"myws": {URL: "https://am.example.com", Token: "tok", Org: "DEFAULT", Env: "DEFAULT"},
+		Contexts: map[string]*config.Context{
+			"myws": {Org: "DEFAULT", Env: "DEFAULT", AM: &config.ProductConfig{URL: "https://am.example.com", Token: "tok"}},
 		},
-		CurrentContext: "myws",
+		Current: "myws",
 	}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)
 	cmd := newStatusCmd(f)
@@ -181,7 +188,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestStatusNoContext(t *testing.T) {
-	cfg := &config.Config{Contexts: map[string]config.Context{}}
+	cfg := &config.Config{Contexts: map[string]*config.Context{}}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)
 	cmd := newStatusCmd(f)
 	cmd.SetArgs([]string{})
@@ -221,7 +228,7 @@ func TestDoctor(t *testing.T) {
 }
 
 func TestDoctorNoConfig(t *testing.T) {
-	cfg := &config.Config{Contexts: map[string]config.Context{}}
+	cfg := &config.Config{Contexts: map[string]*config.Context{}}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)
 	cmd := newDoctorCmd(f)
 	cmd.SetArgs([]string{})
@@ -235,9 +242,9 @@ func TestDoctorNoConfig(t *testing.T) {
 
 func TestDoctorNoCurrentContext(t *testing.T) {
 	cfg := &config.Config{
-		CurrentContext: "",
-		Contexts: map[string]config.Context{
-			"am-test": {URL: "https://am.example.com", Token: "tok", Type: "am"},
+		Current: "",
+		Contexts: map[string]*config.Context{
+			"am-test": {Type: "am", AM: &config.ProductConfig{URL: "https://am.example.com", Token: "tok"}},
 		},
 	}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)
@@ -257,9 +264,9 @@ func TestDoctorNoCurrentContext(t *testing.T) {
 
 func TestDoctorEmptyToken(t *testing.T) {
 	cfg := &config.Config{
-		CurrentContext: "am-test",
-		Contexts: map[string]config.Context{
-			"am-test": {URL: "https://am.example.com", Token: "", Type: "am"},
+		Current: "am-test",
+		Contexts: map[string]*config.Context{
+			"am-test": {Type: "am", AM: &config.ProductConfig{URL: "https://am.example.com", Token: ""}},
 		},
 	}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)
@@ -284,9 +291,9 @@ func TestDoctorNoDomain(t *testing.T) {
 		},
 	}
 	cfg := &config.Config{
-		CurrentContext: "am-test",
-		Contexts: map[string]config.Context{
-			"am-test": {URL: "https://am.example.com", Token: "tok", Type: "am", Org: "DEFAULT", Env: "DEFAULT"},
+		Current: "am-test",
+		Contexts: map[string]*config.Context{
+			"am-test": {Org: "DEFAULT", Env: "DEFAULT", Type: "am", AM: &config.ProductConfig{URL: "https://am.example.com", Token: "tok"}},
 		},
 	}
 	f, out := newAMTestFactoryWithConfig(fake, cfg)
@@ -328,9 +335,9 @@ func TestDoctorConnectFail(t *testing.T) {
 
 func TestDoctorConnectSkippedWhenNotAMContext(t *testing.T) {
 	cfg := &config.Config{
-		CurrentContext: "apim-test",
-		Contexts: map[string]config.Context{
-			"apim-test": {URL: "https://apim.example.com", Token: "tok", Type: "apim"},
+		Current: "apim-test",
+		Contexts: map[string]*config.Context{
+			"apim-test": {Type: "apim", AM: &config.ProductConfig{URL: "https://apim.example.com", Token: "tok"}},
 		},
 	}
 	f, out := newAMTestFactoryWithConfig(nil, cfg)

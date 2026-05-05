@@ -29,8 +29,9 @@ func TestScopeList(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newListCmd(f)
+	cmd := newListCmd(f, &domainID)
 	cmd.SetArgs([]string{})
 
 	if err := cmd.Execute(); err != nil {
@@ -71,8 +72,9 @@ func TestScopeCreateWithFlags(t *testing.T) {
 	}
 
 	f, out := newTestFactory(fake, false)
+	domainID := "test-domain"
 
-	cmd := newCreateCmd(f)
+	cmd := newCreateCmd(f, &domainID)
 	cmd.SetArgs([]string{"--key", "profile", "--name", "Profile", "--description", "Profile scope"})
 
 	if err := cmd.Execute(); err != nil {
@@ -94,7 +96,8 @@ func TestScopeGet(t *testing.T) {
 		},
 	}
 	f, out := newTestFactory(fake, false)
-	cmd := newGetCmd(f)
+	domainID := "test-domain"
+	cmd := newGetCmd(f, &domainID)
 	cmd.SetArgs([]string{"scope-1"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -116,8 +119,9 @@ func TestScopeDelete(t *testing.T) {
 		},
 	}
 	f, _ := newTestFactory(fake, false)
-	cmd := newDeleteCmd(f)
-	cmd.SetArgs([]string{"scope-1", "--force"})
+	domainID := "test-domain"
+	cmd := newDeleteCmd(f, &domainID)
+	cmd.SetArgs([]string{"scope-1"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -128,7 +132,8 @@ func TestScopeDelete(t *testing.T) {
 
 func TestScopeCreateReadOnly(t *testing.T) {
 	f, _ := newTestFactory(&client.FakeClient{}, true)
-	cmd := newCreateCmd(f)
+	domainID := "test-domain"
+	cmd := newCreateCmd(f, &domainID)
 	cmd.SetArgs([]string{"--key", "openid", "--name", "OpenID"})
 	if err := cmd.Execute(); err == nil {
 		t.Error("expected read-only error")
