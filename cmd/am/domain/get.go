@@ -100,6 +100,7 @@ func printDomainDetail(p *printer.Printer, data []byte) error {
 	for _, field := range []struct{ label, key string }{
 		{"Name", "name"},
 		{"ID", "id"},
+		{"HRID", "hrid"},
 		{"Enabled", "enabled"},
 		{"Description", "description"},
 		{"Path", "path"},

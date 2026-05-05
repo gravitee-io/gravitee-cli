@@ -140,6 +140,7 @@ func (o *listOptions) fetchAll(f *factory.Factory, p *printer.Printer) error {
 func domainColumns() []printer.Column {
 	return []printer.Column{
 		{Name: "Name", Value: func(i any) string { return cmdutil.StringField(i, "name") }},
+		{Name: "HRID", Value: func(i any) string { return cmdutil.StringField(i, "hrid") }},
 		{Name: "ID", Value: func(i any) string { return cmdutil.StringField(i, "id") }},
 		{Name: "Enabled", Value: func(i any) string {
 			m, ok := i.(map[string]any)
