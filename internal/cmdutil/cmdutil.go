@@ -238,16 +238,11 @@ func RequireAMDomain(f *factory.Factory) error {
 	return nil
 }
 
-// ReadJSONFile reads a JSON file, expands ${VAR} references from the environment, and returns the raw content.
+// ReadJSONFile reads a JSON file and returns the raw content.
 func ReadJSONFile(path string) (json.RawMessage, error) {
 	path = filepath.Clean(path)
 
 	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read '%s': %w", path, err)
-	}
-
-	data, err = expandEnvVars(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read '%s': %w", path, err)
 	}
@@ -257,19 +252,6 @@ func ReadJSONFile(path string) (json.RawMessage, error) {
 	}
 
 	return data, nil
-}
-
-func expandEnvVars(data []byte) ([]byte, error) {
-	for _, m := range envVarRE.FindAllSubmatch(data, -1) {
-		name := string(m[1])
-		if _, ok := os.LookupEnv(name); !ok {
-			return nil, fmt.Errorf("environment variable '%s' is not defined", name)
-		}
-	}
-
-	return envVarRE.ReplaceAllFunc(data, func(match []byte) []byte {
-		return []byte(os.Getenv(string(match[2 : len(match)-1])))
-	}), nil
 }
 
 // NewPrinter creates a Printer from the factory settings, validating the output format.
@@ -328,8 +310,6 @@ func ValidateURL(rawURL string) error {
 }
 
 var loginURLPathRE = regexp.MustCompile(`/management/organizations/([^/]+)(?:/environments/([^/]+))?`)
-
-var envVarRE = regexp.MustCompile(`\$\{([^}]+)\}`)
 
 // ParseLoginURL takes a raw management URL - either a bare base (https://host) or one
 // including a /management/organizations/<org>[/environments/<env>[/...]] path - and

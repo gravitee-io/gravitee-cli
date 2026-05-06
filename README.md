@@ -111,6 +111,11 @@ Global flags worth knowing:
 - `--context <name>` : pick a named context from your config file
 - `--output table|yaml|json|id` : control output format. `yaml` and `json` for machines, `id` for piping into scripts, `table` (default) for humans.
 
+List commands share a common set of flags:
+- `--all` : fetch all pages automatically instead of a single page
+- `--per-page <n>` : results per page (default 10)
+- `--wide` / `-w` : show extra columns (tags, owner, visibility, ...) - available on `gio apim api list`
+
 ## AM (Access Management)
 
 Full-featured CLI for managing Gravitee Access Management domains and security:
