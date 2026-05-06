@@ -25,9 +25,20 @@ limitations under the License.
 
 `gio` is the official command-line interface for [Gravitee](https://www.gravitee.io/) **APIM** (API Management) and **AM** (Access Management). It lets platform teams, integrators and AI agents script, inspect and automate Gravitee control planes from any terminal.
 
+## Variants
+
+Two binaries are available:
+
+| Binary | Use case | Commands |
+|--------|----------|----------|
+| `gio` | Humans, scripts, CI | Full CRUD - get, list, create, update, delete |
+| `gio-ro` | AI agents, read-only automation | Get and list only - no write operations |
+
+Both read the same config file (`~/.gio/config.yaml`) and support the same flags and output formats. Install both on the same machine if you want agents to use `gio-ro` while you use `gio` - they coexist without conflict.
+
 ## Install
 
-See the [latest release](https://github.com/gravitee-io-labs/gio-cli/releases/latest) for archives and install instructions.
+See the [latest release](https://github.com/gravitee-io-labs/gio-cli/releases/latest) for archives and install instructions for both `gio` and `gio-ro`.
 
 ## Quickstart
 
@@ -144,6 +155,7 @@ Switch between contexts with `--context <name>` on any command, or by editing th
 - **Terse defaults**, minimal noise to keep small context windows usable
 - **Actionable error messages** with hints when a call fails
 - **Clean exit codes** so automation can branch on failure
+- **`gio-ro`** for agents that only need to read - structurally prevents any write operation, no prompt engineering required
 
 ## Documentation and support
 

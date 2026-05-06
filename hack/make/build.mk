@@ -13,9 +13,11 @@ include $(ROOT_DIR)/hack/make/tool.mk
 endif
 
 .PHONY: build
-build: ## Build gio for the current platform into dist/gio
+build: ## Build gio and gio-ro for the current platform into dist/
 	@echo "Building gio $(VERSION) ..."
 	@cd $(ROOT_DIR) && go build $(LDFLAGS) -o dist/gio .
+	@echo "Building gio-ro $(VERSION) ..."
+	@cd $(ROOT_DIR) && go build $(LDFLAGS) -o dist/gio-ro ./cmd/gio-ro
 
 .PHONY: release-check
 release-check: $(GORELEASER) ## Validate .goreleaser.yaml

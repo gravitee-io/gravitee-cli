@@ -21,8 +21,8 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewAPICmd creates the parent api command with all subcommands.
-func NewAPICmd(f *factory.Factory) *cobra.Command {
+// NewAPICmdRO creates the api command with read-only subcommands.
+func NewAPICmdRO(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "api",
 		Short: "Manage APIs",
@@ -33,6 +33,15 @@ func NewAPICmd(f *factory.Factory) *cobra.Command {
 
 	cmd.AddCommand(newListCmd(f))
 	cmd.AddCommand(newGetCmd(f))
+	cmd.AddCommand(newExportCmd(f))
+
+	return cmd
+}
+
+// NewAPICmd creates the parent api command with all subcommands.
+func NewAPICmd(f *factory.Factory) *cobra.Command {
+	cmd := NewAPICmdRO(f)
+
 	cmd.AddCommand(newCreateCmd(f))
 	cmd.AddCommand(newUpdateCmd(f))
 	cmd.AddCommand(newDeleteCmd(f))
@@ -40,7 +49,6 @@ func NewAPICmd(f *factory.Factory) *cobra.Command {
 	cmd.AddCommand(newStopCmd(f))
 	cmd.AddCommand(newDeployCmd(f))
 	cmd.AddCommand(newImportCmd(f))
-	cmd.AddCommand(newExportCmd(f))
 	cmd.AddCommand(newRollbackCmd(f))
 
 	return cmd

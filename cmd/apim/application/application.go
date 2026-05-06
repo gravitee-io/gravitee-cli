@@ -21,8 +21,8 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewApplicationCmd creates the parent application command with all subcommands.
-func NewApplicationCmd(f *factory.Factory) *cobra.Command {
+// NewApplicationCmdRO creates the application command with read-only subcommands.
+func NewApplicationCmdRO(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "application",
 		Aliases: []string{"app"},
@@ -31,9 +31,16 @@ func NewApplicationCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddOutputFlags(cmd, f)
-
 	cmd.AddCommand(newListCmd(f))
 	cmd.AddCommand(newGetCmd(f))
+
+	return cmd
+}
+
+// NewApplicationCmd creates the parent application command with all subcommands.
+func NewApplicationCmd(f *factory.Factory) *cobra.Command {
+	cmd := NewApplicationCmdRO(f)
+
 	cmd.AddCommand(newCreateCmd(f))
 	cmd.AddCommand(newUpdateCmd(f))
 	cmd.AddCommand(newDeleteCmd(f))

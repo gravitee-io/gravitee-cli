@@ -56,9 +56,51 @@ func NewRootCmd(version string) *cobra.Command {
 	return cmd
 }
 
+// NewRootCmdRO creates the root gio-ro command with read-only subcommands only.
+func NewRootCmdRO(version string) *cobra.Command {
+	f := &factory.Factory{
+		IOStreams: factory.DefaultIOStreams(),
+	}
+
+	cmd := &cobra.Command{
+		Use:           "gio-ro",
+		Short:         "gio-ro - Gravitee CLI (read-only)",
+		Long:          "gio-ro is a read-only command-line interface for the Gravitee platform. Only commands that do not modify state are available.",
+		Version:       version,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+	}
+
+	cmd.PersistentFlags().StringVar(&f.Overrides.Context, "context", "", "Override context")
+	cmd.PersistentFlags().StringVar(&f.Overrides.Org, "org", "", "Override organization ID")
+	cmd.PersistentFlags().StringVar(&f.Overrides.EnvID, "env", "", "Override environment ID")
+	cmd.PersistentFlags().BoolVar(&f.Debug, "debug", false, "Show raw HTTP requests/responses")
+
+	cmd.AddCommand(newLoginCmd(f))
+	cmd.AddCommand(contextcmd.NewContextCmdRO(f))
+	cmd.AddCommand(newCompletionCmd())
+	cmd.AddCommand(newVersionCmd(f, version))
+
+	cmd.AddCommand(apimcmd.NewAPIMCmdRO(f))
+
+	return cmd
+}
+
 // Execute runs the root command.
 func Execute(version string) int {
 	cmd := NewRootCmd(version)
+	if err := cmd.Execute(); err != nil {
+		fmt.Fprintln(cmd.ErrOrStderr(), "Error:", err)
+
+		return 1
+	}
+
+	return 0
+}
+
+// ExecuteRO runs the read-only root command.
+func ExecuteRO(version string) int {
+	cmd := NewRootCmdRO(version)
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintln(cmd.ErrOrStderr(), "Error:", err)
 

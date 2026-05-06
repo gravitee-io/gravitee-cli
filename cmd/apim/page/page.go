@@ -21,8 +21,8 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewPageCmd creates the parent page command with all subcommands.
-func NewPageCmd(f *factory.Factory) *cobra.Command {
+// NewPageCmdRO creates the page command with read-only subcommands.
+func NewPageCmdRO(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "page",
 		Short: "Manage API pages",
@@ -30,9 +30,16 @@ func NewPageCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddOutputFlags(cmd, f)
-
 	cmd.AddCommand(newListCmd(f))
 	cmd.AddCommand(newGetCmd(f))
+
+	return cmd
+}
+
+// NewPageCmd creates the parent page command with all subcommands.
+func NewPageCmd(f *factory.Factory) *cobra.Command {
+	cmd := NewPageCmdRO(f)
+
 	cmd.AddCommand(newCreateCmd(f))
 	cmd.AddCommand(newUpdateCmd(f))
 	cmd.AddCommand(newDeleteCmd(f))

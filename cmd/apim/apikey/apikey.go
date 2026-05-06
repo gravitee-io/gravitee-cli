@@ -21,8 +21,8 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewAPIKeyCmd creates the parent api-key command with all subcommands.
-func NewAPIKeyCmd(f *factory.Factory) *cobra.Command {
+// NewAPIKeyCmdRO creates the api-key command with read-only subcommands.
+func NewAPIKeyCmdRO(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "api-key",
 		Short: "Manage API keys",
@@ -30,8 +30,15 @@ func NewAPIKeyCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddOutputFlags(cmd, f)
-
 	cmd.AddCommand(newListCmd(f))
+
+	return cmd
+}
+
+// NewAPIKeyCmd creates the parent api-key command with all subcommands.
+func NewAPIKeyCmd(f *factory.Factory) *cobra.Command {
+	cmd := NewAPIKeyCmdRO(f)
+
 	cmd.AddCommand(newRenewCmd(f))
 	cmd.AddCommand(newRevokeCmd(f))
 	cmd.AddCommand(newReactivateCmd(f))

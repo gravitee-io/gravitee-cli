@@ -28,10 +28,30 @@ builds:
     ignore:
       - goos: windows
         goarch: arm64
+  - id: gio-ro
+    binary: gio-ro
+    main: ./cmd/gio-ro
+    env: [CGO_ENABLED=0]
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ignore:
+      - goos: windows
+        goarch: arm64
 
 archives:
   - id: gio
+    ids: [gio]
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files: [LICENSE.txt, README.md]
+  - id: gio-ro
+    ids: [gio-ro]
+    name_template: "{{ .ProjectName }}_readonly_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     formats: [tar.gz]
     format_overrides:
       - goos: windows
@@ -63,18 +83,29 @@ release:
 
     gio is the Gravitee CLI for APIM & AM.
   footer: |
+    ## Variants
+
+    This release ships two binaries:
+
+    | Binary | Use case | Commands |
+    |--------|----------|----------|
+    | `gio` | Humans, scripts, CI | Full CRUD - get, list, create, update, delete |
+    | `gio-ro` | AI agents, read-only automation | Get and list only - no write operations |
+
+    Both binaries read the same config file (`~/.gio/config.yaml`) and support the same flags and output formats. Install both on the same machine if you want agents to use `gio-ro` while you use `gio` - they coexist without conflict.
+
     ## Install
 
     ### Linux / macOS
 
     **1. Identify your platform.** Run `uname -sm` in a terminal and match the output:
 
-    | `uname -sm` output | Archive to download                          |
-    |--------------------|----------------------------------------------|
-    | `Darwin arm64`     | [`gio_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_arm64.tar.gz) (Mac Apple Silicon, M1/M2/...) |
-    | `Darwin x86_64`    | [`gio_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_amd64.tar.gz) (Mac Intel) |
-    | `Linux x86_64`     | [`gio_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_amd64.tar.gz) (most PCs and servers) |
-    | `Linux aarch64`    | [`gio_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_arm64.tar.gz) (Raspberry Pi 4+, Graviton, ...) |
+    | `uname -sm` output | `gio` archive | `gio-ro` archive |
+    |--------------------|---------------|------------------|
+    | `Darwin arm64`     | [`gio_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_arm64.tar.gz) | [`gio_readonly_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_darwin_arm64.tar.gz) |
+    | `Darwin x86_64`    | [`gio_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_amd64.tar.gz) | [`gio_readonly_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_darwin_amd64.tar.gz) |
+    | `Linux x86_64`     | [`gio_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_amd64.tar.gz) | [`gio_readonly_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_linux_amd64.tar.gz) |
+    | `Linux aarch64`    | [`gio_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_arm64.tar.gz) | [`gio_readonly_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_linux_arm64.tar.gz) |
 
     **2. Download and extract** (replace `linux_amd64` with your archive):
 
@@ -84,12 +115,12 @@ release:
     ./gio version
     ```
 
-    Move the resulting `gio` binary to a directory in your `PATH` to use it from anywhere.
+    Move the resulting binary to a directory in your `PATH`. If you install both variants, both `gio` and `gio-ro` can live in the same directory.
 
     ### Windows
 
-    1. Download [`gio_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_windows_amd64.zip)
-    2. Unzip it into a folder of your choice (e.g. `C:\Tools\gio`)
+    1. Download [`gio_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_windows_amd64.zip) and/or [`gio_readonly_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_windows_amd64.zip)
+    2. Unzip into a folder of your choice (e.g. `C:\Tools\gio`)
     3. Add that folder to your `PATH` so `gio` works from any terminal (run once in PowerShell):
 
        ```powershell

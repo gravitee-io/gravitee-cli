@@ -37,3 +37,18 @@ func NewContextCmd(f *factory.Factory) *cobra.Command {
 
 	return cmd
 }
+
+// NewContextCmdRO creates the context parent command with read-only subcommands only.
+func NewContextCmdRO(f *factory.Factory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "context",
+		Short: "Manage CLI contexts",
+		Long:  "Create, switch, and inspect CLI contexts that store connection details for Gravitee products.",
+	}
+
+	cmd.AddCommand(newListCmd(f))
+	cmd.AddCommand(newCurrentCmd(f))
+	cmd.AddCommand(newViewCmd(f))
+
+	return cmd
+}

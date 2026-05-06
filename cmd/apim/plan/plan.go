@@ -21,8 +21,8 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewPlanCmd creates the parent plan command with all subcommands.
-func NewPlanCmd(f *factory.Factory) *cobra.Command {
+// NewPlanCmdRO creates the plan command with read-only subcommands.
+func NewPlanCmdRO(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "plan",
 		Short: "Manage API plans",
@@ -30,9 +30,16 @@ func NewPlanCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddOutputFlags(cmd, f)
-
 	cmd.AddCommand(newListCmd(f))
 	cmd.AddCommand(newGetCmd(f))
+
+	return cmd
+}
+
+// NewPlanCmd creates the parent plan command with all subcommands.
+func NewPlanCmd(f *factory.Factory) *cobra.Command {
+	cmd := NewPlanCmdRO(f)
+
 	cmd.AddCommand(newCreateCmd(f))
 	cmd.AddCommand(newUpdateCmd(f))
 	cmd.AddCommand(newDeleteCmd(f))

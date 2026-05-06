@@ -21,8 +21,8 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewMemberCmd creates the parent member command with all subcommands.
-func NewMemberCmd(f *factory.Factory) *cobra.Command {
+// NewMemberCmdRO creates the member command with read-only subcommands.
+func NewMemberCmdRO(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "member",
 		Short: "Manage API members",
@@ -30,8 +30,15 @@ func NewMemberCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddOutputFlags(cmd, f)
-
 	cmd.AddCommand(newListCmd(f))
+
+	return cmd
+}
+
+// NewMemberCmd creates the parent member command with all subcommands.
+func NewMemberCmd(f *factory.Factory) *cobra.Command {
+	cmd := NewMemberCmdRO(f)
+
 	cmd.AddCommand(newAddCmd(f))
 	cmd.AddCommand(newRemoveCmd(f))
 

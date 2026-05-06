@@ -36,8 +36,7 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewAPIMCmd creates the apim parent command with all APIM subcommands.
-func NewAPIMCmd(f *factory.Factory) *cobra.Command {
+func newAPIMBaseCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "apim",
 		Short: "Gravitee API Management",
@@ -67,19 +66,42 @@ func NewAPIMCmd(f *factory.Factory) *cobra.Command {
 		defaultHelp(c, args)
 	})
 
-	cmd.AddCommand(apicmd.NewAPICmd(f))
 	cmd.AddCommand(logcmd.NewLogCmd(f))
 	cmd.AddCommand(analyticscmd.NewAnalyticsCmd(f))
 	cmd.AddCommand(healthcmd.NewHealthCmd(f))
+	cmd.AddCommand(metadatacmd.NewMetadataCmd(f))
+	cmd.AddCommand(envcmd.NewEnvironmentCmd(f))
+	cmd.AddCommand(plugincmd.NewPluginCmd(f))
+
+	return cmd
+}
+
+// NewAPIMCmdRO creates the apim command with read-only subcommands only.
+func NewAPIMCmdRO(f *factory.Factory) *cobra.Command {
+	cmd := newAPIMBaseCmd(f)
+
+	cmd.AddCommand(apicmd.NewAPICmdRO(f))
+	cmd.AddCommand(plancmd.NewPlanCmdRO(f))
+	cmd.AddCommand(subcmd.NewSubscriptionCmdRO(f))
+	cmd.AddCommand(apikeycmd.NewAPIKeyCmdRO(f))
+	cmd.AddCommand(membercmd.NewMemberCmdRO(f))
+	cmd.AddCommand(pagecmd.NewPageCmdRO(f))
+	cmd.AddCommand(appcmd.NewApplicationCmdRO(f))
+
+	return cmd
+}
+
+// NewAPIMCmd creates the apim parent command with all APIM subcommands.
+func NewAPIMCmd(f *factory.Factory) *cobra.Command {
+	cmd := newAPIMBaseCmd(f)
+
+	cmd.AddCommand(apicmd.NewAPICmd(f))
 	cmd.AddCommand(plancmd.NewPlanCmd(f))
 	cmd.AddCommand(subcmd.NewSubscriptionCmd(f))
 	cmd.AddCommand(apikeycmd.NewAPIKeyCmd(f))
 	cmd.AddCommand(membercmd.NewMemberCmd(f))
 	cmd.AddCommand(pagecmd.NewPageCmd(f))
-	cmd.AddCommand(metadatacmd.NewMetadataCmd(f))
 	cmd.AddCommand(appcmd.NewApplicationCmd(f))
-	cmd.AddCommand(envcmd.NewEnvironmentCmd(f))
-	cmd.AddCommand(plugincmd.NewPluginCmd(f))
 
 	return cmd
 }

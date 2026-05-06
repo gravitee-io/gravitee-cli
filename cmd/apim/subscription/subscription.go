@@ -21,8 +21,8 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewSubscriptionCmd creates the parent subscription command with all subcommands.
-func NewSubscriptionCmd(f *factory.Factory) *cobra.Command {
+// NewSubscriptionCmdRO creates the subscription command with read-only subcommands.
+func NewSubscriptionCmdRO(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "subscription",
 		Aliases: []string{"sub"},
@@ -31,9 +31,16 @@ func NewSubscriptionCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddOutputFlags(cmd, f)
-
 	cmd.AddCommand(newListCmd(f))
 	cmd.AddCommand(newGetCmd(f))
+
+	return cmd
+}
+
+// NewSubscriptionCmd creates the parent subscription command with all subcommands.
+func NewSubscriptionCmd(f *factory.Factory) *cobra.Command {
+	cmd := NewSubscriptionCmdRO(f)
+
 	cmd.AddCommand(newCreateCmd(f))
 	cmd.AddCommand(newAcceptCmd(f))
 	cmd.AddCommand(newRejectCmd(f))

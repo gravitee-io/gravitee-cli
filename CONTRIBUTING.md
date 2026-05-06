@@ -190,3 +190,9 @@ This removes the GitHub Release and the Git tag.
 ```
 
 To add a new APIM or AM command, start from an existing one under `cmd/apim/` or `cmd/am/` and mirror the pattern (Cobra command, thin wrapper over an `internal/...` service).
+
+## The read-only binary (`gio-ro`)
+
+`gio-ro` is a separate binary designed for agents and pipelines where write access must be structurally impossible. It is wired exclusively from `*CmdRO` constructors - write commands are absent, not just hidden behind a flag or a runtime check.
+
+This only works if contributors keep it in sync: every package that has write operations must have a `*CmdRO` variant (list/get only), and that variant must be the one registered in `NewAPIMCmdRO` or `NewAMCmdRO`.
