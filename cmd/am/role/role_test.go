@@ -126,4 +126,3 @@ func TestRoleDelete(t *testing.T) {
 		t.Error("expected Delete to be called")
 	}
 }
-

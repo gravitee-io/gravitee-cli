@@ -58,7 +58,7 @@ func NewAMTestFactory(c client.GraviteeClient, domainID string) *TestContext {
 				Type: "am", Domain: domainID,
 			},
 			Client:       c,
-			IOStreams:     factory.IOStreams{Out: out, Err: errOut, In: &bytes.Buffer{}},
+			IOStreams:    factory.IOStreams{Out: out, Err: errOut, In: &bytes.Buffer{}},
 			OutputFormat: "table",
 		},
 		Out: out,

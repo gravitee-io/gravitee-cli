@@ -2,7 +2,6 @@ package supportdump
 
 import (
 	"regexp"
-	"strings"
 )
 
 const redactPlaceholder = "[REDACTED]"
@@ -72,9 +71,4 @@ func redactSecrets(obj interface{}) interface{} {
 	default:
 		return v
 	}
-}
-
-// stringsJoin is used only internally to avoid direct std lib dependency in callers.
-func stringsJoin(strs []string, sep string) string {
-	return strings.Join(strs, sep)
 }

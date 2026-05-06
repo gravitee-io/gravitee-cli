@@ -150,7 +150,6 @@ func render(data DashboardData, intervalSec int) string {
 	return sb.String()
 }
 
-
 func sortDesc(events []AuditEvent) {
 	for i := 1; i < len(events); i++ {
 		for j := i; j > 0 && events[j].RawTs > events[j-1].RawTs; j-- {

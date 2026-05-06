@@ -47,7 +47,7 @@ func runSupportDump(f *factory.Factory, outputFile string, allDomains, noAudit b
 		return err
 	}
 
-	output := buildDumpOutput(f, domainIDs, shouldRedact, !noAudit, includeUsers, allDomains, noAudit, auditSize)
+	output := buildDumpOutput(f, domainIDs, shouldRedact, includeUsers, noAudit)
 
 	if allDomains {
 		domains := make([]interface{}, 0, len(domainIDs))
@@ -111,7 +111,7 @@ func resolveDomainIDs(f *factory.Factory, allDomains bool) ([]string, error) {
 	return []string{f.Resolved.Domain}, nil
 }
 
-func buildDumpOutput(f *factory.Factory, domainIDs []string, shouldRedact bool, includeAudit, includeUsers bool, allDomains, noAudit bool, auditSize int) map[string]interface{} {
+func buildDumpOutput(f *factory.Factory, domainIDs []string, shouldRedact bool, includeUsers bool, noAudit bool) map[string]interface{} {
 	return map[string]interface{}{
 		"_metadata": map[string]interface{}{
 			"serverUrl":       f.Resolved.URL,

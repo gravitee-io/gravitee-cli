@@ -15,13 +15,13 @@ import (
 
 func newSettingsCmd(f *factory.Factory) *cobra.Command {
 	var (
-		grantTypes            string
-		responseTypes         string
-		redirectURIs          string
-		postLogoutURIs        string
-		tokenLifetime         int
-		refreshTokenLifetime  int
-		idTokenLifetime       int
+		grantTypes           string
+		responseTypes        string
+		redirectURIs         string
+		postLogoutURIs       string
+		tokenLifetime        int
+		refreshTokenLifetime int
+		idTokenLifetime      int
 	)
 
 	cmd := &cobra.Command{

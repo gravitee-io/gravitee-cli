@@ -126,53 +126,73 @@ func httpPost(ctx context.Context, endpoint, body string, headers map[string]str
 
 func printTokenResult(f *factory.Factory, tokenResp, discovery map[string]interface{}, clientID string) {
 	out := f.IOStreams.Out
+	printAccessTokenInfo(out, tokenResp)
+	if idToken, ok := tokenResp["id_token"].(string); ok {
+		printIDTokenInfo(out, idToken, discovery, clientID)
+	}
+}
+
+func printAccessTokenInfo(out io.Writer, tokenResp map[string]interface{}) {
 	accessToken, _ := tokenResp["access_token"].(string)
 	fmt.Fprintf(out, "Access Token:  %s\n", truncateToken(accessToken, 40))
 	fmt.Fprintf(out, "Token Type:    %v\n", tokenResp["token_type"])
 	fmt.Fprintf(out, "Expires In:    %vs\n", tokenResp["expires_in"])
 	fmt.Fprintf(out, "Scopes:        %v\n", tokenResp["scope"])
+}
 
-	if idToken, ok := tokenResp["id_token"].(string); ok {
-		header, payload, err := decodeJWT(idToken)
-		if err != nil {
-			fmt.Fprintf(out, "\nCould not decode ID token: %v\n", err)
-			return
-		}
-		fmt.Fprintln(out, "\nID Token (decoded):")
-		fmt.Fprintln(out, "  Header:")
-		for k, v := range header {
-			fmt.Fprintf(out, "    %s: %v\n", k, v)
-		}
-		fmt.Fprintln(out, "  Payload:")
-		for k, v := range payload {
-			fmt.Fprintf(out, "    %s: %v\n", k, v)
-		}
-		fmt.Fprintln(out, "  Validation:")
-		if iss, ok := payload["iss"].(string); ok {
-			if discoveryIss, ok := discovery["issuer"].(string); ok {
-				if iss == discoveryIss {
-					fmt.Fprintln(out, "    ✓ Issuer matches discovery")
-				} else {
-					fmt.Fprintf(out, "    ✗ Issuer mismatch: %s vs %s\n", iss, discoveryIss)
-				}
+func printIDTokenInfo(out io.Writer, idToken string, discovery map[string]interface{}, clientID string) {
+	header, payload, err := decodeJWT(idToken)
+	if err != nil {
+		fmt.Fprintf(out, "\nCould not decode ID token: %v\n", err)
+		return
+	}
+	fmt.Fprintln(out, "\nID Token (decoded):")
+	fmt.Fprintln(out, "  Header:")
+	for k, v := range header {
+		fmt.Fprintf(out, "    %s: %v\n", k, v)
+	}
+	fmt.Fprintln(out, "  Payload:")
+	for k, v := range payload {
+		fmt.Fprintf(out, "    %s: %v\n", k, v)
+	}
+	fmt.Fprintln(out, "  Validation:")
+	validateIssuer(out, payload, discovery)
+	validateAudience(out, payload, clientID)
+}
+
+func validateIssuer(out io.Writer, payload, discovery map[string]interface{}) {
+	iss, ok := payload["iss"].(string)
+	if !ok {
+		return
+	}
+	discoveryIss, ok := discovery["issuer"].(string)
+	if !ok {
+		return
+	}
+	if iss == discoveryIss {
+		fmt.Fprintln(out, "    ✓ Issuer matches discovery")
+	} else {
+		fmt.Fprintf(out, "    ✗ Issuer mismatch: %s vs %s\n", iss, discoveryIss)
+	}
+}
+
+func validateAudience(out io.Writer, payload map[string]interface{}, clientID string) {
+	aud := payload["aud"]
+	audMatches := false
+	switch a := aud.(type) {
+	case string:
+		audMatches = a == clientID
+	case []interface{}:
+		for _, item := range a {
+			if s, ok := item.(string); ok && s == clientID {
+				audMatches = true
+				break
 			}
 		}
-		aud := payload["aud"]
-		audMatches := false
-		switch a := aud.(type) {
-		case string:
-			audMatches = a == clientID
-		case []interface{}:
-			for _, item := range a {
-				if s, ok := item.(string); ok && s == clientID {
-					audMatches = true
-				}
-			}
-		}
-		if audMatches {
-			fmt.Fprintln(out, "    ✓ Audience matches client_id")
-		} else {
-			fmt.Fprintf(out, "    ✗ Audience mismatch: %v vs %s\n", aud, clientID)
-		}
+	}
+	if audMatches {
+		fmt.Fprintln(out, "    ✓ Audience matches client_id")
+	} else {
+		fmt.Fprintf(out, "    ✗ Audience mismatch: %v vs %s\n", aud, clientID)
 	}
 }

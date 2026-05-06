@@ -105,4 +105,3 @@ func TestDomainDelete(t *testing.T) {
 		t.Errorf("unexpected output: %s", out.String())
 	}
 }
-

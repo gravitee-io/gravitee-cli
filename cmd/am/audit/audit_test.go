@@ -242,4 +242,3 @@ func TestGetAudit(t *testing.T) {
 		testutil.AssertErrorContains(t, err, "not found")
 	})
 }
-

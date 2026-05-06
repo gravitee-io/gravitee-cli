@@ -100,6 +100,22 @@ Global flags worth knowing:
 - `--context <name>` : pick a named context from your config file
 - `--output table|yaml|json|id` : control output format. `yaml` and `json` for machines, `id` for piping into scripts, `table` (default) for humans.
 
+## AM (Access Management)
+
+Full-featured CLI for managing Gravitee Access Management domains and security:
+
+**Domain and resource management** — Full CRUD for domains, applications, users, identity providers, roles, scopes, and certificates. Additional operations: enable/disable domains, manage application settings, lock/unlock users, reset passwords, and switch between domains with `gio am set domain <name>`.
+
+**Security and auditing** — Query audit logs with filtering by type, status, and date range. Run built-in security rule validation (`gio am lint`) to score domain security posture. Export diagnostic dumps with optional secret redaction for compliance reporting.
+
+**Authentication and tokens** — Manage token lifecycle (create, list, revoke), lock/unlock users, reset passwords, and test OpenID Connect discovery and client credential flows with integrated OIDC testing.
+
+**Monitoring and diagnostics** — Stream logs in real-time with `--follow`, watch live domain activity on a dashboard, trace authentication flows step-by-step to diagnose issues, and run health checks.
+
+**Backup and migration** — Export domain configurations for backup, import into another domain or environment, or copy between contexts with `gio am diff` to preview changes.
+
+**Scripting and exploration** — Generate shell completions, use an interactive REPL shell to explore resources, and inspect plugin schemas.
+
 ## Configuration
 
 After a successful login, `gio` persists your contexts in `~/.gio/config.yaml` with file mode `0600` (owner read/write only). Example:

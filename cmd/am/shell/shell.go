@@ -3,6 +3,7 @@ package shell
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"strings"
 	"unicode"
 
@@ -78,6 +79,10 @@ func runShell(f *factory.Factory, parent *cobra.Command) error {
 	fmt.Fprintln(out)
 
 	scanner := bufio.NewScanner(f.IOStreams.In)
+	return shellLoop(out, scanner, f, parent)
+}
+
+func shellLoop(out io.Writer, scanner *bufio.Scanner, f *factory.Factory, parent *cobra.Command) error {
 	for {
 		workspace := ""
 		domain := ""
@@ -96,27 +101,35 @@ func runShell(f *factory.Factory, parent *cobra.Command) error {
 			}
 			return nil
 		}
+
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
-		if line == "exit" || line == "quit" {
-			fmt.Fprintln(out, "Goodbye!")
+
+		if processShellCommand(out, line, f, parent) {
 			return nil
 		}
-		if line == "clear" {
-			fmt.Fprint(out, "\033[2J\033[H")
-			continue
-		}
-		if line == "help" {
-			_ = parent.Help()
-			continue
-		}
+	}
+}
 
+func processShellCommand(out io.Writer, line string, f *factory.Factory, parent *cobra.Command) bool {
+	switch line {
+	case "exit", "quit":
+		fmt.Fprintln(out, "Goodbye!")
+		return true
+	case "clear":
+		fmt.Fprint(out, "\033[2J\033[H")
+		return false
+	case "help":
+		_ = parent.Help()
+		return false
+	default:
 		args := splitArgs(line)
 		parent.SetArgs(args)
 		if err := parent.Execute(); err != nil {
 			fmt.Fprintf(f.IOStreams.Err, "Error: %v\n", err)
 		}
+		return false
 	}
 }
