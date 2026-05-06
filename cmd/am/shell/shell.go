@@ -9,6 +9,7 @@ import (
 
 	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 func splitArgs(input string) []string {
@@ -130,6 +131,27 @@ func processShellCommand(out io.Writer, line string, f *factory.Factory, parent 
 		if err := parent.Execute(); err != nil {
 			fmt.Fprintf(f.IOStreams.Err, "Error: %v\n", err)
 		}
+		// Reset flag values back to defaults so the next invocation isn't
+		// polluted by state from this one. Cobra mutates *Command in place
+		// (`-o json` followed by `list` would otherwise stay JSON).
+		resetFlags(parent)
 		return false
+	}
+}
+
+// resetFlags walks the command tree and resets all flags' values back to their
+// declared defaults. Without this, persistent flags like --output set in one
+// shell iteration leak into the next.
+func resetFlags(cmd *cobra.Command) {
+	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
+		flag.Changed = false
+		_ = flag.Value.Set(flag.DefValue)
+	})
+	cmd.PersistentFlags().VisitAll(func(flag *pflag.Flag) {
+		flag.Changed = false
+		_ = flag.Value.Set(flag.DefValue)
+	})
+	for _, sub := range cmd.Commands() {
+		resetFlags(sub)
 	}
 }

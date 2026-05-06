@@ -38,7 +38,7 @@ func runDoctorChecks(f *factory.Factory) []doctorCheck {
 
 	// 1. Config
 	if f.Config == nil || len(f.Config.Contexts) == 0 {
-		checks = append(checks, doctorCheck{"config", "FAIL", "No contexts configured — run 'gio am login'"})
+		checks = append(checks, doctorCheck{"config", "FAIL", "No contexts configured — run 'gio login am'"})
 		return checks
 	}
 
@@ -65,7 +65,7 @@ func runDoctorChecks(f *factory.Factory) []doctorCheck {
 
 	// 3. Token
 	if ctx.AM == nil || ctx.AM.Token == "" {
-		checks = append(checks, doctorCheck{"auth", "FAIL", "No AM token stored — run 'gio am login'"})
+		checks = append(checks, doctorCheck{"auth", "FAIL", "No AM token stored — run 'gio login am'"})
 		return checks
 	}
 

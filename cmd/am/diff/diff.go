@@ -62,7 +62,7 @@ func runDiff(f *factory.Factory, fromCtx, toCtx, fromDomain, toDomain string) er
 	fromClient := client.NewHTTPClient(client.HTTPClientConfig{BaseURL: fromResolved.URL, Token: fromResolved.Token})
 	toClient := client.NewHTTPClient(client.HTTPClientConfig{BaseURL: toResolved.URL, Token: toResolved.Token})
 
-	fmt.Fprintf(f.IOStreams.Out, "Comparing %s/%s → %s/%s\n\n",
+	fmt.Fprintf(f.IOStreams.Out, "Comparing %s/%s -> %s/%s\n\n",
 		fromCtx, fromResolved.Domain, toCtx, toResolved.Domain)
 
 	for _, spec := range resourceSpecs {

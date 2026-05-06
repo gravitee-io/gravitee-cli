@@ -75,3 +75,42 @@ func truncateToken(token string, maxLen int) string {
 	}
 	return token[:maxLen] + "...(truncated)"
 }
+
+// validateGatewayURL rejects gateway URLs that look unsafe for sending
+// credentials. Only http://localhost or 127.0.0.1 is allowed; everything else
+// must be https.
+func validateGatewayURL(gw string) error {
+	u, err := url.Parse(gw)
+	if err != nil {
+		return fmt.Errorf("invalid gateway URL %q: %w", gw, err)
+	}
+	if u.Scheme != "https" && !isLoopback(u.Hostname()) {
+		return fmt.Errorf("gateway URL %q must use https (got %s); credentials would be sent in cleartext", gw, u.Scheme)
+	}
+	return nil
+}
+
+// validateTokenEndpoint ensures the token endpoint advertised by discovery
+// shares the same host as the gateway. This blocks credential exfiltration
+// via tampered or compromised discovery documents.
+func validateTokenEndpoint(tokenEndpoint, gw string) error {
+	te, err := url.Parse(tokenEndpoint)
+	if err != nil {
+		return fmt.Errorf("invalid token_endpoint %q: %w", tokenEndpoint, err)
+	}
+	g, err := url.Parse(gw)
+	if err != nil {
+		return fmt.Errorf("invalid gateway URL %q: %w", gw, err)
+	}
+	if te.Scheme != "https" && !isLoopback(te.Hostname()) {
+		return fmt.Errorf("token_endpoint %q must use https (got %s)", tokenEndpoint, te.Scheme)
+	}
+	if !strings.EqualFold(te.Hostname(), g.Hostname()) {
+		return fmt.Errorf("token_endpoint host %q does not match gateway host %q — refusing to send credentials", te.Hostname(), g.Hostname())
+	}
+	return nil
+}
+
+func isLoopback(host string) bool {
+	return host == "localhost" || host == "127.0.0.1" || host == "::1"
+}

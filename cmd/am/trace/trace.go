@@ -105,21 +105,21 @@ func runTrace(f *factory.Factory, userArg, appArg string) error {
 		userLabel = cmdutil.StringField(user, "username")
 	}
 	appLabel := cmdutil.StringField(app, "name")
-	fmt.Fprintf(out, "\nAuth flow trace: %s → %s\n\n", userLabel, appLabel)
+	fmt.Fprintf(out, "\nAuth flow trace: %s -> %s\n\n", userLabel, appLabel)
 	for _, step := range steps {
-		icon := "✓"
+		tag := "[OK]  "
 		if step.Status == "warn" {
-			icon = "⚠"
+			tag = "[WARN]"
 		} else if step.Status == "block" {
-			icon = "✗"
+			tag = "[FAIL]"
 		}
-		fmt.Fprintf(out, "  %s %-16s %s\n", icon, step.Label, step.Detail)
+		fmt.Fprintf(out, "  %s %-16s %s\n", tag, step.Label, step.Detail)
 	}
 	fmt.Fprintln(out)
 	if verdict.CanAuthenticate {
-		fmt.Fprintf(out, "  Verdict: ✓ %s\n\n", verdict.Reason)
+		fmt.Fprintf(out, "  Verdict: [OK]   %s\n\n", verdict.Reason)
 	} else {
-		fmt.Fprintf(out, "  Verdict: ✗ %s\n\n", verdict.Reason)
+		fmt.Fprintf(out, "  Verdict: [FAIL] %s\n\n", verdict.Reason)
 	}
 	return nil
 }

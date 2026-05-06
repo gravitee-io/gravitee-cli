@@ -58,14 +58,26 @@ func runCopy(f *factory.Factory, sourceDomainID, targetName string) error {
 		return fmt.Errorf("failed to export source domain (new domain '%s' was created but is empty — delete it manually if not needed): %w", targetDomainID, err)
 	}
 
-	imported, skipped := 0, 0
-	add := func(i, s int) { imported += i; skipped += s }
+	totalImported, totalSkipped := 0, 0
+	var allErrs []error
+	for _, kind := range []string{"scopes", "roles", "groups", "applications"} {
+		imported, skipped, errs := importItems(f, exported, kind, targetDomainID, kind)
+		totalImported += imported
+		totalSkipped += skipped
+		allErrs = append(allErrs, errs...)
+	}
 
-	add(importItems(f, exported, "scopes", targetDomainID, "scopes"))
-	add(importItems(f, exported, "roles", targetDomainID, "roles"))
-	add(importItems(f, exported, "groups", targetDomainID, "groups"))
-	add(importItems(f, exported, "applications", targetDomainID, "applications"))
+	for i, err := range allErrs {
+		if i >= 5 {
+			fmt.Fprintf(f.IOStreams.Err, "  ... and %d more errors\n", len(allErrs)-5)
+			break
+		}
+		fmt.Fprintf(f.IOStreams.Err, "  - %v\n", err)
+	}
 
-	p.PrintMessage("Copy complete: %d imported, %d skipped.", imported, skipped)
+	p.PrintMessage("Copy complete: %d imported, %d skipped.", totalImported, totalSkipped)
+	if totalSkipped > 0 {
+		return fmt.Errorf("copy partially failed: %d items skipped", totalSkipped)
+	}
 	return nil
 }

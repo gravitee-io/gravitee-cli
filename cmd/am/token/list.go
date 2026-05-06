@@ -49,6 +49,21 @@ func runList(f *factory.Factory, userID string) error {
 func tokenColumns() []printer.Column {
 	return []printer.Column{
 		{Name: "ID", Value: func(i interface{}) string { return cmdutil.StringField(i, "id") }},
-		{Name: "Token", Value: func(i interface{}) string { return cmdutil.StringField(i, "token") }},
+		{Name: "Token", Value: func(i interface{}) string { return maskToken(cmdutil.StringField(i, "token")) }},
+		{Name: "Expires At", Value: func(i interface{}) string { return cmdutil.StringField(i, "expiresAt") }},
+		{Name: "Created At", Value: func(i interface{}) string { return cmdutil.StringField(i, "createdAt") }},
 	}
+}
+
+// maskToken returns a redacted form of a bearer token: last 4 chars only.
+// Tokens are bearer credentials — printing them in full to stdout puts them
+// into terminal scrollback, shell history, and CI logs.
+func maskToken(token string) string {
+	if token == "" {
+		return ""
+	}
+	if len(token) <= 4 {
+		return "***"
+	}
+	return "***" + token[len(token)-4:]
 }

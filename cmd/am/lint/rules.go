@@ -2,9 +2,21 @@ package lint
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 )
+
+// isLocalhostURI returns true if uri's host is loopback (localhost / 127.0.0.1 / ::1).
+// Uses net/url so substrings like "my-localhost-x.example.com" don't match.
+func isLocalhostURI(uri string) bool {
+	u, err := url.Parse(uri)
+	if err != nil {
+		return false
+	}
+	host := u.Hostname()
+	return host == "localhost" || host == "127.0.0.1" || host == "::1"
+}
 
 type LintFinding struct {
 	Rule     string
@@ -108,11 +120,11 @@ func ruleLocalhostRedirect(apps []map[string]interface{}) []LintFinding {
 	var out []LintFinding
 	for _, app := range apps {
 		for _, uri := range redirectUris(app) {
-			if strings.Contains(uri, "localhost") || strings.Contains(uri, "127.0.0.1") {
+			if isLocalhostURI(uri) {
 				out = append(out, LintFinding{
 					Rule: "localhost-redirect", Severity: "warning",
 					Resource: appName(app),
-					Message:  fmt.Sprintf("Redirect URI contains localhost: %s", uri),
+					Message:  fmt.Sprintf("Redirect URI points to localhost: %s", uri),
 				})
 				break
 			}
@@ -125,7 +137,7 @@ func ruleHttpRedirect(apps []map[string]interface{}) []LintFinding {
 	var out []LintFinding
 	for _, app := range apps {
 		for _, uri := range redirectUris(app) {
-			if strings.HasPrefix(uri, "http://") && !strings.Contains(uri, "localhost") {
+			if strings.HasPrefix(uri, "http://") && !isLocalhostURI(uri) {
 				out = append(out, LintFinding{
 					Rule: "http-redirect", Severity: "warning",
 					Resource: appName(app),

@@ -215,7 +215,7 @@ func AMDomainPathFor(f *factory.Factory, domainID, path string) string {
 // RequireAMContext returns an error if no AM context is configured.
 func RequireAMContext(f *factory.Factory) error {
 	if f.Resolved == nil {
-		return fmt.Errorf("no AM context configured\nHint: run 'gio am login' to get started")
+		return fmt.Errorf("no AM context configured\nHint: run 'gio login am' to get started")
 	}
 
 	if f.Resolved.Type != "am" {

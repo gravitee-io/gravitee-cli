@@ -55,6 +55,16 @@ func runCreate(f *factory.Factory, userID, file string) error {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return fmt.Errorf("failed to parse response: %w", err)
 	}
-	p.PrintMessage("Token created (ID: %s).", cmdutil.StringField(m, "id"))
+	id := cmdutil.StringField(m, "id")
+	tokenValue := cmdutil.StringField(m, "token")
+
+	if tokenValue != "" {
+		p.PrintMessage("Token created (ID: %s).", id)
+		p.PrintMessage("")
+		p.PrintMessage("Token value (store it now — it will not be shown again):")
+		p.PrintMessage("  %s", tokenValue)
+		return nil
+	}
+	p.PrintMessage("Token created (ID: %s).", id)
 	return nil
 }

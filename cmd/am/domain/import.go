@@ -50,12 +50,9 @@ func runImport(f *factory.Factory, file, targetDomainID string) error {
 		if err := json.Unmarshal(exportData["domain"], &domainObj); err != nil {
 			return fmt.Errorf("failed to parse domain in export: %w", err)
 		}
-		body, err := json.Marshal(map[string]interface{}{
+		body := map[string]interface{}{
 			"name":        cmdutil.StringField(domainObj, "name"),
 			"description": cmdutil.StringField(domainObj, "description"),
-		})
-		if err != nil {
-			return err
 		}
 		created, err := f.Client.Post(cmdutil.AMEnvPath(f, "domains"), body)
 		if err != nil {
@@ -72,34 +69,53 @@ func runImport(f *factory.Factory, file, targetDomainID string) error {
 		p.PrintMessage("Created domain '%s'.", targetDomainID)
 	}
 
-	imported, skipped := 0, 0
-	add := func(i, s int) { imported += i; skipped += s }
+	totalImported, totalSkipped := 0, 0
+	var allErrs []error
+	for _, kind := range []string{"scopes", "roles", "groups", "applications"} {
+		imported, skipped, errs := importItems(f, exportData, kind, targetDomainID, kind)
+		totalImported += imported
+		totalSkipped += skipped
+		allErrs = append(allErrs, errs...)
+	}
 
-	add(importItems(f, exportData, "scopes", targetDomainID, "scopes"))
-	add(importItems(f, exportData, "roles", targetDomainID, "roles"))
-	add(importItems(f, exportData, "groups", targetDomainID, "groups"))
-	add(importItems(f, exportData, "applications", targetDomainID, "applications"))
+	for i, err := range allErrs {
+		if i >= 5 {
+			fmt.Fprintf(f.IOStreams.Err, "  ... and %d more errors\n", len(allErrs)-5)
+			break
+		}
+		fmt.Fprintf(f.IOStreams.Err, "  - %v\n", err)
+	}
 
-	p.PrintMessage("Import complete: %d imported, %d skipped.", imported, skipped)
+	p.PrintMessage("Import complete: %d imported, %d skipped.", totalImported, totalSkipped)
+	if totalSkipped > 0 {
+		return fmt.Errorf("import partially failed: %d items skipped", totalSkipped)
+	}
 	return nil
 }
 
-// importItems creates resources from a JSON array in exportData. Returns (imported, skipped) counts.
-func importItems(f *factory.Factory, exportData map[string]json.RawMessage, key, domainID, resource string) (int, int) {
+// importItems creates resources from a JSON array in exportData.
+// Returns (imported, skipped, errors). Each failed POST is counted as skipped
+// and its error is included in the returned slice so the caller can report
+// real failure counts to the user.
+func importItems(f *factory.Factory, exportData map[string]json.RawMessage, key, domainID, resource string) (int, int, []error) {
 	raw, ok := exportData[key]
 	if !ok || len(raw) == 0 {
-		return 0, 0
+		return 0, 0, nil
 	}
 	var items []json.RawMessage
 	if err := json.Unmarshal(raw, &items); err != nil {
-		return 0, 1
+		return 0, 1, []error{fmt.Errorf("%s: parse failed: %w", key, err)}
 	}
-	imported := 0
-	for _, item := range items {
+	imported, skipped := 0, 0
+	var errs []error
+	for i, item := range items {
 		path := cmdutil.AMDomainPathFor(f, domainID, resource)
-		if _, err := f.Client.Post(path, item); err == nil {
-			imported++
+		if _, err := f.Client.Post(path, item); err != nil {
+			skipped++
+			errs = append(errs, fmt.Errorf("%s[%d]: %w", key, i, err))
+			continue
 		}
+		imported++
 	}
-	return imported, 0
+	return imported, skipped, errs
 }

@@ -64,7 +64,7 @@ func compareResources(fromItems, toItems []map[string]interface{}, keyField stri
 		if len(changes) > 0 {
 			result.Changed++
 			for _, c := range changes {
-				result.Lines = append(result.Lines, fmt.Sprintf("~ %-20s %-30s %v → %v", key, c.Field, c.From, c.To))
+				result.Lines = append(result.Lines, fmt.Sprintf("~ %-20s %-30s %v -> %v", key, c.Field, c.From, c.To))
 			}
 		}
 	}

@@ -108,7 +108,7 @@ Full-featured CLI for managing Gravitee Access Management domains and security:
 
 **Security and auditing** — Query audit logs with filtering by type, status, and date range. Run built-in security rule validation (`gio am lint`) to score domain security posture. Export diagnostic dumps with optional secret redaction for compliance reporting.
 
-**Authentication and tokens** — Manage token lifecycle (create, list, revoke), lock/unlock users, reset passwords, and test OpenID Connect discovery and client credential flows with integrated OIDC testing.
+**Authentication and tokens** — Manage token lifecycle (create, list, revoke), lock/unlock users, reset passwords, and test OpenID Connect discovery and client credential flows with integrated OIDC testing. Bearer tokens are masked in list output; passwords and client secrets accept `--password-stdin` / `--secret-stdin` to avoid leaking via process listings or shell history.
 
 **Monitoring and diagnostics** — Stream logs in real-time with `--follow`, watch live domain activity on a dashboard, trace authentication flows step-by-step to diagnose issues, and run health checks.
 

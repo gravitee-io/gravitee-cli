@@ -30,17 +30,25 @@ func NewWatchCmd(f *factory.Factory) *cobra.Command {
 
 			domainName := f.Resolved.Domain
 
+			var lastErr string
 			refresh := func() {
 				data, err := f.Client.Get(cmdutil.AMDomainPath(f, "audits?page=0&size=50"))
 				if err != nil {
+					lastErr = fmt.Sprintf("[%s] fetch failed: %v", time.Now().Format("15:04:05"), err)
+					fmt.Fprint(f.IOStreams.Out, "\033[2J\033[H")
+					fmt.Fprintf(f.IOStreams.Out, "Watch error: %s\n", lastErr)
 					return
 				}
 				var resp struct {
 					Data []map[string]interface{} `json:"data"`
 				}
 				if err := json.Unmarshal(data, &resp); err != nil {
+					lastErr = fmt.Sprintf("[%s] parse failed: %v", time.Now().Format("15:04:05"), err)
+					fmt.Fprint(f.IOStreams.Out, "\033[2J\033[H")
+					fmt.Fprintf(f.IOStreams.Out, "Watch error: %s\n", lastErr)
 					return
 				}
+				lastErr = ""
 				dashboard := buildDashboardData(resp.Data, domainName, f.Config.Current)
 				fmt.Fprint(f.IOStreams.Out, "\033[2J\033[H")
 				fmt.Fprint(f.IOStreams.Out, render(dashboard, intervalSec))

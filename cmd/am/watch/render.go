@@ -3,6 +3,7 @@ package watch
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -151,11 +152,9 @@ func render(data DashboardData, intervalSec int) string {
 }
 
 func sortDesc(events []AuditEvent) {
-	for i := 1; i < len(events); i++ {
-		for j := i; j > 0 && events[j].RawTs > events[j-1].RawTs; j-- {
-			events[j], events[j-1] = events[j-1], events[j]
-		}
-	}
+	sort.SliceStable(events, func(i, j int) bool {
+		return events[i].RawTs > events[j].RawTs
+	})
 }
 
 func topN(counts map[string]int, n int) []TypeCount {
@@ -163,11 +162,9 @@ func topN(counts map[string]int, n int) []TypeCount {
 	for k, v := range counts {
 		result = append(result, TypeCount{Type: k, Count: v})
 	}
-	for i := 1; i < len(result); i++ {
-		for j := i; j > 0 && result[j].Count > result[j-1].Count; j-- {
-			result[j], result[j-1] = result[j-1], result[j]
-		}
-	}
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i].Count > result[j].Count
+	})
 	if len(result) > n {
 		result = result[:n]
 	}

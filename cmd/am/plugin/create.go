@@ -41,12 +41,8 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 				"type":          pluginID,
 				"configuration": string(raw),
 			}
-			bodyJSON, err := json.Marshal(body)
-			if err != nil {
-				return fmt.Errorf("failed to marshal request body: %w", err)
-			}
 			path := cmdutil.AMDomainPath(f, apiPath)
-			data, err := f.Client.Post(path, bodyJSON)
+			data, err := f.Client.Post(path, body)
 			if err != nil {
 				return err
 			}

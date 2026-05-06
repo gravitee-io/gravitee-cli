@@ -25,14 +25,16 @@ import (
 )
 
 type createOptions struct {
-	factory         *factory.Factory
-	domainID        *string
-	username        string
-	email           string
-	password        string
-	firstName       string
-	lastName        string
-	preRegistration bool
+	factory            *factory.Factory
+	domainID           *string
+	username           string
+	email              string
+	password           string
+	passwordStdin      bool
+	firstName          string
+	lastName           string
+	preRegistration    bool
+	preRegistrationSet bool
 }
 
 func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -42,20 +44,28 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		Use:   "create --username <username> --email <email>",
 		Short: "Create a user",
 		Example: `  gio am user create --domain my-domain --username john --email john@example.com
-  gio am user create --domain my-domain --username john --email john@example.com --password secret --firstName John --lastName Doe`,
+  echo -n secret | gio am user create --domain my-domain --username john --email john@example.com --password-stdin`,
 		Args: cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
-
+			if opts.passwordStdin || opts.password != "" {
+				pw, err := cmdutil.ResolvePassword(opts.password, opts.passwordStdin, "Password: ", f.IOStreams.In, f.IOStreams.Err)
+				if err != nil {
+					return err
+				}
+				opts.password = pw
+			}
+			opts.preRegistrationSet = cmd.Flags().Changed("preRegistration")
 			return opts.run()
 		},
 	}
 
 	cmd.Flags().StringVar(&opts.username, "username", "", "Username (required)")
 	cmd.Flags().StringVar(&opts.email, "email", "", "Email address (required)")
-	cmd.Flags().StringVar(&opts.password, "password", "", "Password")
+	cmd.Flags().StringVar(&opts.password, "password", "", "Password (DEPRECATED: visible in process listings — prefer --password-stdin)")
+	cmd.Flags().BoolVar(&opts.passwordStdin, "password-stdin", false, "Read password from stdin")
 	cmd.Flags().StringVar(&opts.firstName, "firstName", "", "First name")
 	cmd.Flags().StringVar(&opts.lastName, "lastName", "", "Last name")
 	cmd.Flags().BoolVar(&opts.preRegistration, "preRegistration", false, "Pre-registration flag")
@@ -85,8 +95,8 @@ func (o *createOptions) run() error {
 		body["lastName"] = o.lastName
 	}
 
-	if o.preRegistration {
-		body["preRegistration"] = true
+	if o.preRegistrationSet {
+		body["preRegistration"] = o.preRegistration
 	}
 
 	raw, _ := json.Marshal(body)

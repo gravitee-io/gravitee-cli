@@ -62,13 +62,13 @@ func TestResetPassword(t *testing.T) {
 		testutil.AssertErrorContains(t, err, "not found")
 	})
 
-	t.Run("requires password flag", func(t *testing.T) {
+	t.Run("rejects missing password when stdin is not a TTY", func(t *testing.T) {
 		domainID := "dom-1"
 		tc := testutil.NewFactory(nil)
 
 		err := testutil.Execute(newResetPasswordCmd(tc.Factory, &domainID), "user-1")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "no password provided")
 	})
 
 	t.Run("requires user ID argument", func(t *testing.T) {

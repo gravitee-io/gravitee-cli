@@ -24,38 +24,43 @@ import (
 )
 
 type resetPasswordOptions struct {
-	factory  *factory.Factory
-	domainID *string
-	password string
+	factory       *factory.Factory
+	domainID      *string
+	password      string
+	passwordStdin bool
 }
 
 func newResetPasswordCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	opts := &resetPasswordOptions{factory: f, domainID: domainID}
 
 	cmd := &cobra.Command{
-		Use:     "reset-password <userID> --password <newPassword>",
-		Short:   "Reset a user's password",
-		Example: `  gio am user reset-password user-id --domain my-domain --password newSecret123`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "reset-password <userID>",
+		Short: "Reset a user's password",
+		Example: `  echo -n 'newSecret123' | gio am user reset-password user-id --password-stdin
+  gio am user reset-password user-id  # interactive prompt`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
-
-			return opts.run(args[0])
+			pw, err := cmdutil.ResolvePassword(opts.password, opts.passwordStdin, "New password: ", f.IOStreams.In, f.IOStreams.Err)
+			if err != nil {
+				return err
+			}
+			return opts.run(args[0], pw)
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.password, "password", "", "New password (required)")
-	_ = cmd.MarkFlagRequired("password")
+	cmd.Flags().StringVar(&opts.password, "password", "", "New password (DEPRECATED: visible in process listings — prefer --password-stdin)")
+	cmd.Flags().BoolVar(&opts.passwordStdin, "password-stdin", false, "Read new password from stdin")
 
 	return cmd
 }
 
-func (o *resetPasswordOptions) run(userID string) error {
+func (o *resetPasswordOptions) run(userID, password string) error {
 	f := o.factory
 
-	body := map[string]any{"password": o.password}
+	body := map[string]any{"password": password}
 	raw, _ := json.Marshal(body)
 
 	if err := f.AM().ResetPassword(*o.domainID, userID, json.RawMessage(raw)); err != nil {
