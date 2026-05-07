@@ -72,10 +72,11 @@ func newOrgSettingsUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update --file <settings.json>",
-		Short: "Update organization settings from a JSON file",
+		Use:   "update [-f <file>]",
+		Short: "Update organization settings from a JSON file or stdin",
 		Example: `  gio am org settings update --file settings.json
-  gio am org settings update -f settings.json`,
+  gio am org settings update -f settings.json
+  envsubst < settings.json | gio am org settings update`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -86,14 +87,13 @@ func newOrgSettingsUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON settings file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgSettingsUpdate(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

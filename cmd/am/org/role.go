@@ -159,10 +159,11 @@ func newOrgRoleCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <role.json>",
-		Short: "Create an organization role from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an organization role from a JSON file or stdin",
 		Example: `  gio am org role create --file role.json
-  gio am org role create -f role.json`,
+  gio am org role create -f role.json
+  envsubst < role.json | gio am org role create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -173,14 +174,13 @@ func newOrgRoleCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgRoleCreate(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}
@@ -208,10 +208,11 @@ func newOrgRoleUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <roleID> --file <role.json>",
-		Short: "Update an organization role from a JSON file",
+		Use:   "update <roleID> [-f <file>]",
+		Short: "Update an organization role from a JSON file or stdin",
 		Example: `  gio am org role update role-id --file role.json
-  gio am org role update role-id -f role.json`,
+  gio am org role update role-id -f role.json
+  envsubst < role.json | gio am org role update role-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -222,14 +223,13 @@ func newOrgRoleUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgRoleUpdate(f *factory.Factory, roleID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

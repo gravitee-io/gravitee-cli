@@ -26,10 +26,11 @@ func newUpdateCertSettingsCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "update-cert-settings <domainID> --file <settings.json>",
-		Short:   "Update domain certificate settings",
-		Example: `  gio am domain update-cert-settings my-domain-id --file settings.json`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "update-cert-settings <domainID> [-f <file>]",
+		Short: "Update domain certificate settings",
+		Example: `  gio am domain update-cert-settings my-domain-id --file settings.json
+  envsubst < settings.json | gio am domain update-cert-settings my-domain-id`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
@@ -39,14 +40,13 @@ func newUpdateCertSettingsCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runUpdateCertSettings(f *factory.Factory, domainID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

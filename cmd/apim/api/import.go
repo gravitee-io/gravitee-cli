@@ -26,10 +26,11 @@ func newImportCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "import -f <file>",
-		Short:   "Import an API definition",
-		Example: `  gio apim api import -f weather-api.json`,
-		Args:    cobra.NoArgs,
+		Use:   "import [-f <file>]",
+		Short: "Import an API definition from a JSON file or stdin",
+		Example: `  gio apim api import -f weather-api.json
+  envsubst < weather-api.json | gio apim api import`,
+		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
@@ -39,14 +40,13 @@ func newImportCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runImport(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

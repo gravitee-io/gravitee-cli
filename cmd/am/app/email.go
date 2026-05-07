@@ -78,16 +78,17 @@ func newAppEmailCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "create --file <email.json>",
-		Short:   "Create an application email template",
-		Example: `  gio am app email create --domain my-domain --app-id my-app --file email.json`,
-		Args:    cobra.NoArgs,
+		Use:   "create [-f <file>]",
+		Short: "Create an application email template from a JSON file or stdin",
+		Example: `  gio am app email create --domain my-domain --app-id my-app --file email.json
+  envsubst < email.json | gio am app email create --domain my-domain --app-id my-app`,
+		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -112,8 +113,7 @@ func newAppEmailCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
@@ -122,16 +122,17 @@ func newAppEmailUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "update <emailID> --file <email.json>",
-		Short:   "Update an application email template",
-		Example: `  gio am app email update email-1 --domain my-domain --app-id my-app --file email.json`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "update <emailID> [-f <file>]",
+		Short: "Update an application email template from a JSON file or stdin",
+		Example: `  gio am app email update email-1 --domain my-domain --app-id my-app --file email.json
+  envsubst < email.json | gio am app email update email-1 --domain my-domain --app-id my-app`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -156,8 +157,7 @@ func newAppEmailUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }

@@ -69,10 +69,11 @@ func newTriggerUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update --file <triggers.json>",
-		Short: "Update alert triggers from a JSON file",
+		Use:   "update [-f <file>]",
+		Short: "Update alert triggers from a JSON file or stdin",
 		Example: `  gio am alert trigger update --domain my-domain --file triggers.json
-  gio am alert trigger update --domain my-domain -f triggers.json`,
+  gio am alert trigger update --domain my-domain -f triggers.json
+  envsubst < triggers.json | gio am alert trigger update --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -83,14 +84,13 @@ func newTriggerUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runTriggerUpdate(f *factory.Factory, domainID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

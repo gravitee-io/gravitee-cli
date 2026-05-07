@@ -29,10 +29,11 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:     "update <planId> --api <apiId> -f <file>",
-		Short:   "Update a plan from a JSON file",
-		Example: `  gio apim plan update aaaa1111-2222-3333-4444-555566667777 --api /my/api -f plan-updated.json`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "update <planId> --api <apiId> [-f <file>]",
+		Short: "Update a plan from a JSON file or stdin",
+		Example: `  gio apim plan update aaaa1111-2222-3333-4444-555566667777 --api /my/api -f plan-updated.json
+  envsubst < plan-updated.json | gio apim plan update aaaa1111-2222-3333-4444-555566667777 --api /my/api`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
@@ -43,14 +44,13 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddAPIFlag(cmd, &apiID)
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runUpdate(f *factory.Factory, apiID, planID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

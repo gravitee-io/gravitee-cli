@@ -105,17 +105,18 @@ func newOrgIDPCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <config.json>",
-		Short: "Create an organization identity provider from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an organization identity provider from a JSON file or stdin",
 		Example: `  gio am org idp create --file idp.json
-  gio am org idp create -f idp.json`,
+  gio am org idp create -f idp.json
+  envsubst < idp.json | gio am org idp create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -138,8 +139,7 @@ func newOrgIDPCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
@@ -148,17 +148,18 @@ func newOrgIDPUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <idpID> --file <config.json>",
-		Short: "Update an organization identity provider from a JSON file",
+		Use:   "update <idpID> [-f <file>]",
+		Short: "Update an organization identity provider from a JSON file or stdin",
 		Example: `  gio am org idp update my-idp-id --file idp.json
-  gio am org idp update my-idp-id -f idp.json`,
+  gio am org idp update my-idp-id -f idp.json
+  envsubst < idp.json | gio am org idp update my-idp-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -181,8 +182,7 @@ func newOrgIDPUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }

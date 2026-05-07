@@ -153,10 +153,11 @@ func newNotifierCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <config.json>",
-		Short: "Create an alert notifier from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an alert notifier from a JSON file or stdin",
 		Example: `  gio am alert notifier create --domain my-domain --file notifier.json
-  gio am alert notifier create --domain my-domain -f notifier.json`,
+  gio am alert notifier create --domain my-domain -f notifier.json
+  envsubst < notifier.json | gio am alert notifier create --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -167,14 +168,13 @@ func newNotifierCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runNotifierCreate(f *factory.Factory, domainID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}
@@ -200,10 +200,11 @@ func newNotifierUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <notifierID> --file <config.json>",
-		Short: "Update an alert notifier from a JSON file",
+		Use:   "update <notifierID> [-f <file>]",
+		Short: "Update an alert notifier from a JSON file or stdin",
 		Example: `  gio am alert notifier update my-notifier-id --domain my-domain --file notifier.json
-  gio am alert notifier update my-notifier-id --domain my-domain -f notifier.json`,
+  gio am alert notifier update my-notifier-id --domain my-domain -f notifier.json
+  envsubst < notifier.json | gio am alert notifier update my-notifier-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -214,14 +215,13 @@ func newNotifierUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runNotifierUpdate(f *factory.Factory, domainID, notifierID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

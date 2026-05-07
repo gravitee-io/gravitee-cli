@@ -67,8 +67,8 @@ func TestFileBasedCreateErrors(t *testing.T) {
 
 	t.Run("missing file flag returns error", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "idp", "create", "--domain", domainID)
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' error, got: %s", out)
+		if !strings.Contains(out, "input") {
+			t.Errorf("expected 'input' error, got: %s", out)
 		}
 	})
 }

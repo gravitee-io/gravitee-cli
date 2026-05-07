@@ -26,10 +26,11 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update --file <flows.json>",
-		Short: "Update flows from a JSON file (bulk update)",
+		Use:   "update [-f <file>]",
+		Short: "Update flows from a JSON file or stdin (bulk update)",
 		Example: `  gio am flow update --domain my-domain --file flows.json
-  gio am flow update --domain my-domain -f flows.json`,
+  gio am flow update --domain my-domain -f flows.json
+  envsubst < flows.json | gio am flow update --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -40,14 +41,13 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runUpdate(f *factory.Factory, domainID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

@@ -184,13 +184,13 @@ func TestCreateFactor(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "new-fac")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewFactorCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
@@ -237,13 +237,13 @@ func TestUpdateFactor(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "Updated")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewFactorCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "fac-1")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires factor ID argument", func(t *testing.T) {

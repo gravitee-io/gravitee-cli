@@ -81,17 +81,18 @@ func newOrgFormCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <config.json>",
-		Short: "Create an organization form from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an organization form from a JSON file or stdin",
 		Example: `  gio am org form create --file form.json
-  gio am org form create -f form.json`,
+  gio am org form create -f form.json
+  envsubst < form.json | gio am org form create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -114,8 +115,7 @@ func newOrgFormCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
@@ -124,17 +124,18 @@ func newOrgFormUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <formID> --file <config.json>",
-		Short: "Update an organization form from a JSON file",
+		Use:   "update <formID> [-f <file>]",
+		Short: "Update an organization form from a JSON file or stdin",
 		Example: `  gio am org form update my-form-id --file form.json
-  gio am org form update my-form-id -f form.json`,
+  gio am org form update my-form-id -f form.json
+  envsubst < form.json | gio am org form update my-form-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -157,8 +158,7 @@ func newOrgFormUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }

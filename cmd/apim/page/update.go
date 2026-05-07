@@ -29,10 +29,11 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:     "update <pageId> --api <apiId> -f <file>",
-		Short:   "Update a page from a JSON file",
-		Example: `  gio apim page update aaaa1111-2222-3333-4444-555566667777 --api /my/api -f page-updated.json`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "update <pageId> --api <apiId> [-f <file>]",
+		Short: "Update a page from a JSON file or stdin",
+		Example: `  gio apim page update aaaa1111-2222-3333-4444-555566667777 --api /my/api -f page-updated.json
+  envsubst < page-updated.json | gio apim page update aaaa1111-2222-3333-4444-555566667777 --api /my/api`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
@@ -43,14 +44,13 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	}
 
 	cmdutil.AddAPIFlag(cmd, &apiID)
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runUpdate(f *factory.Factory, apiID, pageID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

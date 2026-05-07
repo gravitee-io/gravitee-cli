@@ -18,6 +18,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -416,17 +418,7 @@ func TestResolveProductContext_StoresError(t *testing.T) {
 }
 
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && searchString(s, substr)
-}
-
-func searchString(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-
-	return false
+	return strings.Contains(s, substr)
 }
 
 func TestParseLoginURL(t *testing.T) {
@@ -615,5 +607,61 @@ func TestParseCurl(t *testing.T) {
 				t.Errorf("token: got %q, want %q", gotToken, tt.wantToken)
 			}
 		})
+	}
+}
+
+func TestReadJSONInput_FromFile(t *testing.T) {
+	content := `{"name": "test-api"}`
+	tmp := filepath.Join(t.TempDir(), "body.json")
+	if err := os.WriteFile(tmp, []byte(content), 0o600); err != nil {
+		t.Fatalf("write temp file: %v", err)
+	}
+
+	got, err := ReadJSONInput(tmp, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if string(got) != content {
+		t.Errorf("got %q, want %q", string(got), content)
+	}
+}
+
+func TestReadJSONInput_FromReader(t *testing.T) {
+	content := `{"name": "piped-api"}`
+
+	got, err := ReadJSONInput("", strings.NewReader(content))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if string(got) != content {
+		t.Errorf("got %q, want %q", string(got), content)
+	}
+}
+
+func TestReadJSONInput_EmptyReader(t *testing.T) {
+	_, err := ReadJSONInput("", strings.NewReader(""))
+	if err == nil || !contains(err.Error(), "empty input") {
+		t.Fatalf("expected 'empty input' error, got: %v", err)
+	}
+}
+
+func TestReadJSONInput_InvalidJSONFromReader(t *testing.T) {
+	_, err := ReadJSONInput("", strings.NewReader("not json"))
+	if err == nil || !contains(err.Error(), "invalid JSON") {
+		t.Fatalf("expected invalid JSON error, got: %v", err)
+	}
+}
+
+func TestReadJSONInput_FileNotFound(t *testing.T) {
+	_, err := ReadJSONInput("/nonexistent/path.json", nil)
+	if err == nil {
+		t.Fatal("expected error for missing file, got nil")
+	}
+}
+
+func TestReadJSONInput_NilReader(t *testing.T) {
+	_, err := ReadJSONInput("", nil)
+	if err == nil || !contains(err.Error(), "no input") {
+		t.Fatalf("expected 'no input' error for nil reader, got: %v", err)
 	}
 }

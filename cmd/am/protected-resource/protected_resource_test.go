@@ -184,13 +184,13 @@ func TestCreateProtectedResource(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "new-pr")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewProtectedResourceCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
@@ -237,13 +237,13 @@ func TestUpdateProtectedResource(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "Updated")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewProtectedResourceCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "pr-1")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires protected resource ID argument", func(t *testing.T) {

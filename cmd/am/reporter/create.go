@@ -26,10 +26,11 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <config.json>",
-		Short: "Create a reporter from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create a reporter from a JSON file or stdin",
 		Example: `  gio am reporter create --domain my-domain --file reporter.json
-  gio am reporter create --domain my-domain -f reporter.json`,
+  gio am reporter create --domain my-domain -f reporter.json
+  envsubst < reporter.json | gio am reporter create --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -40,14 +41,13 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runCreate(f *factory.Factory, domainID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

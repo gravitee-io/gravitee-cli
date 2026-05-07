@@ -218,13 +218,13 @@ func TestUpdateFlows(t *testing.T) {
 		testutil.AssertErrorContains(t, err, "bad request")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewFlowCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {

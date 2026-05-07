@@ -187,8 +187,8 @@ func TestDomainCertificateSettings(t *testing.T) {
 
 	t.Run("missing file flag", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "domain", "update-cert-settings", domainID)
-		if !strings.Contains(strings.ToLower(out), "required") {
-			t.Errorf("expected 'required' error, got: %s", out)
+		if !strings.Contains(strings.ToLower(out), "input") {
+			t.Errorf("expected 'input' error, got: %s", out)
 		}
 	})
 
@@ -336,8 +336,8 @@ func TestEntrypointCRUD(t *testing.T) {
 
 	t.Run("create missing file flag", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "entrypoint", "create", "--domain", domainID)
-		if !strings.Contains(strings.ToLower(out), "required") {
-			t.Errorf("expected 'required' error, got: %s", out)
+		if !strings.Contains(strings.ToLower(out), "input") {
+			t.Errorf("expected 'input' error, got: %s", out)
 		}
 	})
 }

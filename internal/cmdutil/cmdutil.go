@@ -17,6 +17,7 @@ package cmdutil
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -240,18 +241,51 @@ func RequireAMDomain(f *factory.Factory) error {
 
 // ReadJSONFile reads a JSON file and returns the raw content.
 func ReadJSONFile(path string) (json.RawMessage, error) {
-	path = filepath.Clean(path)
+	return ReadJSONInput(path, nil)
+}
 
-	data, err := os.ReadFile(path)
+// ReadJSONInput reads JSON from a file if path is non-empty, otherwise from r.
+// If r is a terminal (nothing piped), it returns an error immediately.
+func ReadJSONInput(path string, r io.Reader) (json.RawMessage, error) {
+	if path != "" {
+		path = filepath.Clean(path)
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read '%s': %w", path, err)
+		}
+		if !json.Valid(data) {
+			return nil, fmt.Errorf("failed to read '%s': invalid JSON", path)
+		}
+		return data, nil
+	}
+
+	if r == nil || isTerminal(r) {
+		return nil, fmt.Errorf("no input provided\nHint: use -f <file> or pipe JSON to stdin\nExample: envsubst < config.json | gio ...")
+	}
+
+	data, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read '%s': %w", path, err)
+		return nil, fmt.Errorf("failed to read stdin: %w", err)
 	}
-
+	if len(data) == 0 {
+		return nil, fmt.Errorf("stdin: empty input\nHint: use -f <file> or pipe JSON to stdin\nExample: envsubst < config.json | gio ...")
+	}
 	if !json.Valid(data) {
-		return nil, fmt.Errorf("failed to read '%s': invalid JSON", path)
+		return nil, fmt.Errorf("stdin: invalid JSON")
 	}
-
 	return data, nil
+}
+
+func isTerminal(r io.Reader) bool {
+	f, ok := r.(*os.File)
+	if !ok {
+		return false
+	}
+	fi, err := f.Stat()
+	if err != nil {
+		return false
+	}
+	return fi.Mode()&os.ModeCharDevice != 0
 }
 
 // NewPrinter creates a Printer from the factory settings, validating the output format.

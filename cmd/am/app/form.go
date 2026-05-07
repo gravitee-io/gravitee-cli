@@ -78,16 +78,17 @@ func newAppFormCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "create --file <form.json>",
-		Short:   "Create an application form template",
-		Example: `  gio am app form create --domain my-domain --app-id my-app --file form.json`,
-		Args:    cobra.NoArgs,
+		Use:   "create [-f <file>]",
+		Short: "Create an application form template from a JSON file or stdin",
+		Example: `  gio am app form create --domain my-domain --app-id my-app --file form.json
+  envsubst < form.json | gio am app form create --domain my-domain --app-id my-app`,
+		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -112,8 +113,7 @@ func newAppFormCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
@@ -122,16 +122,17 @@ func newAppFormUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "update <formID> --file <form.json>",
-		Short:   "Update an application form template",
-		Example: `  gio am app form update form-1 --domain my-domain --app-id my-app --file form.json`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "update <formID> [-f <file>]",
+		Short: "Update an application form template from a JSON file or stdin",
+		Example: `  gio am app form update form-1 --domain my-domain --app-id my-app --file form.json
+  envsubst < form.json | gio am app form update form-1 --domain my-domain --app-id my-app`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -156,8 +157,7 @@ func newAppFormUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }

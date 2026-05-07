@@ -26,10 +26,11 @@ func newCreateCmd(f *factory.Factory, _ *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <entrypoint.json>",
-		Short: "Create an entrypoint from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an entrypoint from a JSON file or stdin",
 		Example: `  gio am entrypoint create --domain my-domain --file entrypoint.json
-  gio am entrypoint create --domain my-domain -f entrypoint.json`,
+  gio am entrypoint create --domain my-domain -f entrypoint.json
+  envsubst < entrypoint.json | gio am entrypoint create --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -40,14 +41,13 @@ func newCreateCmd(f *factory.Factory, _ *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runCreate(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

@@ -330,8 +330,8 @@ func TestUserBulk(t *testing.T) {
 	t.Run("bulk missing file flag", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "user", "bulk",
 			"--domain", domainID)
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' error, got: %s", out)
+		if !strings.Contains(out, "input") {
+			t.Errorf("expected 'input' error, got: %s", out)
 		}
 	})
 }

@@ -29,11 +29,10 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create -f <file>",
-		Short: "Create an API from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an API from a JSON file or stdin",
 		Example: `  gio apim api create -f api-definition.json
-  # JSON files support ${VAR} substitution from environment variables
-  API_NAME=my-api gio apim api create -f api-definition.json`,
+  envsubst < api-definition.json | gio apim api create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -44,14 +43,13 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runCreate(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

@@ -26,10 +26,11 @@ func newBulkCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "bulk --file <operations.json>",
-		Short: "Perform bulk user operations from a JSON file",
+		Use:   "bulk [-f <file>]",
+		Short: "Perform bulk user operations from a JSON file or stdin",
 		Example: `  gio am user bulk --domain my-domain --file operations.json
-  gio am user bulk --domain my-domain -f operations.json`,
+  gio am user bulk --domain my-domain -f operations.json
+  envsubst < operations.json | gio am user bulk --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -40,14 +41,13 @@ func newBulkCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON operations file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runBulk(f *factory.Factory, domainID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

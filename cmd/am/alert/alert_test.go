@@ -168,13 +168,13 @@ func TestCreateAlertNotifier(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "new-n")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "notifier", "create")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
@@ -221,13 +221,13 @@ func TestUpdateAlertNotifier(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "Updated")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "notifier", "update", "n-1")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires notifier ID argument", func(t *testing.T) {
@@ -397,13 +397,13 @@ func TestUpdateAlertTriggers(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, `"type"`)
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewAlertCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "trigger", "update")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {

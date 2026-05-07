@@ -184,13 +184,13 @@ func TestCreateBotDetection(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "new-bd")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewBotDetectionCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "create")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires a configured context", func(t *testing.T) {
@@ -237,13 +237,13 @@ func TestUpdateBotDetection(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "Updated")
 	})
 
-	t.Run("requires file flag", func(t *testing.T) {
+	t.Run("requires json input", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
 		cmd := NewBotDetectionCmd(tc.Factory)
 		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "bd-1")
 
-		testutil.AssertErrorContains(t, err, "required")
+		testutil.AssertErrorContains(t, err, "input")
 	})
 
 	t.Run("requires bot detection ID argument", func(t *testing.T) {

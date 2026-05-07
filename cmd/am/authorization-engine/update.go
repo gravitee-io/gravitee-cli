@@ -26,10 +26,11 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <engineID> --file <config.json>",
-		Short: "Update an authorization engine from a JSON file",
+		Use:   "update <engineID> [-f <file>]",
+		Short: "Update an authorization engine from a JSON file or stdin",
 		Example: `  gio am authorization-engine update my-engine-id --domain my-domain --file engine.json
-  gio am authorization-engine update my-engine-id --domain my-domain -f engine.json`,
+  gio am authorization-engine update my-engine-id --domain my-domain -f engine.json
+  envsubst < engine.json | gio am authorization-engine update my-engine-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -40,14 +41,13 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runUpdate(f *factory.Factory, domainID, engineID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

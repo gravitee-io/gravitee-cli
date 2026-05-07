@@ -105,17 +105,18 @@ func newOrgReporterCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <config.json>",
-		Short: "Create an organization reporter from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an organization reporter from a JSON file or stdin",
 		Example: `  gio am org reporter create --file reporter.json
-  gio am org reporter create -f reporter.json`,
+  gio am org reporter create -f reporter.json
+  envsubst < reporter.json | gio am org reporter create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -138,8 +139,7 @@ func newOrgReporterCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
@@ -148,17 +148,18 @@ func newOrgReporterUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <reporterID> --file <config.json>",
-		Short: "Update an organization reporter from a JSON file",
+		Use:   "update <reporterID> [-f <file>]",
+		Short: "Update an organization reporter from a JSON file or stdin",
 		Example: `  gio am org reporter update my-reporter-id --file reporter.json
-  gio am org reporter update my-reporter-id -f reporter.json`,
+  gio am org reporter update my-reporter-id -f reporter.json
+  envsubst < reporter.json | gio am org reporter update my-reporter-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -181,8 +182,7 @@ func newOrgReporterUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }

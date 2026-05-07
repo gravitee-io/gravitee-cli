@@ -134,10 +134,11 @@ func newOrgGroupCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <group.json>",
-		Short: "Create an organization group from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an organization group from a JSON file or stdin",
 		Example: `  gio am org group create --file group.json
-  gio am org group create -f group.json`,
+  gio am org group create -f group.json
+  envsubst < group.json | gio am org group create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -148,14 +149,13 @@ func newOrgGroupCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgGroupCreate(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}
@@ -183,10 +183,11 @@ func newOrgGroupUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <groupID> --file <group.json>",
-		Short: "Update an organization group from a JSON file",
+		Use:   "update <groupID> [-f <file>]",
+		Short: "Update an organization group from a JSON file or stdin",
 		Example: `  gio am org group update group-id --file group.json
-  gio am org group update group-id -f group.json`,
+  gio am org group update group-id -f group.json
+  envsubst < group.json | gio am org group update group-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -197,14 +198,13 @@ func newOrgGroupUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgGroupUpdate(f *factory.Factory, groupID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

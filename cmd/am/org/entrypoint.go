@@ -105,17 +105,18 @@ func newOrgEntrypointCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <config.json>",
-		Short: "Create an organization entrypoint from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an organization entrypoint from a JSON file or stdin",
 		Example: `  gio am org entrypoint create --file entrypoint.json
-  gio am org entrypoint create -f entrypoint.json`,
+  gio am org entrypoint create -f entrypoint.json
+  envsubst < entrypoint.json | gio am org entrypoint create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -138,8 +139,7 @@ func newOrgEntrypointCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
@@ -148,17 +148,18 @@ func newOrgEntrypointUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <entrypointID> --file <config.json>",
-		Short: "Update an organization entrypoint from a JSON file",
+		Use:   "update <entrypointID> [-f <file>]",
+		Short: "Update an organization entrypoint from a JSON file or stdin",
 		Example: `  gio am org entrypoint update my-entrypoint-id --file entrypoint.json
-  gio am org entrypoint update my-entrypoint-id -f entrypoint.json`,
+  gio am org entrypoint update my-entrypoint-id -f entrypoint.json
+  envsubst < entrypoint.json | gio am org entrypoint update my-entrypoint-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -181,8 +182,7 @@ func newOrgEntrypointUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }

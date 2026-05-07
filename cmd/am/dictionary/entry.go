@@ -69,16 +69,17 @@ func newEntryUpdateCmd(f *factory.Factory, domainID, dictID *string) *cobra.Comm
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "update --file <entries.json>",
-		Short:   "Update dictionary entries from a JSON file",
-		Example: `  gio am dictionary entry update --domain my-domain --dict-id my-dict --file entries.json`,
-		Args:    cobra.NoArgs,
+		Use:   "update [-f <file>]",
+		Short: "Update dictionary entries from a JSON file or stdin",
+		Example: `  gio am dictionary entry update --domain my-domain --dict-id my-dict --file entries.json
+  envsubst < entries.json | gio am dictionary entry update --domain my-domain --dict-id my-dict`,
+		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
-			body, err := cmdutil.ReadJSONFile(file)
+			body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 			if err != nil {
 				return err
 			}
@@ -103,8 +104,7 @@ func newEntryUpdateCmd(f *factory.Factory, domainID, dictID *string) *cobra.Comm
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON entries file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }

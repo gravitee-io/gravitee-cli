@@ -26,10 +26,11 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:     "update <appId> -f <file>",
-		Short:   "Update an application from a JSON file",
-		Example: `  gio apim app update aaaa1111-2222-3333-4444-555566667777 -f app-updated.json`,
-		Args:    cobra.ExactArgs(1),
+		Use:   "update <appId> [-f <file>]",
+		Short: "Update an application from a JSON file or stdin",
+		Example: `  gio apim app update aaaa1111-2222-3333-4444-555566667777 -f app-updated.json
+  envsubst < app-updated.json | gio apim app update aaaa1111-2222-3333-4444-555566667777`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
@@ -39,14 +40,13 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runUpdate(f *factory.Factory, appID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}

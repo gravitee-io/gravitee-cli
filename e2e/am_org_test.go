@@ -136,8 +136,8 @@ func TestOrgUserCRUD(t *testing.T) {
 
 	t.Run("bulk missing file", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "org", "user", "bulk")
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' in error, got: %s", out)
+		if !strings.Contains(out, "input") {
+			t.Errorf("expected 'input' in error, got: %s", out)
 		}
 	})
 }
@@ -337,8 +337,8 @@ func TestOrgReporterOperations(t *testing.T) {
 
 	t.Run("create reporter missing file", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "org", "reporter", "create")
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' in error, got: %s", out)
+		if !strings.Contains(out, "input") {
+			t.Errorf("expected 'input' in error, got: %s", out)
 		}
 	})
 }
@@ -358,8 +358,8 @@ func TestOrgFormOperations(t *testing.T) {
 
 	t.Run("create form missing file", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "org", "form", "create")
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' in error, got: %s", out)
+		if !strings.Contains(out, "input") {
+			t.Errorf("expected 'input' in error, got: %s", out)
 		}
 	})
 }
@@ -380,8 +380,8 @@ func TestOrgIDPOperations(t *testing.T) {
 
 	t.Run("create idp missing file", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "org", "idp", "create")
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' in error, got: %s", out)
+		if !strings.Contains(out, "input") {
+			t.Errorf("expected 'input' in error, got: %s", out)
 		}
 	})
 }
@@ -402,8 +402,8 @@ func TestOrgEntrypointOperations(t *testing.T) {
 
 	t.Run("create entrypoint missing file", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "org", "entrypoint", "create")
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' in error, got: %s", out)
+		if !strings.Contains(out, "input") {
+			t.Errorf("expected 'input' in error, got: %s", out)
 		}
 	})
 }

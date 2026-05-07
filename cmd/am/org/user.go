@@ -240,10 +240,11 @@ func newOrgUserCreateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "create --file <user.json>",
-		Short: "Create an organization user from a JSON file",
+		Use:   "create [-f <file>]",
+		Short: "Create an organization user from a JSON file or stdin",
 		Example: `  gio am org user create --file user.json
-  gio am org user create -f user.json`,
+  gio am org user create -f user.json
+  envsubst < user.json | gio am org user create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -254,14 +255,13 @@ func newOrgUserCreateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgUserCreate(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}
@@ -289,10 +289,11 @@ func newOrgUserUpdateCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "update <userID> --file <user.json>",
-		Short: "Update an organization user from a JSON file",
+		Use:   "update <userID> [-f <file>]",
+		Short: "Update an organization user from a JSON file or stdin",
 		Example: `  gio am org user update user-id --file user.json
-  gio am org user update user-id -f user.json`,
+  gio am org user update user-id -f user.json
+  envsubst < user.json | gio am org user update user-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -303,14 +304,13 @@ func newOrgUserUpdateCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON definition file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgUserUpdate(f *factory.Factory, userID, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}
@@ -501,10 +501,11 @@ func newOrgUserBulkCmd(f *factory.Factory) *cobra.Command {
 	var file string
 
 	cmd := &cobra.Command{
-		Use:   "bulk --file <operations.json>",
-		Short: "Perform bulk operations on organization users",
+		Use:   "bulk [-f <file>]",
+		Short: "Perform bulk operations on organization users from a JSON file or stdin",
 		Example: `  gio am org user bulk --file operations.json
-  gio am org user bulk -f operations.json`,
+  gio am org user bulk -f operations.json
+  envsubst < operations.json | gio am org user bulk`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -515,14 +516,13 @@ func newOrgUserBulkCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to JSON operations file (required)")
-	_ = cmd.MarkFlagRequired("file")
+	cmd.Flags().StringVarP(&file, "file", "f", "", "Path to a JSON file (optional - reads from stdin if omitted)")
 
 	return cmd
 }
 
 func runOrgUserBulk(f *factory.Factory, file string) error {
-	body, err := cmdutil.ReadJSONFile(file)
+	body, err := cmdutil.ReadJSONInput(file, f.IOStreams.In)
 	if err != nil {
 		return err
 	}
