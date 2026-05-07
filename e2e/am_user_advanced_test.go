@@ -104,8 +104,8 @@ func TestUserResetPassword(t *testing.T) {
 
 	t.Run("reset password missing password flag", func(t *testing.T) {
 		out := runCLIExpectError(t, "am", "user", "reset-password", "--domain", domainID, userID)
-		if !strings.Contains(out, "required") {
-			t.Errorf("expected 'required' error, got: %s", out)
+		if !strings.Contains(out, "no password provided") {
+			t.Errorf("expected 'no password provided' error, got: %s", out)
 		}
 	})
 }
