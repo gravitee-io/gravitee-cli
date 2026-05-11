@@ -21,6 +21,29 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewCertificateCmdRO creates the certificate command with read-only subcommands.
+func NewCertificateCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "certificate",
+		Aliases: []string{"cert", "certificates"},
+		Short:   "Manage certificates",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+	cmd.AddCommand(newKeyCmd(f, &domainID))
+	cmd.AddCommand(newKeysCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewCertificateCmd creates the certificate parent command with all certificate subcommands.
 func NewCertificateCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

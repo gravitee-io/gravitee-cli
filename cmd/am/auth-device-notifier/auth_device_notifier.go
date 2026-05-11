@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewAuthDeviceNotifierCmdRO creates the auth device notifier command with read-only subcommands.
+func NewAuthDeviceNotifierCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "auth-device-notifier",
+		Aliases: []string{"auth-device-notifiers", "adn"},
+		Short:   "Manage auth device notifiers",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewAuthDeviceNotifierCmd creates the auth device notifier parent command with all subcommands.
 func NewAuthDeviceNotifierCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

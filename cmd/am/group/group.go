@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewGroupCmdRO creates the group command with read-only subcommands.
+func NewGroupCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "group",
+		Aliases: []string{"groups"},
+		Short:   "Manage groups",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewGroupCmd creates the group parent command with all group subcommands.
 func NewGroupCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

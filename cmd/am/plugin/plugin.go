@@ -29,6 +29,19 @@ var pluginTypes = map[string]string{
 	"botdetection": "bot-detections",
 }
 
+// NewPluginCmdRO creates the plugin command with read-only subcommands.
+func NewPluginCmdRO(f *factory.Factory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "plugin",
+		Short: "Explore and create resources from plugin schemas",
+		Args:  cobra.NoArgs,
+	}
+	cmd.AddCommand(newListCmd(f))
+	cmd.AddCommand(newSchemaCmd(f))
+	return cmd
+}
+
+// NewPluginCmd creates the plugin parent command with all subcommands.
 func NewPluginCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "plugin",

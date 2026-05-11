@@ -62,8 +62,7 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// NewAMCmd creates the am parent command with all AM subcommands.
-func NewAMCmd(f *factory.Factory) *cobra.Command {
+func newAMBaseCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "am",
 		Short: "Gravitee Access Management",
@@ -76,7 +75,6 @@ func NewAMCmd(f *factory.Factory) *cobra.Command {
 		},
 	}
 
-	// Override help to show context info.
 	defaultHelp := cmd.HelpFunc()
 	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
 		_ = cmdutil.SetupConfig(f)
@@ -88,10 +86,60 @@ func NewAMCmd(f *factory.Factory) *cobra.Command {
 		defaultHelp(c, args)
 	})
 
-	cmd.AddCommand(alertcmd.NewAlertCmd(f))
 	cmd.AddCommand(analyticscmd.NewAnalyticsCmd(f))
-	cmd.AddCommand(appcmd.NewAppCmd(f))
 	cmd.AddCommand(auditcmd.NewAuditCmd(f))
+
+	return cmd
+}
+
+// NewAMCmdRO creates the am command with read-only subcommands only.
+func NewAMCmdRO(f *factory.Factory) *cobra.Command {
+	cmd := newAMBaseCmd(f)
+
+	cmd.AddCommand(alertcmd.NewAlertCmdRO(f))
+	cmd.AddCommand(appcmd.NewAppCmdRO(f))
+	cmd.AddCommand(authdevicenotifiercmd.NewAuthDeviceNotifierCmdRO(f))
+	cmd.AddCommand(authorizationenginecmd.NewAuthorizationEngineCmdRO(f))
+	cmd.AddCommand(botdetectioncmd.NewBotDetectionCmdRO(f))
+	cmd.AddCommand(certificatecmd.NewCertificateCmdRO(f))
+	cmd.AddCommand(dataplanecmd.NewDataPlaneCmd(f))
+	cmd.AddCommand(deviceidentifiercmd.NewDeviceIdentifierCmdRO(f))
+	cmd.AddCommand(dictionarycmd.NewDictionaryCmdRO(f))
+	cmd.AddCommand(domaincmd.NewDomainCmdRO(f))
+	cmd.AddCommand(emailcmd.NewEmailCmdRO(f))
+	cmd.AddCommand(entrypointcmd.NewEntrypointCmdRO(f))
+	cmd.AddCommand(extensiongrantcmd.NewExtensionGrantCmdRO(f))
+	cmd.AddCommand(factorcmd.NewFactorCmdRO(f))
+	cmd.AddCommand(flowcmd.NewFlowCmdRO(f))
+	cmd.AddCommand(formcmd.NewFormCmdRO(f))
+	cmd.AddCommand(groupcmd.NewGroupCmdRO(f))
+	cmd.AddCommand(idpcmd.NewIDPCmdRO(f))
+	cmd.AddCommand(membercmd.NewMemberCmdRO(f))
+	// org is excluded: its sub-subcommands mix read and write operations at multiple
+	// nesting levels, making a safe RO variant non-trivial without deeper refactoring.
+	cmd.AddCommand(passwordpolicycmd.NewPasswordPolicyCmdRO(f))
+	cmd.AddCommand(plugincmd.NewPluginCmdRO(f))
+	cmd.AddCommand(protectedresourcecmd.NewProtectedResourceCmdRO(f))
+	cmd.AddCommand(reportercmd.NewReporterCmdRO(f))
+	cmd.AddCommand(resourcecmd.NewResourceCmdRO(f))
+	cmd.AddCommand(rolecmd.NewRoleCmdRO(f))
+	cmd.AddCommand(scopecmd.NewScopeCmdRO(f))
+	cmd.AddCommand(themecmd.NewThemeCmdRO(f))
+	cmd.AddCommand(tokencmd.NewTokenCmdRO(f))
+	cmd.AddCommand(usercmd.NewUserCmdRO(f))
+	cmd.AddCommand(newHealthCmd(f))
+	cmd.AddCommand(newStatusCmd(f))
+	cmd.AddCommand(newWhoamiCmd(f))
+
+	return cmd
+}
+
+// NewAMCmd creates the am parent command with all AM subcommands.
+func NewAMCmd(f *factory.Factory) *cobra.Command {
+	cmd := newAMBaseCmd(f)
+
+	cmd.AddCommand(alertcmd.NewAlertCmd(f))
+	cmd.AddCommand(appcmd.NewAppCmd(f))
 	cmd.AddCommand(authdevicenotifiercmd.NewAuthDeviceNotifierCmd(f))
 	cmd.AddCommand(authorizationenginecmd.NewAuthorizationEngineCmd(f))
 	cmd.AddCommand(botdetectioncmd.NewBotDetectionCmd(f))

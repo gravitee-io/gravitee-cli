@@ -20,6 +20,60 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// TestAMCmdROCommandsRegistered guards against RO subcommands drifting from NewAMCmdRO.
+// Add new expected commands here when they are wired into the RO bundle.
+func TestAMCmdROCommandsRegistered(t *testing.T) {
+	expected := []string{
+		"alert",
+		"analytics",
+		"app",
+		"audit",
+		"auth-device-notifier",
+		"authorization-engine",
+		"bot-detection",
+		"certificate",
+		"data-plane",
+		"device-identifier",
+		"dictionary",
+		"domain",
+		"email",
+		"entrypoint",
+		"extension-grant",
+		"factor",
+		"flow",
+		"form",
+		"group",
+		"health",
+		"idp",
+		"member",
+		"password-policy",
+		"plugin",
+		"protected-resource",
+		"reporter",
+		"resource",
+		"role",
+		"scope",
+		"status",
+		"theme",
+		"token",
+		"user",
+		"whoami",
+	}
+
+	cmd := NewAMCmdRO(&factory.Factory{})
+
+	registered := make(map[string]bool)
+	for _, sub := range cmd.Commands() {
+		registered[sub.Name()] = true
+	}
+
+	for _, name := range expected {
+		if !registered[name] {
+			t.Errorf("expected subcommand %q to be registered on `am` (RO), but it isn't — wire it up in NewAMCmdRO", name)
+		}
+	}
+}
+
 // TestAMCommandsRegistered guards against subcommands being implemented but
 // never wired into NewAMCmd. Add new expected commands here when they ship.
 func TestAMCommandsRegistered(t *testing.T) {

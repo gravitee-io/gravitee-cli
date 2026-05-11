@@ -82,6 +82,7 @@ func NewRootCmdRO(version string) *cobra.Command {
 	cmd.AddCommand(newVersionCmd(f, version))
 
 	cmd.AddCommand(apimcmd.NewAPIMCmdRO(f))
+	cmd.AddCommand(amcmd.NewAMCmdRO(f))
 
 	return cmd
 }

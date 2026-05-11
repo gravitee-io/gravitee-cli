@@ -21,6 +21,41 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewAlertCmdRO creates the alert command with read-only notifier and trigger subcommands.
+func NewAlertCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "alert",
+		Aliases: []string{"alerts"},
+		Short:   "Manage alerts (notifiers and triggers)",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	notifierCmd := &cobra.Command{
+		Use:     "notifier",
+		Aliases: []string{"notifiers"},
+		Short:   "Manage alert notifiers",
+	}
+	notifierCmd.AddCommand(newNotifierListCmd(f, &domainID))
+	notifierCmd.AddCommand(newNotifierGetCmd(f, &domainID))
+	cmd.AddCommand(notifierCmd)
+
+	triggerCmd := &cobra.Command{
+		Use:     "trigger",
+		Aliases: []string{"triggers"},
+		Short:   "Manage alert triggers",
+	}
+	triggerCmd.AddCommand(newTriggerGetCmd(f, &domainID))
+	cmd.AddCommand(triggerCmd)
+
+	return cmd
+}
+
 // NewAlertCmd creates the alert parent command with notifier and trigger subcommands.
 func NewAlertCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewEmailCmdRO creates the email command with read-only subcommands.
+func NewEmailCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "email",
+		Aliases: []string{"emails"},
+		Short:   "Manage emails",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewEmailCmd creates the email parent command with all email subcommands.
 func NewEmailCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewMemberCmdRO creates the member command with read-only subcommands.
+func NewMemberCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "member",
+		Aliases: []string{"members"},
+		Short:   "Manage domain members",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newPermissionsCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewMemberCmd creates the member parent command with all member subcommands.
 func NewMemberCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewFlowCmdRO creates the flow command with read-only subcommands.
+func NewFlowCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "flow",
+		Aliases: []string{"flows"},
+		Short:   "Manage flows",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewFlowCmd creates the flow parent command with all flow subcommands.
 func NewFlowCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

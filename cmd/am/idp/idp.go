@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewIDPCmdRO creates the identity provider command with read-only subcommands.
+func NewIDPCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "idp",
+		Aliases: []string{"identity-provider"},
+		Short:   "Manage identity providers",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewIDPCmd creates the identity provider parent command with all IdP subcommands.
 func NewIDPCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

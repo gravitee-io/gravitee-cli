@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewProtectedResourceCmdRO creates the protected resource command with read-only subcommands.
+func NewProtectedResourceCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "protected-resource",
+		Aliases: []string{"protected-resources", "pr"},
+		Short:   "Manage protected resources",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewProtectedResourceCmd creates the protected resource parent command with all subcommands.
 func NewProtectedResourceCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

@@ -19,6 +19,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewTokenCmdRO creates the token command with read-only subcommands.
+func NewTokenCmdRO(f *factory.Factory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "token",
+		Short: "Manage user tokens",
+		Args:  cobra.NoArgs,
+	}
+	cmd.AddCommand(newListCmd(f))
+	return cmd
+}
+
 // NewTokenCmd creates the parent "gio am token" command.
 func NewTokenCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{

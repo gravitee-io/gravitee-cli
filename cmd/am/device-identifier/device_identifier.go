@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewDeviceIdentifierCmdRO creates the device identifier command with read-only subcommands.
+func NewDeviceIdentifierCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "device-identifier",
+		Aliases: []string{"device-identifiers", "device"},
+		Short:   "Manage device identifiers",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewDeviceIdentifierCmd creates the device identifier parent command with all device identifier subcommands.
 func NewDeviceIdentifierCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

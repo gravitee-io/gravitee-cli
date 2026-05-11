@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewAuthorizationEngineCmdRO creates the authorization engine command with read-only subcommands.
+func NewAuthorizationEngineCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "authorization-engine",
+		Aliases: []string{"authz-engine", "ae"},
+		Short:   "Manage authorization engines",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewAuthorizationEngineCmd creates the authorization engine parent command with all subcommands.
 func NewAuthorizationEngineCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

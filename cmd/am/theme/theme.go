@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewThemeCmdRO creates the theme command with read-only subcommands.
+func NewThemeCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "theme",
+		Aliases: []string{"themes"},
+		Short:   "Manage themes",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewThemeCmd creates the theme parent command with all theme subcommands.
 func NewThemeCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

@@ -21,6 +21,28 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewUserCmdRO creates the user command with read-only subcommands.
+func NewUserCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "user",
+		Aliases: []string{"users"},
+		Short:   "Manage users",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+	cmd.AddCommand(newUserAuditCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewUserCmd creates the user parent command with all user subcommands.
 func NewUserCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

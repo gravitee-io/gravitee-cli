@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewReporterCmdRO creates the reporter command with read-only subcommands.
+func NewReporterCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "reporter",
+		Aliases: []string{"reporters"},
+		Short:   "Manage reporters",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewReporterCmd creates the reporter parent command with all reporter subcommands.
 func NewReporterCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewScopeCmdRO creates the scope command with read-only subcommands.
+func NewScopeCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "scope",
+		Aliases: []string{"scopes"},
+		Short:   "Manage scopes",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewScopeCmd creates the scope parent command with all scope subcommands.
 func NewScopeCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewExtensionGrantCmdRO creates the extension grant command with read-only subcommands.
+func NewExtensionGrantCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "extension-grant",
+		Aliases: []string{"eg", "grant"},
+		Short:   "Manage extension grants",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewExtensionGrantCmd creates the extension grant parent command with all subcommands.
 func NewExtensionGrantCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

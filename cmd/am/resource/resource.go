@@ -21,6 +21,27 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewResourceCmdRO creates the resource command with read-only subcommands.
+func NewResourceCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "resource",
+		Aliases: []string{"resources", "res"},
+		Short:   "Manage domain resources",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newListCmd(f, &domainID))
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewResourceCmd creates the resource parent command with all resource subcommands.
 func NewResourceCmd(f *factory.Factory) *cobra.Command {
 	var domainID string

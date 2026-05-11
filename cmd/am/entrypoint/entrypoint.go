@@ -21,6 +21,26 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
+// NewEntrypointCmdRO creates the entrypoint command with read-only subcommands.
+func NewEntrypointCmdRO(f *factory.Factory) *cobra.Command {
+	var domainID string
+
+	cmd := &cobra.Command{
+		Use:     "entrypoint",
+		Aliases: []string{"entrypoints"},
+		Short:   "Manage domain entrypoints",
+	}
+
+	cmd.PersistentFlags().StringVar(&domainID, "domain", "", "Domain ID (required)")
+	_ = cmd.MarkPersistentFlagRequired("domain")
+
+	cmdutil.AddOutputFlags(cmd, f)
+
+	cmd.AddCommand(newGetCmd(f, &domainID))
+
+	return cmd
+}
+
 // NewEntrypointCmd creates the entrypoint parent command.
 func NewEntrypointCmd(f *factory.Factory) *cobra.Command {
 	var domainID string
