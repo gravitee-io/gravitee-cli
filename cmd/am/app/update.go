@@ -32,6 +32,7 @@ type updateOptions struct {
 	name        string
 	description string
 	enabled     string
+	template    string
 }
 
 func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -57,6 +58,7 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd.Flags().StringVar(&opts.name, "name", "", "Application name")
 	cmd.Flags().StringVar(&opts.description, "description", "", "Application description")
 	cmd.Flags().StringVar(&opts.enabled, "enabled", "", "Enable or disable application (true/false)")
+	cmd.Flags().StringVar(&opts.template, "template", "", "Mark application as a template (true/false)")
 
 	return cmd
 }
@@ -84,8 +86,19 @@ func (o *updateOptions) run() error {
 		}
 	}
 
+	if o.template != "" {
+		switch o.template {
+		case "true":
+			body["template"] = true
+		case "false":
+			body["template"] = false
+		default:
+			return fmt.Errorf("--template must be 'true' or 'false', got %q", o.template)
+		}
+	}
+
 	if len(body) == 0 {
-		return fmt.Errorf("at least one flag (--name, --description, --enabled) is required")
+		return fmt.Errorf("at least one flag (--name, --description, --enabled, --template) is required")
 	}
 
 	raw, _ := json.Marshal(body)

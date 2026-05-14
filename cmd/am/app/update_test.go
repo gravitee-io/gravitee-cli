@@ -73,6 +73,39 @@ func TestUpdateApplication(t *testing.T) {
 		testutil.AssertNoError(t, err)
 	})
 
+	t.Run("marks application as template", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient)
+		mock := &am.MockService{
+			PatchApplicationFunc: func(_ string, _ string, body json.RawMessage) (json.RawMessage, error) {
+				var m map[string]any
+				_ = json.Unmarshal(body, &m)
+
+				if m["template"] != true {
+					t.Errorf("expected template=true, got %v", m["template"])
+				}
+
+				return json.Marshal(map[string]any{
+					"id": "app-1", "name": "Test", "template": true,
+				})
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewAppCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "app-1", "--template", "true")
+
+		testutil.AssertNoError(t, err)
+	})
+
+	t.Run("rejects invalid template value", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient)
+
+		cmd := NewAppCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "update", "app-1", "--template", "maybe")
+
+		testutil.AssertErrorContains(t, err, "--template must be 'true' or 'false'")
+	})
+
 	t.Run("rejects invalid enabled value", func(t *testing.T) {
 		tc := testutil.NewFactory(&testutil.NoOpClient)
 
