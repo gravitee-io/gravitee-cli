@@ -171,7 +171,7 @@ func TestEntrypointsRemoveVhost(t *testing.T) {
 			"dom-1", "a.example.com")
 
 		testutil.AssertNoError(t, err)
-		hosts := captured["vhosts"].([]any)
+		hosts, _ := captured["vhosts"].([]any)
 		if len(hosts) != 1 {
 			t.Fatalf("expected 1 remaining vhost, got %d", len(hosts))
 		}
