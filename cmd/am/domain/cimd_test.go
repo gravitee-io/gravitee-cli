@@ -16,6 +16,7 @@ package domain
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/gravitee-io/gio-cli/internal/client"
@@ -43,6 +44,21 @@ func TestCIMDGet(t *testing.T) {
 	testutil.AssertNoError(t, err)
 	testutil.AssertOutputContains(t, tc.Out, "tpl-1")
 	testutil.AssertOutputContains(t, tc.Out, "true")
+}
+
+func TestCIMDGetWithoutOidcBlock(t *testing.T) {
+	fake := &client.FakeClient{
+		GetFunc: func(_ string) ([]byte, error) {
+			return json.Marshal(map[string]any{"id": "dom-1"})
+		},
+	}
+	tc := testutil.NewFactory(fake)
+
+	err := testutil.Execute(newCIMDGetCmd(tc.Factory), "dom-1")
+
+	testutil.AssertNoError(t, err)
+	testutil.AssertOutputContains(t, tc.Out, "Enabled:")
+	testutil.AssertOutputContains(t, tc.Out, "false")
 }
 
 func TestCIMDEnable(t *testing.T) {
@@ -106,6 +122,19 @@ func TestCIMDEnable(t *testing.T) {
 		if len(domains) != 2 || domains[0] != "a.com" || domains[1] != "b.com" {
 			t.Errorf("expected allowedDomains=[a.com b.com], got %v", domains)
 		}
+	})
+
+	t.Run("propagates GetDomain errors", func(t *testing.T) {
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return nil, fmt.Errorf("simulated network failure")
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newCIMDEnableCmd(tc.Factory), "dom-1", "--template-id", "tpl-1")
+
+		testutil.AssertErrorContains(t, err, "simulated network failure")
 	})
 }
 

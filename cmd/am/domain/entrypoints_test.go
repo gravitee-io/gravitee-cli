@@ -16,6 +16,7 @@ package domain
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/gravitee-io/gio-cli/internal/client"
@@ -144,6 +145,47 @@ func TestEntrypointsAddVhost(t *testing.T) {
 
 		testutil.AssertErrorContains(t, err, "already exists")
 	})
+
+	t.Run("works against a domain with no existing vhosts field", func(t *testing.T) {
+		var captured map[string]any
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return json.Marshal(map[string]any{"id": "dom-1"})
+			},
+			PatchFunc: func(_ string, body any) ([]byte, error) {
+				raw, _ := json.Marshal(body)
+				_ = json.Unmarshal(raw, &captured)
+				return raw, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newEntrypointsAddVhostCmd(tc.Factory),
+			"dom-1", "only.example.com", "--path", "/", "--override")
+
+		testutil.AssertNoError(t, err)
+		if captured["vhostMode"] != true {
+			t.Errorf("expected vhostMode=true, got %v", captured["vhostMode"])
+		}
+		hosts, _ := captured["vhosts"].([]any)
+		if len(hosts) != 1 {
+			t.Fatalf("expected 1 vhost after adding to empty list, got %v", captured["vhosts"])
+		}
+	})
+
+	t.Run("propagates GetDomain errors", func(t *testing.T) {
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return nil, fmt.Errorf("simulated network failure")
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newEntrypointsAddVhostCmd(tc.Factory),
+			"dom-1", "host.example.com", "--path", "/")
+
+		testutil.AssertErrorContains(t, err, "simulated network failure")
+	})
 }
 
 func TestEntrypointsRemoveVhost(t *testing.T) {
@@ -175,6 +217,54 @@ func TestEntrypointsRemoveVhost(t *testing.T) {
 		if len(hosts) != 1 {
 			t.Fatalf("expected 1 remaining vhost, got %d", len(hosts))
 		}
+	})
+
+	t.Run("with --path filter only removes the matching path", func(t *testing.T) {
+		var captured map[string]any
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return json.Marshal(map[string]any{
+					"vhostMode": true,
+					"vhosts": []map[string]any{
+						{"host": "shared.example.com", "path": "/auth", "overrideEntrypoint": true},
+						{"host": "shared.example.com", "path": "/api"},
+					},
+				})
+			},
+			PatchFunc: func(_ string, body any) ([]byte, error) {
+				raw, _ := json.Marshal(body)
+				_ = json.Unmarshal(raw, &captured)
+				return raw, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newEntrypointsRemoveVhostCmd(tc.Factory),
+			"dom-1", "shared.example.com", "--path", "/api")
+
+		testutil.AssertNoError(t, err)
+		hosts, _ := captured["vhosts"].([]any)
+		if len(hosts) != 1 {
+			t.Fatalf("expected 1 remaining vhost, got %d", len(hosts))
+		}
+		entry, _ := hosts[0].(map[string]any)
+		if entry["path"] != "/auth" {
+			t.Errorf("expected the kept vhost to be the /auth one, got %v", entry)
+		}
+	})
+
+	t.Run("propagates GetDomain errors", func(t *testing.T) {
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return nil, fmt.Errorf("simulated network failure")
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newEntrypointsRemoveVhostCmd(tc.Factory),
+			"dom-1", "a.example.com")
+
+		testutil.AssertErrorContains(t, err, "simulated network failure")
 	})
 
 	t.Run("refuses to drop the only override-entrypoint vhost while others remain", func(t *testing.T) {
