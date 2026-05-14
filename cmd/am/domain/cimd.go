@@ -67,7 +67,10 @@ func newCIMDGetCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
-			settings, _ := extractCIMDSettings(data)
+			settings, err := extractCIMDSettings(data)
+			if err != nil {
+				return err
+			}
 
 			p, err := cmdutil.NewPrinter(f)
 			if err != nil {
@@ -208,7 +211,10 @@ func runCIMDPatch(f *factory.Factory, domainID string, settings map[string]any) 
 		return err
 	}
 
-	updated, _ := extractCIMDSettings(data)
+	updated, err := extractCIMDSettings(data)
+	if err != nil {
+		return err
+	}
 
 	p, err := cmdutil.NewPrinter(f)
 	if err != nil {

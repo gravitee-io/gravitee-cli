@@ -224,6 +224,10 @@ func runRemoveVhost(f *factory.Factory, domainID, host, path string, pathFilter 
 		return fmt.Errorf("no vhost matched host %q", host)
 	}
 
+	// AM rejects a PATCH whose vhosts list has multiple entries but none with
+	// overrideEntrypoint: true ("You must select one vhost to override
+	// entrypoint", HTTP 400). Catch it client-side with a hint instead of
+	// surfacing the server error.
 	if removedOverride && len(kept) > 0 && !anyOverride(kept) {
 		return fmt.Errorf("cannot remove the only vhost with overrideEntrypoint while other vhosts remain\nHint: promote another vhost with 'add-vhost --override' first, or use 'clear-vhosts' to drop them all")
 	}
