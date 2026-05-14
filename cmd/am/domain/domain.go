@@ -33,6 +33,8 @@ func NewDomainCmdRO(f *factory.Factory) *cobra.Command {
 
 	cmd.AddCommand(newListCmd(f))
 	cmd.AddCommand(newGetCmd(f))
+	cmd.AddCommand(newEntrypointsCmdRO(f))
+	cmd.AddCommand(newCIMDCmdRO(f))
 
 	return cmd
 }
@@ -55,6 +57,8 @@ func NewDomainCmd(f *factory.Factory) *cobra.Command {
 	cmd.AddCommand(newEnableCmd(f))
 	cmd.AddCommand(newDisableCmd(f))
 	cmd.AddCommand(newUpdateCertSettingsCmd(f))
+	cmd.AddCommand(newEntrypointsCmd(f))
+	cmd.AddCommand(newCIMDCmd(f))
 
 	return cmd
 }
