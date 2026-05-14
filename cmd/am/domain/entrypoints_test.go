@@ -177,6 +177,54 @@ func TestEntrypointsRemoveVhost(t *testing.T) {
 		}
 	})
 
+	t.Run("refuses to drop the only override-entrypoint vhost while others remain", func(t *testing.T) {
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return json.Marshal(map[string]any{
+					"vhostMode": true,
+					"vhosts": []map[string]any{
+						{"host": "a.example.com", "path": "/", "overrideEntrypoint": true},
+						{"host": "b.example.com", "path": "/"},
+					},
+				})
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newEntrypointsRemoveVhostCmd(tc.Factory),
+			"dom-1", "a.example.com")
+
+		testutil.AssertErrorContains(t, err, "cannot remove the only vhost with overrideEntrypoint")
+	})
+
+	t.Run("allows dropping the override vhost when it is the last one", func(t *testing.T) {
+		var captured map[string]any
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return json.Marshal(map[string]any{
+					"vhostMode": true,
+					"vhosts": []map[string]any{
+						{"host": "a.example.com", "path": "/", "overrideEntrypoint": true},
+					},
+				})
+			},
+			PatchFunc: func(_ string, body any) ([]byte, error) {
+				raw, _ := json.Marshal(body)
+				_ = json.Unmarshal(raw, &captured)
+				return raw, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newEntrypointsRemoveVhostCmd(tc.Factory),
+			"dom-1", "a.example.com")
+
+		testutil.AssertNoError(t, err)
+		if captured["vhostMode"] != false {
+			t.Errorf("expected vhostMode=false after removing last vhost, got %v", captured["vhostMode"])
+		}
+	})
+
 	t.Run("errors when no vhost matches", func(t *testing.T) {
 		fake := &client.FakeClient{
 			GetFunc: func(_ string) ([]byte, error) {

@@ -175,41 +175,9 @@ func newEntrypointsRemoveVhostCmd(f *factory.Factory) *cobra.Command {
 				return err
 			}
 
-			domainID, host := args[0], args[1]
 			pathFilter := cmd.Flags().Changed("path")
 
-			current, err := f.AM().GetDomain(domainID)
-			if err != nil {
-				return err
-			}
-
-			view, err := extractEntrypointView(current)
-			if err != nil {
-				return err
-			}
-
-			kept := make([]vhost, 0, len(view.Vhosts))
-			removed := 0
-
-			for _, v := range view.Vhosts {
-				if v.Host == host && (!pathFilter || v.Path == path) {
-					removed++
-					continue
-				}
-
-				kept = append(kept, v)
-			}
-
-			if removed == 0 {
-				return fmt.Errorf("no vhost matched host %q", host)
-			}
-
-			body, _ := json.Marshal(map[string]any{
-				"vhostMode": len(kept) > 0,
-				"vhosts":    kept,
-			})
-
-			return patchAndPrintEntrypoints(f, domainID, body)
+			return runRemoveVhost(f, args[0], args[1], path, pathFilter)
 		},
 	}
 
@@ -237,6 +205,65 @@ func newEntrypointsClearVhostsCmd(f *factory.Factory) *cobra.Command {
 			return patchAndPrintEntrypoints(f, args[0], body)
 		},
 	}
+}
+
+func runRemoveVhost(f *factory.Factory, domainID, host, path string, pathFilter bool) error {
+	current, err := f.AM().GetDomain(domainID)
+	if err != nil {
+		return err
+	}
+
+	view, err := extractEntrypointView(current)
+	if err != nil {
+		return err
+	}
+
+	kept, removed, removedOverride := partitionVhosts(view.Vhosts, host, path, pathFilter)
+
+	if removed == 0 {
+		return fmt.Errorf("no vhost matched host %q", host)
+	}
+
+	if removedOverride && len(kept) > 0 && !anyOverride(kept) {
+		return fmt.Errorf("cannot remove the only vhost with overrideEntrypoint while other vhosts remain\nHint: promote another vhost with 'add-vhost --override' first, or use 'clear-vhosts' to drop them all")
+	}
+
+	body, _ := json.Marshal(map[string]any{
+		"vhostMode": len(kept) > 0,
+		"vhosts":    kept,
+	})
+
+	return patchAndPrintEntrypoints(f, domainID, body)
+}
+
+func partitionVhosts(vs []vhost, host, path string, pathFilter bool) (kept []vhost, removed int, removedOverride bool) {
+	kept = make([]vhost, 0, len(vs))
+
+	for _, v := range vs {
+		if v.Host == host && (!pathFilter || v.Path == path) {
+			removed++
+
+			if v.OverrideEntrypoint {
+				removedOverride = true
+			}
+
+			continue
+		}
+
+		kept = append(kept, v)
+	}
+
+	return kept, removed, removedOverride
+}
+
+func anyOverride(vs []vhost) bool {
+	for _, v := range vs {
+		if v.OverrideEntrypoint {
+			return true
+		}
+	}
+
+	return false
 }
 
 type vhost struct {
