@@ -41,6 +41,7 @@ type ApplicationService interface {
 	ListAppSecrets(domainID, appID string) (json.RawMessage, error)
 	CreateAppSecret(domainID, appID string, body json.RawMessage) (json.RawMessage, error)
 	DeleteAppSecret(domainID, appID, secretID string) error
+	RenewAppSecret(domainID, appID, secretID string) (json.RawMessage, error)
 
 	ListAppMembers(domainID, appID string) (json.RawMessage, error)
 	AddAppMember(domainID, appID string, body json.RawMessage) (json.RawMessage, error)
@@ -165,6 +166,15 @@ func (s *service) DeleteAppSecret(domainID, appID, secretID string) error {
 	}
 
 	return nil
+}
+
+func (s *service) RenewAppSecret(domainID, appID, secretID string) (json.RawMessage, error) {
+	data, err := s.client.Post(s.appPath(domainID, appID, fmt.Sprintf("secrets/%s/_renew", secretID)), json.RawMessage(`{}`))
+	if err != nil {
+		return nil, fmt.Errorf("app secret renew failed: %w", err)
+	}
+
+	return json.RawMessage(data), nil
 }
 
 // Application Members

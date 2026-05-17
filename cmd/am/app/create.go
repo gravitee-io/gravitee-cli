@@ -103,5 +103,44 @@ func (o *createOptions) run() error {
 		return p.PrintDetail(data)
 	}
 
-	return printAppDetail(p, data)
+	if err := printAppDetail(p, data); err != nil {
+		return err
+	}
+
+	printInitialClientSecret(p, data)
+
+	return nil
+}
+
+// printInitialClientSecret surfaces the OAuth2 client secret that AM
+// auto-generates for service apps on create. The secret is only present in
+// the create response — subsequent reads omit it, so we make sure the user
+// sees it the one time they can.
+func printInitialClientSecret(p *printer.Printer, data []byte) {
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return
+	}
+
+	settings, _ := m["settings"].(map[string]any)
+	if settings == nil {
+		return
+	}
+	oauth, _ := settings["oauth"].(map[string]any)
+	if oauth == nil {
+		return
+	}
+
+	clientID, _ := oauth["clientId"].(string)
+	secret, _ := oauth["clientSecret"].(string)
+	if secret == "" {
+		return
+	}
+
+	p.PrintMessage("")
+	if clientID != "" {
+		p.PrintMessage("Client ID:      %s", clientID)
+	}
+	p.PrintMessage("Client secret (store it now — it will not be shown again):")
+	p.PrintMessage("  %s", secret)
 }

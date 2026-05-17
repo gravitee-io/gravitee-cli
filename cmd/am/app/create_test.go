@@ -129,4 +129,31 @@ func TestCreateApplication(t *testing.T) {
 
 		testutil.AssertErrorContains(t, err, "no context configured")
 	})
+
+	t.Run("surfaces initial client secret for service apps", func(t *testing.T) {
+		tc := testutil.NewFactory(&testutil.NoOpClient)
+		mock := &am.MockService{
+			CreateApplicationFunc: func(_ string, _ json.RawMessage) (json.RawMessage, error) {
+				return json.Marshal(map[string]any{
+					"id":   "svc-1",
+					"name": "Service",
+					"type": "service",
+					"settings": map[string]any{
+						"oauth": map[string]any{
+							"clientId":     "svc-client",
+							"clientSecret": "supersecret",
+						},
+					},
+				})
+			},
+		}
+		tc.Factory.SetAMService(mock)
+
+		cmd := NewAppCmd(tc.Factory)
+		err := testutil.Execute(cmd, "--domain", "dom-1", "create", "--name", "Service", "--type", "service")
+
+		testutil.AssertNoError(t, err)
+		testutil.AssertOutputContains(t, tc.Out, "supersecret")
+		testutil.AssertOutputContains(t, tc.Out, "svc-client")
+	})
 }

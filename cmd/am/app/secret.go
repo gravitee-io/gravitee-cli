@@ -38,8 +38,67 @@ func newSecretCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd.AddCommand(newSecretListCmd(f, domainID, &appID))
 	cmd.AddCommand(newSecretCreateCmd(f, domainID, &appID))
 	cmd.AddCommand(newSecretDeleteCmd(f, domainID, &appID))
+	cmd.AddCommand(newSecretRenewCmd(f, domainID, &appID))
 
 	return cmd
+}
+
+func newSecretRenewCmd(f *factory.Factory, domainID, appID *string) *cobra.Command {
+	return &cobra.Command{
+		Use:   "renew <secretID>",
+		Short: "Renew an application secret (rotate it and return the new value)",
+		Example: `  gio am app secret renew my-secret-id --domain my-domain --app-id my-app
+  gio am app secret renew my-secret-id --domain my-domain --app-id my-app -o json`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			if err := cmdutil.RequireContext(f); err != nil {
+				return err
+			}
+
+			data, err := f.AM().RenewAppSecret(*domainID, *appID, args[0])
+			if err != nil {
+				return err
+			}
+
+			p, err := cmdutil.NewPrinter(f)
+			if err != nil {
+				return err
+			}
+
+			if f.OutputFormat != printer.FormatTable {
+				return p.PrintDetail(data)
+			}
+
+			return printSecretValue(p, data)
+		},
+	}
+}
+
+// printSecretValue prints the cleartext value of a freshly-renewed secret.
+// AM only returns it once, so the table view emphasises that.
+func printSecretValue(p *printer.Printer, data []byte) error {
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		p.PrintMessage("Secret renewed.")
+		return nil
+	}
+
+	id, _ := m["id"].(string)
+	value, _ := m["secret"].(string)
+	if value == "" {
+		value, _ = m["clientSecret"].(string)
+	}
+
+	if value != "" {
+		p.PrintMessage("Secret renewed (ID: %s).", id)
+		p.PrintMessage("")
+		p.PrintMessage("Secret value (store it now — it will not be shown again):")
+		p.PrintMessage("  %s", value)
+		return nil
+	}
+
+	p.PrintMessage("Secret renewed (ID: %s).", id)
+	return nil
 }
 
 func newSecretListCmd(f *factory.Factory, domainID, appID *string) *cobra.Command {

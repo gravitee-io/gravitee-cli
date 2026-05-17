@@ -44,6 +44,7 @@ type MockService struct {
 	ListAppSecretsFunc  func(string, string) (json.RawMessage, error)
 	CreateAppSecretFunc func(string, string, json.RawMessage) (json.RawMessage, error)
 	DeleteAppSecretFunc func(string, string, string) error
+	RenewAppSecretFunc  func(string, string, string) (json.RawMessage, error)
 
 	ListAppMembersFunc  func(string, string) (json.RawMessage, error)
 	AddAppMemberFunc    func(string, string, json.RawMessage) (json.RawMessage, error)
@@ -518,6 +519,14 @@ func (m *MockService) DeleteAppSecret(domainID, appID, secretID string) error {
 	}
 
 	return unexpected("DeleteAppSecret")
+}
+
+func (m *MockService) RenewAppSecret(domainID, appID, secretID string) (json.RawMessage, error) {
+	if m.RenewAppSecretFunc != nil {
+		return m.RenewAppSecretFunc(domainID, appID, secretID)
+	}
+
+	return nil, unexpected("RenewAppSecret")
 }
 
 func (m *MockService) ListAppMembers(domainID, appID string) (json.RawMessage, error) {
