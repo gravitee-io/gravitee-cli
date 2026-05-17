@@ -81,4 +81,76 @@ func TestUpdateDomain(t *testing.T) {
 
 		testutil.AssertErrorContains(t, err, "no context configured")
 	})
+
+	t.Run("merges redirect flags into clientRegistrationSettings preserving CIMD", func(t *testing.T) {
+		var captured map[string]any
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return json.Marshal(map[string]any{
+					"id": "dom-1",
+					"oidc": map[string]any{
+						"cimdSettings":               map[string]any{"enabled": true},
+						"clientRegistrationSettings": map[string]any{"allowWildCardRedirectUri": true},
+					},
+				})
+			},
+			PatchFunc: func(_ string, body any) ([]byte, error) {
+				raw, _ := json.Marshal(body)
+				_ = json.Unmarshal(raw, &captured)
+				return raw, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newUpdateCmd(tc.Factory), "dom-1", "--allow-localhost-redirect", "--allow-http-redirect")
+
+		testutil.AssertNoError(t, err)
+
+		oidc, ok := captured["oidc"].(map[string]any)
+		if !ok {
+			t.Fatalf("expected oidc block, got %v", captured)
+		}
+		if _, kept := oidc["cimdSettings"]; !kept {
+			t.Error("expected cimdSettings to be preserved on the PATCH body")
+		}
+		crs, ok := oidc["clientRegistrationSettings"].(map[string]any)
+		if !ok {
+			t.Fatalf("expected clientRegistrationSettings map, got %v", oidc["clientRegistrationSettings"])
+		}
+		if crs["allowLocalhostRedirectUri"] != true {
+			t.Errorf("expected allowLocalhostRedirectUri=true, got %v", crs["allowLocalhostRedirectUri"])
+		}
+		if crs["allowHttpSchemeRedirectUri"] != true {
+			t.Errorf("expected allowHttpSchemeRedirectUri=true, got %v", crs["allowHttpSchemeRedirectUri"])
+		}
+		if crs["allowWildCardRedirectUri"] != true {
+			t.Errorf("expected allowWildCardRedirectUri to be preserved, got %v", crs["allowWildCardRedirectUri"])
+		}
+	})
+
+	t.Run("redirect flags can be set false explicitly", func(t *testing.T) {
+		var captured map[string]any
+		fake := &client.FakeClient{
+			GetFunc: func(_ string) ([]byte, error) {
+				return json.Marshal(map[string]any{"id": "dom-1"})
+			},
+			PatchFunc: func(_ string, body any) ([]byte, error) {
+				raw, _ := json.Marshal(body)
+				_ = json.Unmarshal(raw, &captured)
+				return raw, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newUpdateCmd(tc.Factory), "dom-1", "--allow-localhost-redirect=false")
+
+		testutil.AssertNoError(t, err)
+		crs := captured["oidc"].(map[string]any)["clientRegistrationSettings"].(map[string]any)
+		if crs["allowLocalhostRedirectUri"] != false {
+			t.Errorf("expected allowLocalhostRedirectUri=false, got %v", crs["allowLocalhostRedirectUri"])
+		}
+		if _, set := crs["allowHttpSchemeRedirectUri"]; set {
+			t.Error("expected allowHttpSchemeRedirectUri not to be set when its flag was not provided")
+		}
+	})
 }

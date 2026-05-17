@@ -26,10 +26,12 @@ import (
 )
 
 type updateOptions struct {
-	factory     *factory.Factory
-	domainID    string
-	name        string
-	description string
+	factory         *factory.Factory
+	domainID        string
+	name            string
+	description     string
+	allowLocalhost  bool
+	allowHTTPScheme bool
 }
 
 func newUpdateCmd(f *factory.Factory) *cobra.Command {
@@ -39,26 +41,29 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 		Use:   "update <domainID>",
 		Short: "Update a security domain",
 		Example: `  gio am domain update my-domain-id --name "New Name"
-  gio am domain update my-domain-id --description "Updated description"`,
+  gio am domain update my-domain-id --description "Updated description"
+  gio am domain update my-domain-id --allow-localhost-redirect --allow-http-redirect`,
 		Args: cobra.ExactArgs(1),
-		RunE: func(_ *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
 				return err
 			}
 
 			opts.domainID = args[0]
 
-			return opts.run()
+			return opts.run(cmd)
 		},
 	}
 
 	cmd.Flags().StringVar(&opts.name, "name", "", "Domain name")
 	cmd.Flags().StringVar(&opts.description, "description", "", "Domain description")
+	cmd.Flags().BoolVar(&opts.allowLocalhost, "allow-localhost-redirect", false, "Allow loopback (localhost / 127.0.0.1) redirect URIs on registered clients")
+	cmd.Flags().BoolVar(&opts.allowHTTPScheme, "allow-http-redirect", false, "Allow http:// scheme redirect URIs on registered clients")
 
 	return cmd
 }
 
-func (o *updateOptions) run() error {
+func (o *updateOptions) run(cmd *cobra.Command) error {
 	f := o.factory
 
 	body := map[string]any{}
@@ -70,8 +75,19 @@ func (o *updateOptions) run() error {
 		body["description"] = o.description
 	}
 
+	allowLocalhostSet := cmd.Flags().Changed("allow-localhost-redirect")
+	allowHTTPSet := cmd.Flags().Changed("allow-http-redirect")
+
+	if allowLocalhostSet || allowHTTPSet {
+		oidc, err := mergeClientRegistrationRedirectFlags(f, o.domainID, o.allowLocalhost, allowLocalhostSet, o.allowHTTPScheme, allowHTTPSet)
+		if err != nil {
+			return err
+		}
+		body["oidc"] = oidc
+	}
+
 	if len(body) == 0 {
-		return fmt.Errorf("at least one flag (--name, --description) is required")
+		return fmt.Errorf("at least one flag (--name, --description, --allow-localhost-redirect, --allow-http-redirect) is required")
 	}
 
 	raw, _ := json.Marshal(body)
@@ -91,4 +107,41 @@ func (o *updateOptions) run() error {
 	}
 
 	return printDomainDetail(p, data)
+}
+
+// mergeClientRegistrationRedirectFlags performs a read-modify-write of the
+// domain's `oidc` block so we can flip the two redirect-URI flags on
+// `clientRegistrationSettings` without clobbering any other OIDC config
+// (CIMD, etc).
+func mergeClientRegistrationRedirectFlags(f *factory.Factory, domainID string, allowLocalhost, allowLocalhostSet, allowHTTP, allowHTTPSet bool) (map[string]any, error) {
+	current, err := f.AM().GetDomain(domainID)
+	if err != nil {
+		return nil, err
+	}
+
+	var m map[string]any
+	if err := json.Unmarshal(current, &m); err != nil {
+		return nil, fmt.Errorf("failed to parse domain: %w", err)
+	}
+
+	oidc, _ := m["oidc"].(map[string]any)
+	if oidc == nil {
+		oidc = map[string]any{}
+	}
+
+	settings, _ := oidc["clientRegistrationSettings"].(map[string]any)
+	if settings == nil {
+		settings = map[string]any{}
+	}
+
+	if allowLocalhostSet {
+		settings["allowLocalhostRedirectUri"] = allowLocalhost
+	}
+	if allowHTTPSet {
+		settings["allowHttpSchemeRedirectUri"] = allowHTTP
+	}
+
+	oidc["clientRegistrationSettings"] = settings
+
+	return oidc, nil
 }
