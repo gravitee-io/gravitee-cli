@@ -23,6 +23,7 @@ import (
 	analyticscmd "github.com/gravitee-io/gio-cli/cmd/am/analytics"
 	appcmd "github.com/gravitee-io/gio-cli/cmd/am/app"
 	auditcmd "github.com/gravitee-io/gio-cli/cmd/am/audit"
+	authcmd "github.com/gravitee-io/gio-cli/cmd/am/auth"
 	authdevicenotifiercmd "github.com/gravitee-io/gio-cli/cmd/am/auth-device-notifier"
 	authorizationenginecmd "github.com/gravitee-io/gio-cli/cmd/am/authorization-engine"
 	botdetectioncmd "github.com/gravitee-io/gio-cli/cmd/am/bot-detection"
@@ -140,6 +141,7 @@ func NewAMCmd(f *factory.Factory) *cobra.Command {
 
 	cmd.AddCommand(alertcmd.NewAlertCmd(f))
 	cmd.AddCommand(appcmd.NewAppCmd(f))
+	cmd.AddCommand(authcmd.NewAuthCmd(f))
 	cmd.AddCommand(authdevicenotifiercmd.NewAuthDeviceNotifierCmd(f))
 	cmd.AddCommand(authorizationenginecmd.NewAuthorizationEngineCmd(f))
 	cmd.AddCommand(botdetectioncmd.NewBotDetectionCmd(f))
