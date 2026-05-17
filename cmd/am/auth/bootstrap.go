@@ -19,6 +19,7 @@ package auth
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -71,7 +72,17 @@ the UI click-through that's currently required before 'gio login am'.`,
   gio am auth bootstrap --user admin --password-stdin --token-name ci-token --save`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return opts.run(http.DefaultClient)
+			// Don't follow redirects — AM's /management/auth/login returns a 302
+			// with a Location header that can be invalid (e.g. /managementnull)
+			// when no redirect_uri form param is supplied. The auth cookies are
+			// already on the 302 response; following the redirect just loses
+			// them and surfaces a misleading 404.
+			client := &http.Client{
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+					return http.ErrUseLastResponse
+				},
+			}
+			return opts.run(client)
 		},
 	}
 
@@ -182,36 +193,38 @@ func loginAndGetCookie(httpClient bootstrapClient, amURL, username, password str
 	return "", fmt.Errorf("login succeeded but no %s cookie returned", sessionCookieName)
 }
 
-func lookupCurrentUserID(httpClient bootstrapClient, amURL, org, cookie string) (string, error) {
-	path := fmt.Sprintf("%s/management/organizations/%s/user", amURL, url.PathEscape(org))
-	req, err := http.NewRequest(http.MethodGet, path, nil)
+// lookupCurrentUserID extracts the user id from the session JWT. The AM
+// session cookie value is "Bearer <jwt>"; the JWT's `sub` claim is the
+// user id we need to mint a PAT against. We parse the cookie locally
+// rather than making a second HTTP call because no /user-style endpoint
+// is consistently available across AM versions.
+//
+// httpClient, amURL, org are kept in the signature to preserve the
+// existing test seams and call-site shape.
+func lookupCurrentUserID(_ bootstrapClient, _, _, cookie string) (string, error) {
+	jwt := strings.TrimPrefix(cookie, "Bearer ")
+	parts := strings.Split(jwt, ".")
+	if len(parts) != 3 {
+		return "", fmt.Errorf("session cookie is not a JWT (expected 3 segments, got %d)", len(parts))
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
-		return "", fmt.Errorf("build current-user request: %w", err)
+		// some encoders pad; try standard urlsafe
+		payload, err = base64.URLEncoding.DecodeString(parts[1])
+		if err != nil {
+			return "", fmt.Errorf("decode JWT payload: %w", err)
+		}
 	}
-	addSessionCookie(req, cookie)
-	req.Header.Set("Accept", "application/json")
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("current-user request failed: %w", err)
+	var claims struct {
+		Sub string `json:"sub"`
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 400 {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
-		return "", fmt.Errorf("current-user lookup failed (status %d): %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		return "", fmt.Errorf("parse JWT claims: %w", err)
 	}
-
-	var payload struct {
-		ID string `json:"id"`
+	if claims.Sub == "" {
+		return "", fmt.Errorf("JWT missing sub claim")
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return "", fmt.Errorf("parse current-user response: %w", err)
-	}
-	if payload.ID == "" {
-		return "", fmt.Errorf("current-user response missing id")
-	}
-	return payload.ID, nil
+	return claims.Sub, nil
 }
 
 func mintToken(httpClient bootstrapClient, amURL, org, userID, cookie, tokenName string) (value, id string, err error) {
@@ -223,7 +236,10 @@ func mintToken(httpClient bootstrapClient, amURL, org, userID, cookie, tokenName
 	if err != nil {
 		return "", "", fmt.Errorf("build token request: %w", err)
 	}
-	addSessionCookie(req, cookie)
+	// Use the session JWT as a Bearer token. Cookie auth requires an
+	// X-Xsrf-Token header on POSTs which we don't capture; Bearer auth
+	// skips the CSRF check entirely.
+	req.Header.Set("Authorization", cookie)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
@@ -240,7 +256,9 @@ func mintToken(httpClient bootstrapClient, amURL, org, userID, cookie, tokenName
 
 	var payload struct {
 		ID    string `json:"id"`
-		Token string `json:"token"`
+		// AM mgmt-api emits `tokenId` (newer) — keep `id` as fallback.
+		TokenID string `json:"tokenId"`
+		Token   string `json:"token"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
 		return "", "", fmt.Errorf("parse token response: %w", err)
@@ -248,7 +266,11 @@ func mintToken(httpClient bootstrapClient, amURL, org, userID, cookie, tokenName
 	if payload.Token == "" {
 		return "", "", fmt.Errorf("token response missing token value")
 	}
-	return payload.Token, payload.ID, nil
+	tokenID := payload.TokenID
+	if tokenID == "" {
+		tokenID = payload.ID
+	}
+	return payload.Token, tokenID, nil
 }
 
 func addSessionCookie(req *http.Request, cookie string) {
