@@ -71,6 +71,7 @@ func NewAppCmd(f *factory.Factory) *cobra.Command {
 	cmd.AddCommand(newAppAnalyticsCmd(f, &domainID))
 	cmd.AddCommand(newChangeTypeCmd(f, &domainID))
 	cmd.AddCommand(newAppResourcePolicyCmd(f, &domainID))
+	cmd.AddCommand(newAppIdpCmd(f, &domainID))
 
 	return cmd
 }
