@@ -16,6 +16,7 @@ package auth
 
 import (
 	"bytes"
+	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -27,10 +28,21 @@ import (
 	"github.com/gravitee-io/gio-cli/internal/factory"
 )
 
-// fakeAM returns a stub AM server implementing the three endpoints the
-// bootstrap flow touches: login, current-user, and tokens.
+// fakeJWT builds a JWT whose payload carries the given sub claim. The
+// signature is a placeholder — bootstrap never verifies it.
+func fakeJWT(sub string) string {
+	header := base64.RawURLEncoding.EncodeToString([]byte(`{"typ":"JWT","alg":"none"}`))
+	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"` + sub + `"}`))
+	return header + "." + payload + ".sig"
+}
+
+// fakeAM returns a stub AM server implementing the two endpoints the
+// bootstrap flow touches: login (issues a Bearer JWT cookie) and tokens
+// (mints a PAT, auth via Authorization: Bearer).
 func fakeAM(t *testing.T) *httptest.Server {
 	t.Helper()
+
+	sessionValue := "Bearer " + fakeJWT("user-1")
 
 	mux := http.NewServeMux()
 
@@ -43,26 +55,17 @@ func fakeAM(t *testing.T) *httptest.Server {
 			http.Error(w, "bad creds", http.StatusUnauthorized)
 			return
 		}
-		http.SetCookie(w, &http.Cookie{Name: sessionCookieName, Value: "session-xyz"})
+		http.SetCookie(w, &http.Cookie{Name: sessionCookieName, Value: sessionValue})
 		w.WriteHeader(http.StatusOK)
 	})
 
-	mux.HandleFunc("/management/organizations/DEFAULT/user", func(w http.ResponseWriter, r *http.Request) {
-		if c, err := r.Cookie(sessionCookieName); err != nil || c.Value != "session-xyz" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"id":"user-1","username":"admin"}`))
-	})
-
 	mux.HandleFunc("/management/organizations/DEFAULT/users/user-1/tokens", func(w http.ResponseWriter, r *http.Request) {
-		if c, err := r.Cookie(sessionCookieName); err != nil || c.Value != "session-xyz" {
+		if r.Header.Get("Authorization") != sessionValue {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"id":"tok-1","token":"gioat_abc123"}`))
+		_, _ = w.Write([]byte(`{"tokenId":"tok-1","token":"gioat_abc123"}`))
 	})
 
 	return httptest.NewServer(mux)
