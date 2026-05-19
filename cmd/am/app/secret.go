@@ -79,8 +79,7 @@ func newSecretRenewCmd(f *factory.Factory, domainID, appID *string) *cobra.Comma
 func printSecretValue(p *printer.Printer, data []byte) error {
 	var m map[string]any
 	if err := json.Unmarshal(data, &m); err != nil {
-		p.PrintMessage("Secret renewed.")
-		return nil
+		return err
 	}
 
 	id, _ := m["id"].(string)
