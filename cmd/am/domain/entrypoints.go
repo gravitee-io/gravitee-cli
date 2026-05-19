@@ -303,10 +303,10 @@ func extractEntrypointView(data []byte) (entrypointView, error) {
 		return view, nil
 	}
 
-	for _, item := range raw {
+	for i, item := range raw {
 		entry, ok := item.(map[string]any)
 		if !ok {
-			continue
+			return view, fmt.Errorf("vhost entry %d is not an object", i)
 		}
 
 		var v vhost

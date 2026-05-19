@@ -16,6 +16,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/spf13/cobra"
 
@@ -88,15 +89,14 @@ func printSecretValue(p *printer.Printer, data []byte) error {
 		value, _ = m["clientSecret"].(string)
 	}
 
-	if value != "" {
-		p.PrintMessage("Secret renewed (ID: %s).", id)
-		p.PrintMessage("")
-		p.PrintMessage("Secret value (store it now — it will not be shown again):")
-		p.PrintMessage("  %s", value)
-		return nil
+	if value == "" {
+		return fmt.Errorf("renew response did not include a secret value (id: %s)", id)
 	}
 
 	p.PrintMessage("Secret renewed (ID: %s).", id)
+	p.PrintMessage("")
+	p.PrintMessage("Secret value (store it now — it will not be shown again):")
+	p.PrintMessage("  %s", value)
 	return nil
 }
 

@@ -125,10 +125,12 @@ func readAppIdpBindings(f *factory.Factory, domainID, appID string) ([]map[strin
 
 	raw, _ := m["identityProviders"].([]any)
 	out := make([]map[string]any, 0, len(raw))
-	for _, item := range raw {
-		if b, ok := item.(map[string]any); ok {
-			out = append(out, b)
+	for i, item := range raw {
+		b, ok := item.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("identityProviders entry %d is not an object", i)
 		}
+		out = append(out, b)
 	}
 	return out, nil
 }
@@ -221,10 +223,12 @@ func readBindingsFromApp(data []byte) ([]map[string]any, error) {
 	}
 	raw, _ := m["identityProviders"].([]any)
 	out := make([]map[string]any, 0, len(raw))
-	for _, item := range raw {
-		if b, ok := item.(map[string]any); ok {
-			out = append(out, b)
+	for i, item := range raw {
+		b, ok := item.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("identityProviders entry %d is not an object", i)
 		}
+		out = append(out, b)
 	}
 	return out, nil
 }

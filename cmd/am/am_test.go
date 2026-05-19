@@ -82,6 +82,7 @@ func TestAMCommandsRegistered(t *testing.T) {
 		"analytics",
 		"app",
 		"audit",
+		"auth",
 		"auth-device-notifier",
 		"authorization-engine",
 		"bot-detection",

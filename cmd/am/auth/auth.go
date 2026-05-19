@@ -25,8 +25,10 @@ import (
 // binary deliberately does not expose this subtree.
 func NewAuthCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "auth",
-		Short: "Authentication helpers for first-mile CLI setup",
+		Use:    "auth",
+		Short:  "Authentication helpers for first-mile CLI setup",
+		Long:   "Authentication helpers intended for local development, CI lab setups, and demos.\nProduction users should mint PATs via the AM console and configure them with `gio context`.",
+		Hidden: true,
 	}
 
 	cmd.AddCommand(newBootstrapCmd(f))

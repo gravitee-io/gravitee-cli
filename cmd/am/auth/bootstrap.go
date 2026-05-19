@@ -273,10 +273,6 @@ func mintToken(httpClient bootstrapClient, amURL, org, userID, cookie, tokenName
 	return payload.Token, tokenID, nil
 }
 
-func addSessionCookie(req *http.Request, cookie string) {
-	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: cookie})
-}
-
 func (o *bootstrapOptions) effectiveContext() string {
 	if o.contextName != "" {
 		return o.contextName
