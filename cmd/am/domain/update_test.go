@@ -145,7 +145,8 @@ func TestUpdateDomain(t *testing.T) {
 		err := testutil.Execute(newUpdateCmd(tc.Factory), "dom-1", "--allow-localhost-redirect=false")
 
 		testutil.AssertNoError(t, err)
-		crs := captured["oidc"].(map[string]any)["clientRegistrationSettings"].(map[string]any)
+		oidc, _ := captured["oidc"].(map[string]any)
+		crs, _ := oidc["clientRegistrationSettings"].(map[string]any)
 		if crs["allowLocalhostRedirectUri"] != false {
 			t.Errorf("expected allowLocalhostRedirectUri=false, got %v", crs["allowLocalhostRedirectUri"])
 		}

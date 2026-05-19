@@ -16,6 +16,7 @@ package auth
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
@@ -104,7 +105,7 @@ func TestBootstrapMintsToken(t *testing.T) {
 		org:       "DEFAULT",
 	}
 
-	if err := opts.run(srv.Client()); err != nil {
+	if err := opts.run(context.Background(), srv.Client()); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if !strings.Contains(out.String(), "gioat_abc123") {
@@ -129,7 +130,7 @@ func TestBootstrapSavesConfig(t *testing.T) {
 		contextName: "local",
 	}
 
-	if err := opts.run(srv.Client()); err != nil {
+	if err := opts.run(context.Background(), srv.Client()); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -161,7 +162,7 @@ func TestBootstrapBadCredentials(t *testing.T) {
 		org:       "DEFAULT",
 	}
 
-	err := opts.run(srv.Client())
+	err := opts.run(context.Background(), srv.Client())
 	if err == nil || !strings.Contains(err.Error(), "login failed") {
 		t.Errorf("expected login failure, got: %v", err)
 	}
@@ -176,7 +177,7 @@ func TestBootstrapURLRequired(t *testing.T) {
 		org:      "DEFAULT",
 	}
 
-	err := opts.run(http.DefaultClient)
+	err := opts.run(context.Background(), http.DefaultClient)
 	if err == nil || !strings.Contains(err.Error(), "no AM URL") {
 		t.Errorf("expected URL required error, got: %v", err)
 	}
@@ -197,7 +198,7 @@ func TestBootstrapFallsBackToResolvedURL(t *testing.T) {
 		org:       "DEFAULT",
 	}
 
-	if err := opts.run(srv.Client()); err != nil {
+	if err := opts.run(context.Background(), srv.Client()); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if !strings.Contains(out.String(), "gioat_abc123") {

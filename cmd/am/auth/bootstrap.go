@@ -19,6 +19,7 @@ package auth
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -71,7 +72,7 @@ the UI click-through that's currently required before 'gio login am'.`,
   gio am auth bootstrap --url http://localhost:8093 --user admin --password adminadmin
   gio am auth bootstrap --user admin --password-stdin --token-name ci-token --save`,
 		Args: cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			// Don't follow redirects — AM's /management/auth/login returns a 302
 			// with a Location header that can be invalid (e.g. /managementnull)
 			// when no redirect_uri form param is supplied. The auth cookies are
@@ -82,7 +83,7 @@ the UI click-through that's currently required before 'gio login am'.`,
 					return http.ErrUseLastResponse
 				},
 			}
-			return opts.run(client)
+			return opts.run(cmd.Context(), client)
 		},
 	}
 
@@ -99,7 +100,7 @@ the UI click-through that's currently required before 'gio login am'.`,
 	return cmd
 }
 
-func (o *bootstrapOptions) run(httpClient bootstrapClient) error {
+func (o *bootstrapOptions) run(ctx context.Context, httpClient bootstrapClient) error {
 	if err := o.resolveURL(); err != nil {
 		return err
 	}
@@ -115,7 +116,7 @@ func (o *bootstrapOptions) run(httpClient bootstrapClient) error {
 		return err
 	}
 
-	cookie, err := loginAndGetCookie(httpClient, o.amURL, o.username, pw)
+	cookie, err := loginAndGetCookie(ctx, httpClient, o.amURL, o.username, pw)
 	if err != nil {
 		return err
 	}
@@ -125,7 +126,7 @@ func (o *bootstrapOptions) run(httpClient bootstrapClient) error {
 		return err
 	}
 
-	tokenValue, tokenID, err := mintToken(httpClient, o.amURL, o.org, userID, cookie, o.tokenName)
+	tokenValue, tokenID, err := mintToken(ctx, httpClient, o.amURL, o.org, userID, cookie, o.tokenName)
 	if err != nil {
 		return err
 	}
@@ -161,12 +162,12 @@ func (o *bootstrapOptions) resolveURL() error {
 	return fmt.Errorf("no AM URL: pass --url or configure a context with 'gio login am'")
 }
 
-func loginAndGetCookie(httpClient bootstrapClient, amURL, username, password string) (string, error) {
+func loginAndGetCookie(ctx context.Context, httpClient bootstrapClient, amURL, username, password string) (string, error) {
 	form := url.Values{}
 	form.Set("username", username)
 	form.Set("password", password)
 
-	req, err := http.NewRequest(http.MethodPost, amURL+"/management/auth/login", strings.NewReader(form.Encode()))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, amURL+"/management/auth/login", strings.NewReader(form.Encode()))
 	if err != nil {
 		return "", fmt.Errorf("build login request: %w", err)
 	}
@@ -227,12 +228,12 @@ func lookupCurrentUserID(_ bootstrapClient, _, _, cookie string) (string, error)
 	return claims.Sub, nil
 }
 
-func mintToken(httpClient bootstrapClient, amURL, org, userID, cookie, tokenName string) (value, id string, err error) {
+func mintToken(ctx context.Context, httpClient bootstrapClient, amURL, org, userID, cookie, tokenName string) (value, id string, err error) {
 	body, _ := json.Marshal(map[string]string{"name": tokenName})
 	path := fmt.Sprintf("%s/management/organizations/%s/users/%s/tokens",
 		amURL, url.PathEscape(org), url.PathEscape(userID))
 
-	req, err := http.NewRequest(http.MethodPost, path, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, path, bytes.NewReader(body))
 	if err != nil {
 		return "", "", fmt.Errorf("build token request: %w", err)
 	}
@@ -255,7 +256,7 @@ func mintToken(httpClient bootstrapClient, amURL, org, userID, cookie, tokenName
 	}
 
 	var payload struct {
-		ID    string `json:"id"`
+		ID string `json:"id"`
 		// AM mgmt-api emits `tokenId` (newer) — keep `id` as fallback.
 		TokenID string `json:"tokenId"`
 		Token   string `json:"token"`
@@ -310,4 +311,3 @@ func (o *bootstrapOptions) saveTokenToConfig(token string) error {
 
 	return cfg.SaveTo(o.factory.ConfigPath)
 }
-

@@ -55,11 +55,11 @@ func TestAppIdpAdd(t *testing.T) {
 		if !ok || len(idps) != 2 {
 			t.Fatalf("expected 2 identityProviders, got %v", captured)
 		}
-		second := idps[1].(map[string]any)
+		second, _ := idps[1].(map[string]any)
 		if second["identity"] != "new-idp" {
 			t.Errorf("expected appended binding identity=new-idp, got %v", second["identity"])
 		}
-		if second["priority"].(float64) != 10 {
+		if prio, _ := second["priority"].(float64); prio != 10 {
 			t.Errorf("expected priority=10, got %v", second["priority"])
 		}
 		testutil.AssertOutputContains(t, tc.Out, "new-idp")
@@ -88,12 +88,12 @@ func TestAppIdpAdd(t *testing.T) {
 			"--priority", "5", "--selection-rule", "{#context.attributes['foo'] == 'bar'}")
 
 		testutil.AssertNoError(t, err)
-		idps := captured["identityProviders"].([]any)
+		idps, _ := captured["identityProviders"].([]any)
 		if len(idps) != 1 {
 			t.Fatalf("expected 1 binding, got %d", len(idps))
 		}
-		b := idps[0].(map[string]any)
-		if b["priority"].(float64) != 5 {
+		b, _ := idps[0].(map[string]any)
+		if prio, _ := b["priority"].(float64); prio != 5 {
 			t.Errorf("expected priority=5, got %v", b["priority"])
 		}
 		if b["selectionRule"] != "{#context.attributes['foo'] == 'bar'}" {
@@ -126,11 +126,12 @@ func TestAppIdpRemove(t *testing.T) {
 		err := testutil.Execute(cmd, "--domain", "dom-1", "idp", "remove", "app-1", "idp-1")
 
 		testutil.AssertNoError(t, err)
-		idps := captured["identityProviders"].([]any)
+		idps, _ := captured["identityProviders"].([]any)
 		if len(idps) != 1 {
 			t.Fatalf("expected 1 binding remaining, got %d", len(idps))
 		}
-		if idps[0].(map[string]any)["identity"] != "idp-2" {
+		first, _ := idps[0].(map[string]any)
+		if first["identity"] != "idp-2" {
 			t.Errorf("expected idp-2 to remain, got %v", idps[0])
 		}
 	})
