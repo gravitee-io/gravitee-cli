@@ -280,7 +280,7 @@ func TestMapHTTPError_IncludesServerBody(t *testing.T) {
 		wantHint  string
 		status    int
 	}{
-		{name: "401 with body", status: 401, body: `{"message":"Token expired"}`, wantLabel: "authentication failed", wantHint: "gio login"},
+		{name: "401 with body", status: 401, body: `{"message":"Token expired"}`, wantLabel: "authentication failed", wantHint: "gctl login"},
 		{name: "403 with body", status: 403, body: `{"message":"forbidden"}`, wantLabel: "access denied", wantHint: "token permissions"},
 		{name: "404 with body", status: 404, body: `{"message":"app not found"}`, wantLabel: "resource not found"},
 		{name: "500 with body", status: 500, body: "stack trace here", wantLabel: "server error", wantHint: "APIM server status"},

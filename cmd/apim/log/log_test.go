@@ -21,8 +21,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/testutil"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/testutil"
 )
 
 func pagedLogs(pages map[int][]map[string]any) *client.FakeClient {

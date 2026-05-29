@@ -17,9 +17,9 @@ package form
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <formID> [-f <file>]",
 		Short: "Update a form from a JSON file or stdin",
-		Example: `  gio am form update my-form-id --domain my-domain --file form.json
-  gio am form update my-form-id --domain my-domain -f form.json
-  envsubst < form.json | gio am form update my-form-id --domain my-domain`,
+		Example: `  gctl am form update my-form-id --domain my-domain --file form.json
+  gctl am form update my-form-id --domain my-domain -f form.json
+  envsubst < form.json | gctl am form update my-form-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -17,9 +17,9 @@ package api
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newRollbackCmd(f *factory.Factory) *cobra.Command {
@@ -28,7 +28,7 @@ func newRollbackCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "rollback <apiId> --event-id <eventId>",
 		Short:   "Rollback an API to a previous version",
-		Example: `  gio apim api rollback /my/api --event-id aaaa1111-bbbb-2222-cccc-333344445555`,
+		Example: `  gctl apim api rollback /my/api --event-id aaaa1111-bbbb-2222-cccc-333344445555`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

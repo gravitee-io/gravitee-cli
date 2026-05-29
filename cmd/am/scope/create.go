@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type createOptions struct {
@@ -38,8 +38,8 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create --key <key> --name <name>",
 		Short: "Create a scope",
-		Example: `  gio am scope create --domain my-domain --key openid --name "OpenID"
-  gio am scope create --domain my-domain --key profile --name "Profile" --description "Access to profile"`,
+		Example: `  gctl am scope create --domain my-domain --key openid --name "OpenID"
+  gctl am scope create --domain my-domain --key profile --name "Profile" --description "Access to profile"`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

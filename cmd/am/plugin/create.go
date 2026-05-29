@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newCreateCmd(f *factory.Factory) *cobra.Command {
@@ -44,7 +44,7 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 				return fmt.Errorf("--name is required")
 			}
 			if configFile == "" {
-				return fmt.Errorf("--config-file is required (interactive mode not supported in gio CLI)")
+				return fmt.Errorf("--config-file is required (interactive mode not supported in gctl CLI)")
 			}
 			raw, err := cmdutil.ReadJSONFile(configFile)
 			if err != nil {

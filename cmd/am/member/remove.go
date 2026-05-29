@@ -17,15 +17,15 @@ package member
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newRemoveCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "remove <memberID>",
 		Short:   "Remove a member from a domain",
-		Example: `  gio am member remove member-123 --domain my-domain`,
+		Example: `  gctl am member remove member-123 --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -17,9 +17,9 @@ package botdetection
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <botDetectionID> [-f <file>]",
 		Short: "Update a bot detection from a JSON file or stdin",
-		Example: `  gio am bot-detection update my-bot-detection-id --domain my-domain --file bot-detection.json
-  gio am bot-detection update my-bot-detection-id --domain my-domain -f bot-detection.json
-  envsubst < bot-detection.json | gio am bot-detection update my-bot-detection-id --domain my-domain`,
+		Example: `  gctl am bot-detection update my-bot-detection-id --domain my-domain --file bot-detection.json
+  gctl am bot-detection update my-bot-detection-id --domain my-domain -f bot-detection.json
+  envsubst < bot-detection.json | gctl am bot-detection update my-bot-detection-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

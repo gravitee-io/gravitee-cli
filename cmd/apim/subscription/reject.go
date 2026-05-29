@@ -17,9 +17,9 @@ package subscription
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type rejectOptions struct {
@@ -34,7 +34,7 @@ func newRejectCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "reject <subId> --api <apiId>",
 		Short:   "Reject a pending subscription",
-		Example: `  gio apim subscription reject cc556677 --api 8a7b3c4d --reason "Insufficient justification"`,
+		Example: `  gctl apim subscription reject cc556677 --api 8a7b3c4d --reason "Insufficient justification"`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

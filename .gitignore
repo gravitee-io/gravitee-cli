@@ -16,5 +16,5 @@ cover.out
 # Claude configurations
 CLAUDE.md
 .claude
-gio
+gctl
 /cover.html

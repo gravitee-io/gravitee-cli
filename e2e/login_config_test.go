@@ -27,15 +27,15 @@ import (
 )
 
 // TestLoginPersistsConfig covers the full login flow:
-// `gio login am` writes ~/.gio/config.yaml, and subsequent commands read from it.
+// `gctl login am` writes ~/.gctl/config.yaml, and subsequent commands read from it.
 //
 // Isolates HOME so the real user config is never touched, and temporarily
-// unsets GIO_AM_* env vars so they don't bypass the config file.
+// unsets GCTL_AM_* env vars so they don't bypass the config file.
 func TestLoginPersistsConfig(t *testing.T) {
 	tmpHome := t.TempDir()
 	t.Setenv("HOME", tmpHome)
-	t.Setenv("GIO_AM_URL", "")
-	t.Setenv("GIO_AM_TOKEN", "")
+	t.Setenv("GCTL_AM_URL", "")
+	t.Setenv("GCTL_AM_TOKEN", "")
 
 	token, err := fetchAMToken()
 	if err != nil {
@@ -45,7 +45,7 @@ func TestLoginPersistsConfig(t *testing.T) {
 	runInEnvCLIExpectSuccess(t, "login", "am", "--url", amURL, "--token", token)
 
 	// The config file must exist at the isolated HOME path.
-	cfgPath := filepath.Join(tmpHome, ".gio", "config.yaml")
+	cfgPath := filepath.Join(tmpHome, ".gctl", "config.yaml")
 	data, err := os.ReadFile(cfgPath)
 	if err != nil {
 		t.Fatalf("config file not created at %s: %v", cfgPath, err)
@@ -94,7 +94,7 @@ func TestLoginPersistsConfig(t *testing.T) {
 	}
 }
 
-// TestEnvVarsOverrideConfig verifies that GIO_APIM_URL + GIO_APIM_TOKEN bypass
+// TestEnvVarsOverrideConfig verifies that GCTL_APIM_URL + GCTL_APIM_TOKEN bypass
 // the config file entirely: even when the on-disk config points to a broken
 // URL, the CLI uses the env vars and the command still succeeds.
 func TestEnvVarsOverrideConfig(t *testing.T) {
@@ -103,7 +103,7 @@ func TestEnvVarsOverrideConfig(t *testing.T) {
 
 	// Write a config pointing to a host that doesn't exist - if env vars didn't
 	// override, the CLI would try this URL and fail.
-	cfgDir := filepath.Join(tmpHome, ".gio")
+	cfgDir := filepath.Join(tmpHome, ".gctl")
 	if err := os.MkdirAll(cfgDir, 0o700); err != nil {
 		t.Fatalf("failed to create config dir: %v", err)
 	}
@@ -120,7 +120,7 @@ contexts:
 		t.Fatalf("failed to write config: %v", err)
 	}
 
-	// GIO_APIM_URL + GIO_APIM_TOKEN are already set by TestMain to the real
+	// GCTL_APIM_URL + GCTL_APIM_TOKEN are already set by TestMain to the real
 	// APIM - so the command must succeed, proving the env vars override the
 	// broken config.
 	runInEnvCLIExpectSuccess(t, "apim", "env", "list", "-o", "json")

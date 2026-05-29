@@ -17,9 +17,9 @@ package analytics
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 type getOptions struct {
@@ -34,8 +34,8 @@ func newGetCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get",
 		Short: "Get domain analytics",
-		Example: `  gio am analytics get --domain my-domain --type count
-  gio am analytics get --domain my-domain --type count --field status --from 2024-01-01 --to 2024-12-31`,
+		Example: `  gctl am analytics get --domain my-domain --type count
+  gctl am analytics get --domain my-domain --type count --field status --from 2024-01-01 --to 2024-12-31`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -17,9 +17,9 @@ package context
 import (
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 
 	"github.com/spf13/cobra"
 )
@@ -28,8 +28,8 @@ func newDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete <name>",
 		Short: "Delete a context",
-		Example: `  gio context delete staging
-  gio context delete old-prod`,
+		Example: `  gctl context delete staging
+  gctl context delete old-prod`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return runDelete(f, args[0])

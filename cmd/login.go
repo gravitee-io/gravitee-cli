@@ -22,9 +22,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 const loginLongFmt = `Configure credentials for a Gravitee %s instance.
@@ -33,8 +33,8 @@ Three modes:
   Interactive (for humans): run without arguments and paste the curl from
       Gravitee's UI. URL, token, org, env are parsed automatically.
   Flags (for agents/scripts): --url, --token, --context, --org, --env.
-  Env vars (for CI): GIO_%s_URL, GIO_%s_TOKEN, GIO_ORG, GIO_ENV. These
-      bypass the config file entirely, no 'gio login' needed.`
+  Env vars (for CI): GCTL_%s_URL, GCTL_%s_TOKEN, GCTL_ORG, GCTL_ENV. These
+      bypass the config file entirely, no 'gctl login' needed.`
 
 type loginProductOptions struct {
 	factory     *factory.Factory
@@ -53,13 +53,13 @@ func newLoginCmd(f *factory.Factory) *cobra.Command {
 		Long: `Configure credentials for a Gravitee product (APIM or AM).
 
 Three modes:
-  Interactive (for humans): 'gio login apim' or 'gio login am' without args.
+  Interactive (for humans): 'gctl login apim' or 'gctl login am' without args.
       Paste the curl from Gravitee's UI, URL/token/org/env are parsed automatically.
   Flags (for agents/scripts): --url, --token, --context, --org, --env.
-  Env vars (for CI): GIO_APIM_URL, GIO_APIM_TOKEN, GIO_AM_URL, GIO_AM_TOKEN,
-      GIO_ORG, GIO_ENV. These bypass the config file entirely.`,
-		Example: `  gio login apim    # interactive for APIM
-  gio login am      # interactive for AM`,
+  Env vars (for CI): GCTL_APIM_URL, GCTL_APIM_TOKEN, GCTL_AM_URL, GCTL_AM_TOKEN,
+      GCTL_ORG, GCTL_ENV. These bypass the config file entirely.`,
+		Example: `  gctl login apim    # interactive for APIM
+  gctl login am      # interactive for AM`,
 		Args: cobra.NoArgs,
 	}
 
@@ -77,10 +77,10 @@ func newLoginProductCmd(f *factory.Factory, product string) *cobra.Command {
 		Use:   product,
 		Short: fmt.Sprintf("Configure credentials for a Gravitee %s instance", productUpper),
 		Long:  fmt.Sprintf(loginLongFmt, productUpper, productUpper, productUpper),
-		Example: fmt.Sprintf(`  gio login %s
+		Example: fmt.Sprintf(`  gctl login %s
       Interactive: paste the curl command from Gravitee's UI.
 
-  gio login %s --url https://%s.example.com --token gioat_abc123 --context prod
+  gctl login %s --url https://%s.example.com --token gioat_abc123 --context prod
       Non-interactive with flags (for CI / scripts).`,
 			product, product, product),
 		Args: cobra.NoArgs,
@@ -106,11 +106,11 @@ func (o *loginProductOptions) run(cmd *cobra.Command) error {
 	}
 
 	if o.url == "" {
-		return fmt.Errorf("--url is required\nHint: run 'gio login %s' without flags for interactive mode", o.product)
+		return fmt.Errorf("--url is required\nHint: run 'gctl login %s' without flags for interactive mode", o.product)
 	}
 
 	if o.token == "" {
-		return fmt.Errorf("--token is required\nHint: run 'gio login %s' without flags for interactive mode", o.product)
+		return fmt.Errorf("--token is required\nHint: run 'gctl login %s' without flags for interactive mode", o.product)
 	}
 
 	baseURL, org, env, err := cmdutil.ParseLoginURL(o.url)

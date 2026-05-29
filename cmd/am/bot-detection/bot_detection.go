@@ -17,8 +17,8 @@ package botdetection
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewBotDetectionCmdRO creates the bot detection command with read-only subcommands.

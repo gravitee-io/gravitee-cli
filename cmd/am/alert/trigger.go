@@ -17,9 +17,9 @@ package alert
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newTriggerCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -39,7 +39,7 @@ func newTriggerGetCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get",
 		Short:   "Get alert triggers",
-		Example: `  gio am alert trigger get --domain my-domain`,
+		Example: `  gctl am alert trigger get --domain my-domain`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -71,9 +71,9 @@ func newTriggerUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update [-f <file>]",
 		Short: "Update alert triggers from a JSON file or stdin",
-		Example: `  gio am alert trigger update --domain my-domain --file triggers.json
-  gio am alert trigger update --domain my-domain -f triggers.json
-  envsubst < triggers.json | gio am alert trigger update --domain my-domain`,
+		Example: `  gctl am alert trigger update --domain my-domain --file triggers.json
+  gctl am alert trigger update --domain my-domain -f triggers.json
+  envsubst < triggers.json | gctl am alert trigger update --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newLogoutCmd(f *factory.Factory) *cobra.Command {

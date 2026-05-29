@@ -17,10 +17,10 @@ package subscription
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/apim"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/apim"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type acceptOptions struct {
@@ -38,7 +38,7 @@ func newAcceptCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "accept <subId> --api <apiId>",
 		Short:   "Accept a pending subscription",
-		Example: `  gio apim subscription accept cc556677 --api 8a7b3c4d --reason "Approved by ops team"`,
+		Example: `  gctl apim subscription accept cc556677 --api 8a7b3c4d --reason "Approved by ops team"`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

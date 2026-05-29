@@ -17,8 +17,8 @@ package entrypoint
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewEntrypointCmdRO creates the entrypoint command with read-only subcommands.

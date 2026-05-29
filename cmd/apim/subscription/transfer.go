@@ -17,9 +17,9 @@ package subscription
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type transferOptions struct {
@@ -34,7 +34,7 @@ func newTransferCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "transfer <subId> --api <apiId> --plan <planId>",
 		Short:   "Transfer a subscription to another plan",
-		Example: `  gio apim subscription transfer 34f8c9e7 --api 8a7b3c4d --plan dd998877`,
+		Example: `  gctl apim subscription transfer 34f8c9e7 --api 8a7b3c4d --plan dd998877`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

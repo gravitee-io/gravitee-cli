@@ -22,9 +22,9 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // amPaginatedResponse is the AM paginated API response format (0-based pagination).
@@ -39,7 +39,7 @@ func newExportCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "export <domainId>",
 		Short:   "Export domain configuration to JSON",
-		Example: `  gio am domain export abc-123 -f domain-export.json`,
+		Example: `  gctl am domain export abc-123 -f domain-export.json`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireAMContext(f); err != nil {

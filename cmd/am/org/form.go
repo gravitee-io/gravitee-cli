@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgFormCmd(f *factory.Factory) *cobra.Command {
@@ -46,7 +46,7 @@ func newOrgFormGetCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get --template <TEMPLATE>",
 		Short:   "Get organization form by template",
-		Example: `  gio am org form get --template LOGIN`,
+		Example: `  gctl am org form get --template LOGIN`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -83,9 +83,9 @@ func newOrgFormCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an organization form from a JSON file or stdin",
-		Example: `  gio am org form create --file form.json
-  gio am org form create -f form.json
-  envsubst < form.json | gio am org form create`,
+		Example: `  gctl am org form create --file form.json
+  gctl am org form create -f form.json
+  envsubst < form.json | gctl am org form create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -126,9 +126,9 @@ func newOrgFormUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <formID> [-f <file>]",
 		Short: "Update an organization form from a JSON file or stdin",
-		Example: `  gio am org form update my-form-id --file form.json
-  gio am org form update my-form-id -f form.json
-  envsubst < form.json | gio am org form update my-form-id`,
+		Example: `  gctl am org form update my-form-id --file form.json
+  gctl am org form update my-form-id -f form.json
+  envsubst < form.json | gctl am org form update my-form-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -167,7 +167,7 @@ func newOrgFormDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <formID>",
 		Short:   "Delete an organization form",
-		Example: `  gio am org form delete my-form-id`,
+		Example: `  gctl am org form delete my-form-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

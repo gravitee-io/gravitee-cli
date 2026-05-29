@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newNotifierCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -45,7 +45,7 @@ func newNotifierListCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List alert notifiers",
-		Example: `  gio am alert notifier list --domain my-domain`,
+		Example: `  gctl am alert notifier list --domain my-domain`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -99,7 +99,7 @@ func newNotifierGetCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <notifierID>",
 		Short:   "Get alert notifier details",
-		Example: `  gio am alert notifier get my-notifier-id --domain my-domain`,
+		Example: `  gctl am alert notifier get my-notifier-id --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -155,9 +155,9 @@ func newNotifierCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an alert notifier from a JSON file or stdin",
-		Example: `  gio am alert notifier create --domain my-domain --file notifier.json
-  gio am alert notifier create --domain my-domain -f notifier.json
-  envsubst < notifier.json | gio am alert notifier create --domain my-domain`,
+		Example: `  gctl am alert notifier create --domain my-domain --file notifier.json
+  gctl am alert notifier create --domain my-domain -f notifier.json
+  envsubst < notifier.json | gctl am alert notifier create --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -202,9 +202,9 @@ func newNotifierUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <notifierID> [-f <file>]",
 		Short: "Update an alert notifier from a JSON file or stdin",
-		Example: `  gio am alert notifier update my-notifier-id --domain my-domain --file notifier.json
-  gio am alert notifier update my-notifier-id --domain my-domain -f notifier.json
-  envsubst < notifier.json | gio am alert notifier update my-notifier-id --domain my-domain`,
+		Example: `  gctl am alert notifier update my-notifier-id --domain my-domain --file notifier.json
+  gctl am alert notifier update my-notifier-id --domain my-domain -f notifier.json
+  envsubst < notifier.json | gctl am alert notifier update my-notifier-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -247,7 +247,7 @@ func newNotifierDeleteCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <notifierID>",
 		Short:   "Delete an alert notifier",
-		Example: `  gio am alert notifier delete my-notifier-id --domain my-domain`,
+		Example: `  gctl am alert notifier delete my-notifier-id --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

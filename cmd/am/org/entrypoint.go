@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgEntrypointCmd(f *factory.Factory) *cobra.Command {
@@ -45,7 +45,7 @@ func newOrgEntrypointListCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List organization entrypoints",
-		Example: `  gio am org entrypoint list`,
+		Example: `  gctl am org entrypoint list`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -75,7 +75,7 @@ func newOrgEntrypointGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <entrypointID>",
 		Short:   "Get organization entrypoint details",
-		Example: `  gio am org entrypoint get my-entrypoint-id`,
+		Example: `  gctl am org entrypoint get my-entrypoint-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -107,9 +107,9 @@ func newOrgEntrypointCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an organization entrypoint from a JSON file or stdin",
-		Example: `  gio am org entrypoint create --file entrypoint.json
-  gio am org entrypoint create -f entrypoint.json
-  envsubst < entrypoint.json | gio am org entrypoint create`,
+		Example: `  gctl am org entrypoint create --file entrypoint.json
+  gctl am org entrypoint create -f entrypoint.json
+  envsubst < entrypoint.json | gctl am org entrypoint create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -150,9 +150,9 @@ func newOrgEntrypointUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <entrypointID> [-f <file>]",
 		Short: "Update an organization entrypoint from a JSON file or stdin",
-		Example: `  gio am org entrypoint update my-entrypoint-id --file entrypoint.json
-  gio am org entrypoint update my-entrypoint-id -f entrypoint.json
-  envsubst < entrypoint.json | gio am org entrypoint update my-entrypoint-id`,
+		Example: `  gctl am org entrypoint update my-entrypoint-id --file entrypoint.json
+  gctl am org entrypoint update my-entrypoint-id -f entrypoint.json
+  envsubst < entrypoint.json | gctl am org entrypoint update my-entrypoint-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -191,7 +191,7 @@ func newOrgEntrypointDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <entrypointID>",
 		Short:   "Delete an organization entrypoint",
-		Example: `  gio am org entrypoint delete my-entrypoint-id`,
+		Example: `  gctl am org entrypoint delete my-entrypoint-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

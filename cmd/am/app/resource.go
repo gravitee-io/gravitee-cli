@@ -17,8 +17,8 @@ package app
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newAppResourceCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -42,7 +42,7 @@ func newAppResourceListCmd(f *factory.Factory, domainID, appID *string) *cobra.C
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List application resources",
-		Example: `  gio am app resource list --domain my-domain --app-id my-app`,
+		Example: `  gctl am app resource list --domain my-domain --app-id my-app`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -68,7 +68,7 @@ func newAppResourceGetCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 	return &cobra.Command{
 		Use:     "get <resourceID>",
 		Short:   "Get an application resource",
-		Example: `  gio am app resource get res-1 --domain my-domain --app-id my-app`,
+		Example: `  gctl am app resource get res-1 --domain my-domain --app-id my-app`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newCopyCmd(f *factory.Factory) *cobra.Command {
@@ -28,7 +28,7 @@ func newCopyCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "copy <sourceDomainId>",
 		Short:   "Copy a domain to a new domain in the same workspace",
-		Example: `  gio am domain copy abc-123 --name my-copy`,
+		Example: `  gctl am domain copy abc-123 --name my-copy`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireAMContext(f); err != nil {

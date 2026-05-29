@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newAddCmd(f *factory.Factory) *cobra.Command {
@@ -35,7 +35,7 @@ func newAddCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add --api <apiId> --user <userId> --role <role>",
 		Short:   "Add a user as a member of an API with the specified role",
-		Example: `  gio apim member add --api /my/api --user bbbb1111-2222-3333-4444-555566667777 --role OWNER`,
+		Example: `  gctl apim member add --api /my/api --user bbbb1111-2222-3333-4444-555566667777 --role OWNER`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -17,9 +17,9 @@ package user
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCredentialCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -44,8 +44,8 @@ func newCredentialListCmd(f *factory.Factory, domainID, userID *string) *cobra.C
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List user credentials",
-		Example: `  gio am user credential list --domain my-domain --user-id user-1
-  gio am user credential list --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user credential list --domain my-domain --user-id user-1
+  gctl am user credential list --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -79,8 +79,8 @@ func newCredentialGetCmd(f *factory.Factory, domainID, userID *string) *cobra.Co
 	return &cobra.Command{
 		Use:   "get <credentialID>",
 		Short: "Get user credential details",
-		Example: `  gio am user credential get cred-1 --domain my-domain --user-id user-1
-  gio am user credential get cred-1 --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user credential get cred-1 --domain my-domain --user-id user-1
+  gctl am user credential get cred-1 --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -106,7 +106,7 @@ func newCredentialRevokeCmd(f *factory.Factory, domainID, userID *string) *cobra
 	return &cobra.Command{
 		Use:     "revoke <credentialID>",
 		Short:   "Revoke a user credential",
-		Example: `  gio am user credential revoke cred-1 --domain my-domain --user-id user-1`,
+		Example: `  gctl am user credential revoke cred-1 --domain my-domain --user-id user-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

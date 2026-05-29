@@ -19,15 +19,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newLockCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "lock <userID>",
 		Short:   "Lock a user account",
-		Example: `  gio am user lock user-id --domain my-domain`,
+		Example: `  gctl am user lock user-id --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -43,7 +43,7 @@ func newUnlockCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "unlock <userID>",
 		Short:   "Unlock a user account",
-		Example: `  gio am user unlock user-id --domain my-domain`,
+		Example: `  gctl am user unlock user-id --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

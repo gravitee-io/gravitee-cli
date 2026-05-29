@@ -17,9 +17,9 @@ package flow
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update [-f <file>]",
 		Short: "Update flows from a JSON file or stdin (bulk update)",
-		Example: `  gio am flow update --domain my-domain --file flows.json
-  gio am flow update --domain my-domain -f flows.json
-  envsubst < flows.json | gio am flow update --domain my-domain`,
+		Example: `  gctl am flow update --domain my-domain --file flows.json
+  gctl am flow update --domain my-domain -f flows.json
+  envsubst < flows.json | gctl am flow update --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

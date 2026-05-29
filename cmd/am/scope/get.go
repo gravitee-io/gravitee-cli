@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type getOptions struct {
@@ -37,8 +37,8 @@ func newGetCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <scopeID>",
 		Short: "Get scope details",
-		Example: `  gio am scope get my-scope-id --domain my-domain
-  gio am scope get my-scope-id --domain my-domain -o json`,
+		Example: `  gctl am scope get my-scope-id --domain my-domain
+  gctl am scope get my-scope-id --domain my-domain -o json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

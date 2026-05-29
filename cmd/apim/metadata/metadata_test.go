@@ -17,7 +17,7 @@ package metadata
 import (
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/testutil"
+	"gravitee.io/gctl/internal/testutil"
 )
 
 func TestListMetadata(t *testing.T) {

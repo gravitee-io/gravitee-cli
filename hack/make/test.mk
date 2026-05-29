@@ -2,7 +2,7 @@
 
 ROOT_DIR ?= $(shell git -C $(CURDIR) rev-parse --show-toplevel)
 
-E2E_COMPOSE := docker compose -f $(ROOT_DIR)/e2e/docker-compose.yml -p gio-e2e
+E2E_COMPOSE := docker compose -f $(ROOT_DIR)/e2e/docker-compose.yml -p gctl-e2e
 
 .PHONY: test
 test: ## Run unit tests

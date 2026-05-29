@@ -19,17 +19,17 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newViewCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "view",
 		Short: "Display full details of the current context",
-		Example: `  gio context view
-  gio context view --context prod`,
+		Example: `  gctl context view
+  gctl context view --context prod`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return runView(f)
@@ -50,7 +50,7 @@ func runView(f *factory.Factory) error {
 	}
 
 	if contextName == "" {
-		return fmt.Errorf("no context configured\nHint: run 'gio login' to get started")
+		return fmt.Errorf("no context configured\nHint: run 'gctl login' to get started")
 	}
 
 	ctx, ok := cfg.Contexts[contextName]

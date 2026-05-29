@@ -17,9 +17,9 @@ package user
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newBulkCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newBulkCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bulk [-f <file>]",
 		Short: "Perform bulk user operations from a JSON file or stdin",
-		Example: `  gio am user bulk --domain my-domain --file operations.json
-  gio am user bulk --domain my-domain -f operations.json
-  envsubst < operations.json | gio am user bulk --domain my-domain`,
+		Example: `  gctl am user bulk --domain my-domain --file operations.json
+  gctl am user bulk --domain my-domain -f operations.json
+  envsubst < operations.json | gctl am user bulk --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

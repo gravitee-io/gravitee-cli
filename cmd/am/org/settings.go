@@ -17,9 +17,9 @@ package org
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgSettingsCmd(f *factory.Factory) *cobra.Command {
@@ -40,7 +40,7 @@ func newOrgSettingsGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get",
 		Short:   "Get organization settings",
-		Example: `  gio am org settings get`,
+		Example: `  gctl am org settings get`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -74,9 +74,9 @@ func newOrgSettingsUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update [-f <file>]",
 		Short: "Update organization settings from a JSON file or stdin",
-		Example: `  gio am org settings update --file settings.json
-  gio am org settings update -f settings.json
-  envsubst < settings.json | gio am org settings update`,
+		Example: `  gctl am org settings update --file settings.json
+  gctl am org settings update -f settings.json
+  envsubst < settings.json | gctl am org settings update`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newAppMemberCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -47,7 +47,7 @@ func newAppMemberListCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List application members",
-		Example: `  gio am app member list --domain my-domain --app-id my-app`,
+		Example: `  gctl am app member list --domain my-domain --app-id my-app`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -79,7 +79,7 @@ func newAppMemberAddCmd(f *factory.Factory, domainID, appID *string) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:     "add",
 		Short:   "Add a member to an application",
-		Example: `  gio am app member add --domain my-domain --app-id my-app --member-id user-1 --role owner`,
+		Example: `  gctl am app member add --domain my-domain --app-id my-app --member-id user-1 --role owner`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -125,7 +125,7 @@ func newAppMemberPermissionsCmd(f *factory.Factory, domainID, appID *string) *co
 	return &cobra.Command{
 		Use:     "permissions",
 		Short:   "Get application member permissions",
-		Example: `  gio am app member permissions --domain my-domain --app-id my-app`,
+		Example: `  gctl am app member permissions --domain my-domain --app-id my-app`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -151,7 +151,7 @@ func newAppMemberRemoveCmd(f *factory.Factory, domainID, appID *string) *cobra.C
 	return &cobra.Command{
 		Use:     "remove <memberID>",
 		Short:   "Remove a member from an application",
-		Example: `  gio am app member remove member-1 --domain my-domain --app-id my-app`,
+		Example: `  gctl am app member remove member-1 --domain my-domain --app-id my-app`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

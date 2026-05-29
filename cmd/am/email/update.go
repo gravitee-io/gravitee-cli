@@ -17,9 +17,9 @@ package email
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <emailID> [-f <file>]",
 		Short: "Update an email from a JSON file or stdin",
-		Example: `  gio am email update my-email-id --domain my-domain --file email.json
-  gio am email update my-email-id --domain my-domain -f email.json
-  envsubst < email.json | gio am email update my-email-id --domain my-domain`,
+		Example: `  gctl am email update my-email-id --domain my-domain --file email.json
+  gctl am email update my-email-id --domain my-domain -f email.json
+  envsubst < email.json | gctl am email update my-email-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -1,6 +1,6 @@
 {
-  "name": "gio-e2e-test-app",
-  "description": "Temporary application created by the gio smoke test. Safe to delete.",
+  "name": "gctl-e2e-test-app",
+  "description": "Temporary application created by the gctl smoke test. Safe to delete.",
   "settings": {
     "app": {
       "type": "WEB"

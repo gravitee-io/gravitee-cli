@@ -17,10 +17,10 @@ package metadata
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/apim"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/apim"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type listOptions struct {
@@ -37,8 +37,8 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list --api <apiId>",
 		Short: "List metadata for an API",
-		Example: `  gio apim metadata list --api /my/api
-  gio apim metadata list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --all`,
+		Example: `  gctl apim metadata list --api /my/api
+  gctl apim metadata list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --all`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -17,8 +17,8 @@ package health
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewHealthCmd creates the health command.
@@ -31,7 +31,7 @@ func NewHealthCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "health --api <apiId>",
 		Short:   "Get API health check availability",
-		Example: `  gio apim health --api /my/api`,
+		Example: `  gctl apim health --api /my/api`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

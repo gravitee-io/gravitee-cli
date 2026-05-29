@@ -17,9 +17,9 @@ package entrypoint
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory, _ *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newUpdateCmd(f *factory.Factory, _ *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <entrypointID> [-f <file>]",
 		Short: "Update an entrypoint from a JSON file or stdin",
-		Example: `  gio am entrypoint update my-entrypoint-id --domain my-domain --file entrypoint.json
-  gio am entrypoint update my-entrypoint-id --domain my-domain -f entrypoint.json
-  envsubst < entrypoint.json | gio am entrypoint update my-entrypoint-id --domain my-domain`,
+		Example: `  gctl am entrypoint update my-entrypoint-id --domain my-domain --file entrypoint.json
+  gctl am entrypoint update my-entrypoint-id --domain my-domain -f entrypoint.json
+  envsubst < entrypoint.json | gctl am entrypoint update my-entrypoint-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

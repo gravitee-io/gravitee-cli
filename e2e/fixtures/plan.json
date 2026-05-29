@@ -1,6 +1,6 @@
 {
   "name": "Smoke Test Plan",
-  "description": "API Key plan created by the gio smoke test",
+  "description": "API Key plan created by the gctl smoke test",
   "definitionVersion": "V4",
   "validation": "AUTO",
   "security": { "type": "API_KEY" },

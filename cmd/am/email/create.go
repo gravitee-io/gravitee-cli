@@ -17,9 +17,9 @@ package email
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an email from a JSON file or stdin",
-		Example: `  gio am email create --domain my-domain --file email.json
-  gio am email create --domain my-domain -f email.json
-  envsubst < email.json | gio am email create --domain my-domain`,
+		Example: `  gctl am email create --domain my-domain --file email.json
+  gctl am email create --domain my-domain -f email.json
+  envsubst < email.json | gctl am email create --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -42,7 +42,7 @@ var runSuffix = func() string {
 }()
 
 // writeFixture extracts an embedded fixture to a temp file, replacing the shared
-// "gio-e2e-test" token with a per-test unique value.
+// "gctl-e2e-test" token with a per-test unique value.
 func writeFixture(t *testing.T, name string) string {
 	t.Helper()
 
@@ -53,7 +53,7 @@ func writeFixture(t *testing.T, name string) string {
 
 	topLevel := strings.SplitN(t.Name(), "/", 2)[0]
 	suffix := strings.ToLower(topLevel) + "-" + runSuffix
-	data = bytes.ReplaceAll(data, []byte("gio-e2e-test"), []byte("gio-e2e-test-"+suffix))
+	data = bytes.ReplaceAll(data, []byte("gctl-e2e-test"), []byte("gctl-e2e-test-"+suffix))
 
 	path := filepath.Join(t.TempDir(), name)
 	if err := os.WriteFile(path, data, 0o600); err != nil {

@@ -18,10 +18,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/apim"
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/config"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/apim"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/config"
 )
 
 // IOStreams abstracts standard I/O for testability.

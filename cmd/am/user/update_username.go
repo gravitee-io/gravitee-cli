@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 type updateUsernameOptions struct {
@@ -35,7 +35,7 @@ func newUpdateUsernameCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update-username <userID>",
 		Short:   "Update a user's username",
-		Example: `  gio am user update-username user-1 --domain my-domain --username newname`,
+		Example: `  gctl am user update-username user-1 --domain my-domain --username newname`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type getOptions struct {
@@ -37,9 +37,9 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get [domainID]",
 		Short: "Get domain details",
-		Example: `  gio am domain get my-domain-id
-  gio am domain get --hrid my-domain-hrid
-  gio am domain get`,
+		Example: `  gctl am domain get my-domain-id
+  gctl am domain get --hrid my-domain-hrid
+  gctl am domain get`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -51,7 +51,7 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 			}
 
 			if opts.domainID == "" && opts.hrid == "" {
-				return fmt.Errorf("domain ID or --hrid is required\nHint: pass it as an argument: gio am domain get <domainID> or use --hrid")
+				return fmt.Errorf("domain ID or --hrid is required\nHint: pass it as an argument: gctl am domain get <domainID> or use --hrid")
 			}
 
 			return opts.run()

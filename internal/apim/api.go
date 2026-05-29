@@ -20,7 +20,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
+	"gravitee.io/gctl/internal/client"
 )
 
 // ListAPIsParams holds parameters for listing APIs.

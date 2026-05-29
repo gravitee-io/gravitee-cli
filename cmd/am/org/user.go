@@ -20,10 +20,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgUserCmd(f *factory.Factory) *cobra.Command {
@@ -61,7 +61,7 @@ func newOrgUserListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Short:   "List organization users",
-		Example: `  gio am org user list --per-page 20`,
+		Example: `  gctl am org user list --per-page 20`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -182,7 +182,7 @@ func newOrgUserGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <userID>",
 		Short:   "Get organization user details",
-		Example: `  gio am org user get user-id`,
+		Example: `  gctl am org user get user-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -242,9 +242,9 @@ func newOrgUserCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an organization user from a JSON file or stdin",
-		Example: `  gio am org user create --file user.json
-  gio am org user create -f user.json
-  envsubst < user.json | gio am org user create`,
+		Example: `  gctl am org user create --file user.json
+  gctl am org user create -f user.json
+  envsubst < user.json | gctl am org user create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -291,9 +291,9 @@ func newOrgUserUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <userID> [-f <file>]",
 		Short: "Update an organization user from a JSON file or stdin",
-		Example: `  gio am org user update user-id --file user.json
-  gio am org user update user-id -f user.json
-  envsubst < user.json | gio am org user update user-id`,
+		Example: `  gctl am org user update user-id --file user.json
+  gctl am org user update user-id -f user.json
+  envsubst < user.json | gctl am org user update user-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -338,7 +338,7 @@ func newOrgUserDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <userID>",
 		Short:   "Delete an organization user",
-		Example: `  gio am org user delete user-id`,
+		Example: `  gctl am org user delete user-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -373,7 +373,7 @@ func newOrgUserResetPasswordCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "reset-password <userID> --password <newPassword>",
 		Short:   "Reset an organization user's password",
-		Example: `  gio am org user reset-password user-id --password newSecret123`,
+		Example: `  gctl am org user reset-password user-id --password newSecret123`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -412,7 +412,7 @@ func newOrgUserUpdateStatusCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update-status <userID> --enabled <true|false>",
 		Short:   "Update an organization user's status",
-		Example: `  gio am org user update-status user-id --enabled true`,
+		Example: `  gctl am org user update-status user-id --enabled true`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -464,7 +464,7 @@ func newOrgUserUpdateUsernameCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update-username <userID>",
 		Short:   "Update an organization user's username",
-		Example: `  gio am org user update-username user-id --username newname`,
+		Example: `  gctl am org user update-username user-id --username newname`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -503,9 +503,9 @@ func newOrgUserBulkCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bulk [-f <file>]",
 		Short: "Perform bulk operations on organization users from a JSON file or stdin",
-		Example: `  gio am org user bulk --file operations.json
-  gio am org user bulk -f operations.json
-  envsubst < operations.json | gio am org user bulk`,
+		Example: `  gctl am org user bulk --file operations.json
+  gctl am org user bulk -f operations.json
+  envsubst < operations.json | gctl am org user bulk`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

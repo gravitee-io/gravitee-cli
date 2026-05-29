@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type updateOptions struct {
@@ -40,9 +40,9 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <domainID>",
 		Short: "Update a security domain",
-		Example: `  gio am domain update my-domain-id --name "New Name"
-  gio am domain update my-domain-id --description "Updated description"
-  gio am domain update my-domain-id --allow-localhost-redirect --allow-http-redirect`,
+		Example: `  gctl am domain update my-domain-id --name "New Name"
+  gctl am domain update my-domain-id --description "Updated description"
+  gctl am domain update my-domain-id --allow-localhost-redirect --allow-http-redirect`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

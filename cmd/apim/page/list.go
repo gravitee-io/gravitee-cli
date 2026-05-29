@@ -17,9 +17,9 @@ package page
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type listOptions struct {
@@ -34,8 +34,8 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list --api <apiId>",
 		Short: "List pages for an API",
-		Example: `  gio apim page list --api /my/api
-  gio apim page list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --parent ROOT`,
+		Example: `  gctl apim page list --api /my/api
+  gctl apim page list --api 8a7b3c4d-1234-5678-abcd-ef0123456789 --parent ROOT`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

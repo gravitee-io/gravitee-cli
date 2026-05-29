@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newAppFlowCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -46,7 +46,7 @@ func newAppFlowListCmd(f *factory.Factory, domainID, appID *string) *cobra.Comma
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List application flows",
-		Example: `  gio am app flow list --domain my-domain --app-id my-app`,
+		Example: `  gctl am app flow list --domain my-domain --app-id my-app`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -74,7 +74,7 @@ func newAppFlowGetCmd(f *factory.Factory, domainID, appID *string) *cobra.Comman
 	return &cobra.Command{
 		Use:     "get <flowID>",
 		Short:   "Get an application flow",
-		Example: `  gio am app flow get flow-1 --domain my-domain --app-id my-app`,
+		Example: `  gctl am app flow get flow-1 --domain my-domain --app-id my-app`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -102,9 +102,9 @@ func newAppFlowUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 	cmd := &cobra.Command{
 		Use:   "update [-f <file>]",
 		Short: "Update application flows from a JSON file or stdin (bulk update)",
-		Example: `  gio am app flow update --domain my-domain --app-id my-app --file flows.json
-  gio am app flow update --domain my-domain --app-id my-app -f flows.json
-  envsubst < flows.json | gio am app flow update --domain my-domain --app-id my-app`,
+		Example: `  gctl am app flow update --domain my-domain --app-id my-app --file flows.json
+  gctl am app flow update --domain my-domain --app-id my-app -f flows.json
+  envsubst < flows.json | gctl am app flow update --domain my-domain --app-id my-app`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

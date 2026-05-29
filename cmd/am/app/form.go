@@ -17,9 +17,9 @@ package app
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newAppFormCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -47,7 +47,7 @@ func newAppFormGetCmd(f *factory.Factory, domainID, appID *string) *cobra.Comman
 	cmd := &cobra.Command{
 		Use:     "get",
 		Short:   "Get an application form template",
-		Example: `  gio am app form get --domain my-domain --app-id my-app --template LOGIN`,
+		Example: `  gctl am app form get --domain my-domain --app-id my-app --template LOGIN`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -80,8 +80,8 @@ func newAppFormCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an application form template from a JSON file or stdin",
-		Example: `  gio am app form create --domain my-domain --app-id my-app --file form.json
-  envsubst < form.json | gio am app form create --domain my-domain --app-id my-app`,
+		Example: `  gctl am app form create --domain my-domain --app-id my-app --file form.json
+  envsubst < form.json | gctl am app form create --domain my-domain --app-id my-app`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -124,8 +124,8 @@ func newAppFormUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 	cmd := &cobra.Command{
 		Use:   "update <formID> [-f <file>]",
 		Short: "Update an application form template from a JSON file or stdin",
-		Example: `  gio am app form update form-1 --domain my-domain --app-id my-app --file form.json
-  envsubst < form.json | gio am app form update form-1 --domain my-domain --app-id my-app`,
+		Example: `  gctl am app form update form-1 --domain my-domain --app-id my-app --file form.json
+  envsubst < form.json | gctl am app form update form-1 --domain my-domain --app-id my-app`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -166,7 +166,7 @@ func newAppFormDeleteCmd(f *factory.Factory, domainID, appID *string) *cobra.Com
 	return &cobra.Command{
 		Use:     "delete <formID>",
 		Short:   "Delete an application form template",
-		Example: `  gio am app form delete form-1 --domain my-domain --app-id my-app`,
+		Example: `  gctl am app form delete form-1 --domain my-domain --app-id my-app`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

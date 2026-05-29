@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/testutil"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/testutil"
 )
 
 func TestResetPassword(t *testing.T) {

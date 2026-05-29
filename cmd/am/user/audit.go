@@ -19,10 +19,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUserAuditCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -60,9 +60,9 @@ func newUserAuditListCmd(f *factory.Factory, domainID, userID *string) *cobra.Co
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List user audits",
-		Example: `  gio am user audit list --domain my-domain --user-id user-1
-  gio am user audit list --domain my-domain --user-id user-1 --type LOGIN --status SUCCESS
-  gio am user audit list --domain my-domain --user-id user-1 --from 1609459200000 --to 1612137600000`,
+		Example: `  gctl am user audit list --domain my-domain --user-id user-1
+  gctl am user audit list --domain my-domain --user-id user-1 --type LOGIN --status SUCCESS
+  gctl am user audit list --domain my-domain --user-id user-1 --from 1609459200000 --to 1612137600000`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -131,8 +131,8 @@ func newUserAuditGetCmd(f *factory.Factory, domainID, userID *string) *cobra.Com
 	return &cobra.Command{
 		Use:   "get <auditID>",
 		Short: "Get user audit details",
-		Example: `  gio am user audit get audit-1 --domain my-domain --user-id user-1
-  gio am user audit get audit-1 --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user audit get audit-1 --domain my-domain --user-id user-1
+  gctl am user audit get audit-1 --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

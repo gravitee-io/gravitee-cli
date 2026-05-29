@@ -20,10 +20,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgAuditCmd(f *factory.Factory) *cobra.Command {
@@ -58,9 +58,9 @@ func newOrgAuditListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List organization audits",
-		Example: `  gio am org audit list
-  gio am org audit list --type USER_LOGIN --status SUCCESS
-  gio am org audit list --all`,
+		Example: `  gctl am org audit list
+  gctl am org audit list --type USER_LOGIN --status SUCCESS
+  gctl am org audit list --all`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -212,7 +212,7 @@ func newOrgAuditGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <auditID>",
 		Short:   "Get organization audit details",
-		Example: `  gio am org audit get my-audit-id`,
+		Example: `  gctl am org audit get my-audit-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

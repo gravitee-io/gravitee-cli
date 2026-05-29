@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 type resetPasswordOptions struct {
@@ -36,8 +36,8 @@ func newResetPasswordCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "reset-password <userID>",
 		Short: "Reset a user's password",
-		Example: `  echo -n 'newSecret123' | gio am user reset-password user-id --password-stdin
-  gio am user reset-password user-id  # interactive prompt`,
+		Example: `  echo -n 'newSecret123' | gctl am user reset-password user-id --password-stdin
+  gctl am user reset-password user-id  # interactive prompt`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

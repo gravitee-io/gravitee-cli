@@ -17,7 +17,7 @@ package auth
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewAuthCmd creates the `am auth` parent command. Bootstrap is a write
@@ -27,7 +27,7 @@ func NewAuthCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "auth",
 		Short:  "Authentication helpers for first-mile CLI setup",
-		Long:   "Authentication helpers intended for local development, CI lab setups, and demos.\nProduction users should mint PATs via the AM console and configure them with `gio context`.",
+		Long:   "Authentication helpers intended for local development, CI lab setups, and demos.\nProduction users should mint PATs via the AM console and configure them with `gctl context`.",
 		Hidden: true,
 	}
 

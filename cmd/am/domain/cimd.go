@@ -21,9 +21,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCIMDCmd(f *factory.Factory) *cobra.Command {
@@ -55,7 +55,7 @@ func newCIMDGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <domainID>",
 		Short:   "Show CIMD settings for a domain",
-		Example: `  gio am domain cimd get my-domain-id -o json`,
+		Example: `  gctl am domain cimd get my-domain-id -o json`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -102,8 +102,8 @@ func newCIMDEnableCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "enable <domainID>",
 		Short: "Enable CIMD on a domain and configure its settings",
-		Example: `  gio am domain cimd enable my-domain-id --template-id my-template-app
-  gio am domain cimd enable my-domain-id --allow-private --allow-http --allowed-domains "a.com,b.com"`,
+		Example: `  gctl am domain cimd enable my-domain-id --template-id my-template-app
+  gctl am domain cimd enable my-domain-id --allow-private --allow-http --allowed-domains "a.com,b.com"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -129,7 +129,7 @@ func newCIMDDisableCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "disable <domainID>",
 		Short:   "Disable CIMD on a domain",
-		Example: `  gio am domain cimd disable my-domain-id`,
+		Example: `  gctl am domain cimd disable my-domain-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

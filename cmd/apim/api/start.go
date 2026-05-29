@@ -19,15 +19,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newStartCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "start <apiId>",
 		Short:   "Start an API",
-		Example: `  gio apim api start /my/api`,
+		Example: `  gctl apim api start /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

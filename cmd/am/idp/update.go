@@ -17,9 +17,9 @@ package idp
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <idpID> [-f <file>]",
 		Short: "Update an identity provider from a JSON file or stdin",
-		Example: `  gio am idp update my-idp-id --domain my-domain --file idp.json
-  gio am idp update my-idp-id --domain my-domain -f idp.json
-  envsubst < idp.json | gio am idp update my-idp-id --domain my-domain`,
+		Example: `  gctl am idp update my-idp-id --domain my-domain --file idp.json
+  gctl am idp update my-idp-id --domain my-domain -f idp.json
+  envsubst < idp.json | gctl am idp update my-idp-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

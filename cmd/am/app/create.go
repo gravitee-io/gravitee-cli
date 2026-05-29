@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type createOptions struct {
@@ -40,8 +40,8 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create --name <name> --type <type>",
 		Short: "Create an application",
-		Example: `  gio am app create --domain my-domain --name "My App" --type web
-  gio am app create --domain my-domain --name "My App" --type browser --redirect-uris "http://localhost:4200/callback"`,
+		Example: `  gctl am app create --domain my-domain --name "My App" --type web
+  gctl am app create --domain my-domain --name "My App" --type browser --redirect-uris "http://localhost:4200/callback"`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

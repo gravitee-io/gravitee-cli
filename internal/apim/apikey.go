@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
+	"gravitee.io/gctl/internal/client"
 )
 
 // APIKeyService defines API key operations.

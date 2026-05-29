@@ -4,7 +4,7 @@ ROOT_DIR ?= $(shell git -C $(CURDIR) rev-parse --show-toplevel)
 
 ## Pull in tool.mk when run standalone so $(ADDLICENSE) + install-tools resolve.
 ## Guard prevents re-inclusion when already loaded by the root Makefile.
-ifndef GIO_TOOL_MK_LOADED
+ifndef GCTL_TOOL_MK_LOADED
 include $(ROOT_DIR)/hack/make/tool.mk
 endif
 
@@ -19,6 +19,11 @@ LICENSE_IGNORES := \
 
 .PHONY: lint
 lint: lint-sources lint-licenses ## Run every linter and fail on the first error
+
+.PHONY: fmt
+fmt: ## Format all Go sources with gofmt
+	@echo "Formatting Go sources ..."
+	@cd $(ROOT_DIR) && gofmt -w .
 
 .PHONY: lint-sources
 lint-sources: ## Run golangci-lint (includes go vet, gofmt, staticcheck, errcheck...)

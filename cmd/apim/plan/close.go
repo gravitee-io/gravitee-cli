@@ -17,9 +17,9 @@ package plan
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCloseCmd(f *factory.Factory) *cobra.Command {
@@ -28,7 +28,7 @@ func newCloseCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "close <planId> --api <apiId>",
 		Short:   "Close a plan permanently",
-		Example: `  gio apim plan close aaaa1111-2222-3333-4444-555566667777 --api /my/api`,
+		Example: `  gctl apim plan close aaaa1111-2222-3333-4444-555566667777 --api /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

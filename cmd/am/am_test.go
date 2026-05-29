@@ -17,7 +17,7 @@ package am
 import (
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // TestAMCmdROCommandsRegistered guards against RO subcommands drifting from NewAMCmdRO.

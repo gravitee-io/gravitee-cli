@@ -1,6 +1,6 @@
 ##@ 🛠️  Tools
 
-GIO_TOOL_MK_LOADED := 1
+GCTL_TOOL_MK_LOADED := 1
 
 ROOT_DIR ?= $(shell git -C $(CURDIR) rev-parse --show-toplevel)
 LOCALBIN ?= $(ROOT_DIR)/bin

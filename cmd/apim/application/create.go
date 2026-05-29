@@ -17,9 +17,9 @@ package application
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCreateCmd(f *factory.Factory) *cobra.Command {
@@ -28,8 +28,8 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an application from a JSON file or stdin",
-		Example: `  gio apim app create -f app.json
-  envsubst < app.json | gio apim app create`,
+		Example: `  gctl apim app create -f app.json
+  envsubst < app.json | gctl apim app create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

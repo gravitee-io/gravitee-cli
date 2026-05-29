@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newDeployCmd(f *factory.Factory) *cobra.Command {
@@ -31,8 +31,8 @@ func newDeployCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deploy <apiId>",
 		Short: "Deploy an API",
-		Example: `  gio apim api deploy /my/api
-  gio apim api deploy 8a7b3c4d-1234-5678-abcd-ef0123456789 --label "v2.1.0 hotfix"`,
+		Example: `  gctl apim api deploy /my/api
+  gctl apim api deploy 8a7b3c4d-1234-5678-abcd-ef0123456789 --label "v2.1.0 hotfix"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -61,7 +61,7 @@ func runDeploy(f *factory.Factory, apiID, label string) error {
 	if err := f.APIM().DeployAPI(apiID, label); err != nil {
 		var apiErr *client.APIError
 		if errors.As(err, &apiErr) && apiErr.Status == 400 {
-			return fmt.Errorf("%w\nHint: ensure the API has at least one published plan before deploying ('gio apim plan publish')", err)
+			return fmt.Errorf("%w\nHint: ensure the API has at least one published plan before deploying ('gctl apim plan publish')", err)
 		}
 
 		return err

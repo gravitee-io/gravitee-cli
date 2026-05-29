@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/testutil"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/testutil"
 )
 
 // --- List ---

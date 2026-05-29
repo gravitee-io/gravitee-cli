@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgUserTokenCmd(f *factory.Factory) *cobra.Command {
@@ -45,7 +45,7 @@ func newOrgUserTokenListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list --user-id <userID>",
 		Short:   "List access tokens for an organization user",
-		Example: `  gio am org user-token list --user-id my-user-id`,
+		Example: `  gctl am org user-token list --user-id my-user-id`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -81,7 +81,7 @@ func newOrgUserTokenCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create --user-id <userID> --name <token-name>",
 		Short:   "Create an access token for an organization user",
-		Example: `  gio am org user-token create --user-id my-user-id --name "my-token"`,
+		Example: `  gctl am org user-token create --user-id my-user-id --name "my-token"`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -127,7 +127,7 @@ func newOrgUserTokenRevokeCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "revoke <tokenID> --user-id <userID>",
 		Short:   "Revoke an access token for an organization user",
-		Example: `  gio am org user-token revoke my-token-id --user-id my-user-id`,
+		Example: `  gctl am org user-token revoke my-token-id --user-id my-user-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

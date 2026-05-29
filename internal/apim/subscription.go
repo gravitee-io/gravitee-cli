@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
+	"gravitee.io/gctl/internal/client"
 )
 
 // ListSubscriptionsParams holds parameters for listing subscriptions.

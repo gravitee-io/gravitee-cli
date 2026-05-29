@@ -21,13 +21,13 @@ limitations under the License.
   </picture>
 </p>
 
-# Contributing to gio
+# Contributing to gctl
 
 Thanks for taking the time to contribute. This guide walks through reporting issues, setting up your environment, and the conventions we expect for changes and releases.
 
 ## Reporting a bug or suggesting an enhancement
 
-Open an [issue](https://github.com/gravitee-io-labs/gio-cli/issues/new/choose) and follow the template that matches your request. Be sure to include the `gio` version (`gio version`), the Gravitee version you are targeting, and a minimal reproducer.
+Open an [issue](https://github.com/gravitee-io/gravitee-gctl/issues/new/choose) and follow the template that matches your request. Be sure to include the `gctl` version (`gctl version`), the Gravitee version you are targeting, and a minimal reproducer.
 
 ## Submitting a pull request
 
@@ -84,8 +84,8 @@ Every contributor and CI runs the exact same version of each tool (`addlicense`,
 ## Building locally
 
 ```bash
-make build     # builds ./dist/gio for your current platform
-./dist/gio --help
+make build     # builds ./dist/gctl for your current platform
+./dist/gctl --help
 ```
 
 Each `.mk` under `hack/make/` is self-sufficient: IntelliJ's gutter run and `make -f hack/make/build.mk build` both work without loading the root `Makefile` first.
@@ -101,7 +101,7 @@ make test-cover    # with coverage, generates cover.html
 
 ### End-to-end tests
 
-End-to-end tests boot a full APIM stack via Docker Compose (`e2e/docker-compose.yml`) and exercise `gio` against it. They are gated behind the `e2e` build tag to stay out of `go test ./...`.
+End-to-end tests boot a full APIM stack via Docker Compose (`e2e/docker-compose.yml`) and exercise `gctl` against it. They are gated behind the `e2e` build tag to stay out of `go test ./...`.
 
 ```bash
 make e2e-up        # start the e2e infra in the background, wait for healthy
@@ -191,8 +191,8 @@ This removes the GitHub Release and the Git tag.
 
 To add a new APIM or AM command, start from an existing one under `cmd/apim/` or `cmd/am/` and mirror the pattern (Cobra command, thin wrapper over an `internal/...` service).
 
-## The read-only binary (`gio-ro`)
+## The read-only binary (`gctl-ro`)
 
-`gio-ro` is a separate binary designed for agents and pipelines where write access must be structurally impossible. It is wired exclusively from `*CmdRO` constructors - write commands are absent, not just hidden behind a flag or a runtime check.
+`gctl-ro` is a separate binary designed for agents and pipelines where write access must be structurally impossible. It is wired exclusively from `*CmdRO` constructors - write commands are absent, not just hidden behind a flag or a runtime check.
 
 This only works if contributors keep it in sync: every package that has write operations must have a `*CmdRO` variant (list/get only), and that variant must be the one registered in `NewAPIMCmdRO` or `NewAMCmdRO`.

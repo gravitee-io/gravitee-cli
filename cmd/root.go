@@ -19,22 +19,22 @@ import (
 
 	"github.com/spf13/cobra"
 
-	amcmd "github.com/gravitee-io/gio-cli/cmd/am"
-	apimcmd "github.com/gravitee-io/gio-cli/cmd/apim"
-	contextcmd "github.com/gravitee-io/gio-cli/cmd/context"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	amcmd "gravitee.io/gctl/cmd/am"
+	apimcmd "gravitee.io/gctl/cmd/apim"
+	contextcmd "gravitee.io/gctl/cmd/context"
+	"gravitee.io/gctl/internal/factory"
 )
 
-// NewRootCmd creates the root gio command.
+// NewRootCmd creates the root gctl command.
 func NewRootCmd(version string) *cobra.Command {
 	f := &factory.Factory{
 		IOStreams: factory.DefaultIOStreams(),
 	}
 
 	cmd := &cobra.Command{
-		Use:           "gio",
-		Short:         "gio - Gravitee CLI",
-		Long:          "gio is a command-line interface for the Gravitee platform.",
+		Use:           "gctl",
+		Short:         "gctl - Gravitee CLI",
+		Long:          "gctl is a command-line interface for the Gravitee platform.",
 		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -56,16 +56,16 @@ func NewRootCmd(version string) *cobra.Command {
 	return cmd
 }
 
-// NewRootCmdRO creates the root gio-ro command with read-only subcommands only.
+// NewRootCmdRO creates the root gctl-ro command with read-only subcommands only.
 func NewRootCmdRO(version string) *cobra.Command {
 	f := &factory.Factory{
 		IOStreams: factory.DefaultIOStreams(),
 	}
 
 	cmd := &cobra.Command{
-		Use:           "gio-ro",
-		Short:         "gio-ro - Gravitee CLI (read-only)",
-		Long:          "gio-ro is a read-only command-line interface for the Gravitee platform. Only commands that do not modify state are available.",
+		Use:           "gctl-ro",
+		Short:         "gctl-ro - Gravitee CLI (read-only)",
+		Long:          "gctl-ro is a read-only command-line interface for the Gravitee platform. Only commands that do not modify state are available.",
 		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,

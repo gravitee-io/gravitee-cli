@@ -17,9 +17,9 @@ package analytics
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/apim"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/apim"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewAnalyticsCmd creates the analytics command.
@@ -42,7 +42,7 @@ func NewAnalyticsCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "analytics --api <apiId>",
 		Short:   "Get API analytics",
-		Example: `  gio apim analytics --api /my/api --type COUNT --from 1711497600000 --to 1711584000000`,
+		Example: `  gctl apim analytics --api /my/api --type COUNT --from 1711497600000 --to 1711584000000`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

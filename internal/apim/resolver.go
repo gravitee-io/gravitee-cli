@@ -55,7 +55,7 @@ func (s *service) ResolveAPI(pathOrID string) (string, error) {
 
 	switch len(matches) {
 	case 0:
-		return "", fmt.Errorf("no API found with context path %q (tip: `gio apim api list` to see available paths)", pathOrID)
+		return "", fmt.Errorf("no API found with context path %q (tip: `gctl apim api list` to see available paths)", pathOrID)
 	case 1:
 		return matches[0], nil
 	default:

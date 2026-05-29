@@ -17,8 +17,8 @@ package api
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newExportCmd(f *factory.Factory) *cobra.Command {
@@ -27,8 +27,8 @@ func newExportCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "export <apiId>",
 		Short: "Export an API definition",
-		Example: `  gio apim api export /my/api
-  gio apim api export 8a7b3c4d-1234-5678-abcd-ef0123456789 --exclude members --exclude pages`,
+		Example: `  gctl apim api export /my/api
+  gctl apim api export 8a7b3c4d-1234-5678-abcd-ef0123456789 --exclude members --exclude pages`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

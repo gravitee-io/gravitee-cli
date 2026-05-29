@@ -17,9 +17,9 @@ package page
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory) *cobra.Command {
@@ -31,8 +31,8 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <pageId> --api <apiId> [-f <file>]",
 		Short: "Update a page from a JSON file or stdin",
-		Example: `  gio apim page update aaaa1111-2222-3333-4444-555566667777 --api /my/api -f page-updated.json
-  envsubst < page-updated.json | gio apim page update aaaa1111-2222-3333-4444-555566667777 --api /my/api`,
+		Example: `  gctl apim page update aaaa1111-2222-3333-4444-555566667777 --api /my/api -f page-updated.json
+  envsubst < page-updated.json | gctl apim page update aaaa1111-2222-3333-4444-555566667777 --api /my/api`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -17,9 +17,9 @@ package trace
 import (
 	"bytes"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newTestFactory(c client.GraviteeClient) (*factory.Factory, *bytes.Buffer) {

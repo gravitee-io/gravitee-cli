@@ -17,17 +17,17 @@ package form
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newListCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List forms",
-		Example: `  gio am form list --domain my-domain
-  gio am forms list --domain my-domain`,
+		Example: `  gctl am form list --domain my-domain
+  gctl am forms list --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

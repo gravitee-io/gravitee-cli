@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 type revokeOptions struct {
@@ -35,7 +35,7 @@ func newRevokeCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "revoke <keyId> --api <apiId> --subscription <subId>",
 		Short:   "Revoke an API key",
-		Example: `  gio apim api-key revoke 1a2b3c4d --api 8a7b3c4d --subscription aaaa1111`,
+		Example: `  gctl apim api-key revoke 1a2b3c4d --api 8a7b3c4d --subscription aaaa1111`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

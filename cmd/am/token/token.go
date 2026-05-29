@@ -15,8 +15,8 @@
 package token
 
 import (
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewTokenCmdRO creates the token command with read-only subcommands.
@@ -30,7 +30,7 @@ func NewTokenCmdRO(f *factory.Factory) *cobra.Command {
 	return cmd
 }
 
-// NewTokenCmd creates the parent "gio am token" command.
+// NewTokenCmd creates the parent "gctl am token" command.
 func NewTokenCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "token",

@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/config"
+	"gravitee.io/gctl/internal/config"
 )
 
 func TestDiffObjects(t *testing.T) {

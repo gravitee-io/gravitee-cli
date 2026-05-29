@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type createOptions struct {
@@ -37,8 +37,8 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create --name <name>",
 		Short: "Create a security domain",
-		Example: `  gio am domain create --name "My Domain"
-  gio am domain create --name "My Domain" --description "Production domain"`,
+		Example: `  gctl am domain create --name "My Domain"
+  gctl am domain create --name "My Domain" --description "Production domain"`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

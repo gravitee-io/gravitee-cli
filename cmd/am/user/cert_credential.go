@@ -17,9 +17,9 @@ package user
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCertCredentialCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -45,8 +45,8 @@ func newCertCredentialListCmd(f *factory.Factory, domainID, userID *string) *cob
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List user certificate credentials",
-		Example: `  gio am user cert-credential list --domain my-domain --user-id user-1
-  gio am user cert-credential list --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user cert-credential list --domain my-domain --user-id user-1
+  gctl am user cert-credential list --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -80,7 +80,7 @@ func newCertCredentialGetCmd(f *factory.Factory, domainID, userID *string) *cobr
 	return &cobra.Command{
 		Use:     "get <credentialID>",
 		Short:   "Get a user certificate credential",
-		Example: `  gio am user cert-credential get cred-1 --domain my-domain --user-id user-1`,
+		Example: `  gctl am user cert-credential get cred-1 --domain my-domain --user-id user-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -108,9 +108,9 @@ func newCertCredentialEnrollCmd(f *factory.Factory, domainID, userID *string) *c
 	cmd := &cobra.Command{
 		Use:   "enroll [-f <file>]",
 		Short: "Enroll a user certificate credential from a JSON file or stdin",
-		Example: `  gio am user cert-credential enroll --domain my-domain --user-id user-1 --file cert.json
-  gio am user cert-credential enroll --domain my-domain --user-id user-1 -f cert.json
-  envsubst < cert.json | gio am user cert-credential enroll --domain my-domain --user-id user-1`,
+		Example: `  gctl am user cert-credential enroll --domain my-domain --user-id user-1 --file cert.json
+  gctl am user cert-credential enroll --domain my-domain --user-id user-1 -f cert.json
+  envsubst < cert.json | gctl am user cert-credential enroll --domain my-domain --user-id user-1`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -155,7 +155,7 @@ func newCertCredentialRevokeCmd(f *factory.Factory, domainID, userID *string) *c
 	return &cobra.Command{
 		Use:     "revoke <credentialID>",
 		Short:   "Revoke a user certificate credential",
-		Example: `  gio am user cert-credential revoke cred-1 --domain my-domain --user-id user-1`,
+		Example: `  gctl am user cert-credential revoke cred-1 --domain my-domain --user-id user-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

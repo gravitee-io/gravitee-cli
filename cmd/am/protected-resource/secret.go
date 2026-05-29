@@ -17,8 +17,8 @@ package protectedresource
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newSecretCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -41,7 +41,7 @@ func newSecretListCmd(f *factory.Factory, domainID, resourceID *string) *cobra.C
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List protected resource secrets",
-		Example: `  gio am protected-resource secret list --domain my-domain --resource-id pr-1`,
+		Example: `  gctl am protected-resource secret list --domain my-domain --resource-id pr-1`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

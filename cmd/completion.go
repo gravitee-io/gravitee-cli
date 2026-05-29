@@ -24,21 +24,21 @@ func newCompletionCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
 		Short: "Generate shell completion scripts",
-		Long: `Generate shell completion scripts for gio.
+		Long: `Generate shell completion scripts for gctl.
 
 To load completions:
 
   bash:
-    source <(gio completion bash)
+    source <(gctl completion bash)
 
   zsh:
-    echo "source <(gio completion zsh)" >> ~/.zshrc
+    echo "source <(gctl completion zsh)" >> ~/.zshrc
 
   fish:
-    gio completion fish | source
+    gctl completion fish | source
 
   powershell:
-    gio completion powershell | Out-String | Invoke-Expression`,
+    gctl completion powershell | Out-String | Invoke-Expression`,
 		Args:      cobra.ExactArgs(1),
 		ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
 		RunE: func(cmd *cobra.Command, args []string) error {

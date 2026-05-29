@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newAddCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -34,8 +34,8 @@ func newAddCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Add a member to a domain",
-		Example: `  gio am member add --domain my-domain --member-id user-123 --role role-456
-  gio am member add --domain my-domain --member-id user-123 --role role-456 --member-type USER`,
+		Example: `  gctl am member add --domain my-domain --member-id user-123 --role role-456
+  gctl am member add --domain my-domain --member-id user-123 --role role-456 --member-type USER`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

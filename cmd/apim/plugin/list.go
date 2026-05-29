@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 var validTypes = []string{"endpoints", "entrypoints", "policies"}
@@ -45,9 +45,9 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List plugins",
-		Example: `  gio apim plugin list
-  gio apim plugin list --type policies
-  gio apim plugin list --type endpoints -o json`,
+		Example: `  gctl apim plugin list
+  gctl apim plugin list --type policies
+  gctl apim plugin list --type endpoints -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

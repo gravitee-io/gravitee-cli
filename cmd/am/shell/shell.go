@@ -21,9 +21,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func splitArgs(input string) []string {

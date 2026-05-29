@@ -17,9 +17,9 @@ package reporter
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create a reporter from a JSON file or stdin",
-		Example: `  gio am reporter create --domain my-domain --file reporter.json
-  gio am reporter create --domain my-domain -f reporter.json
-  envsubst < reporter.json | gio am reporter create --domain my-domain`,
+		Example: `  gctl am reporter create --domain my-domain --file reporter.json
+  gctl am reporter create --domain my-domain -f reporter.json
+  envsubst < reporter.json | gctl am reporter create --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

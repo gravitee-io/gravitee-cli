@@ -19,7 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newStatusCmd(f *factory.Factory) *cobra.Command {

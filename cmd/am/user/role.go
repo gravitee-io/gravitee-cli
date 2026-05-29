@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newUserRoleCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -46,8 +46,8 @@ func newUserRoleListCmd(f *factory.Factory, domainID, userID *string) *cobra.Com
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List user roles",
-		Example: `  gio am user role list --domain my-domain --user-id user-1
-  gio am user role list --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user role list --domain my-domain --user-id user-1
+  gctl am user role list --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -86,7 +86,7 @@ func newUserRoleAssignCmd(f *factory.Factory, domainID, userID *string) *cobra.C
 	cmd := &cobra.Command{
 		Use:     "assign",
 		Short:   "Assign roles to a user",
-		Example: `  gio am user role assign --domain my-domain --user-id user-1 --roles role1,role2`,
+		Example: `  gctl am user role assign --domain my-domain --user-id user-1 --roles role1,role2`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -125,7 +125,7 @@ func newUserRoleRevokeCmd(f *factory.Factory, domainID, userID *string) *cobra.C
 	return &cobra.Command{
 		Use:     "revoke <roleID>",
 		Short:   "Revoke a role from a user",
-		Example: `  gio am user role revoke role-1 --domain my-domain --user-id user-1`,
+		Example: `  gctl am user role revoke role-1 --domain my-domain --user-id user-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

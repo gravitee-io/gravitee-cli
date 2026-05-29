@@ -17,7 +17,7 @@ package environment
 import (
 	"encoding/json"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
+	"gravitee.io/gctl/internal/client"
 )
 
 func environmentList(items ...map[string]string) *client.FakeClient {

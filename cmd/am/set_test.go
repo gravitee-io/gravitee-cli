@@ -21,8 +21,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func TestSetDomain(t *testing.T) {

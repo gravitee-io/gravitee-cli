@@ -17,9 +17,9 @@ package subscription
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newGetCmd(f *factory.Factory) *cobra.Command {
@@ -28,7 +28,7 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get <subId> --api <apiId>",
 		Short:   "Get subscription details",
-		Example: `  gio apim subscription get 34f8c9e7-68fd-4922-b8c9-e778fc790777 --api /my/api`,
+		Example: `  gctl apim subscription get 34f8c9e7-68fd-4922-b8c9-e778fc790777 --api /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

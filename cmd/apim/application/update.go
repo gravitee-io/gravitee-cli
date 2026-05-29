@@ -17,9 +17,9 @@ package application
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory) *cobra.Command {
@@ -28,8 +28,8 @@ func newUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <appId> [-f <file>]",
 		Short: "Update an application from a JSON file or stdin",
-		Example: `  gio apim app update aaaa1111-2222-3333-4444-555566667777 -f app-updated.json
-  envsubst < app-updated.json | gio apim app update aaaa1111-2222-3333-4444-555566667777`,
+		Example: `  gctl apim app update aaaa1111-2222-3333-4444-555566667777 -f app-updated.json
+  envsubst < app-updated.json | gctl apim app update aaaa1111-2222-3333-4444-555566667777`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

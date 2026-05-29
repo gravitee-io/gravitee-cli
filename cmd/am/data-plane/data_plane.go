@@ -17,8 +17,8 @@ package dataplane
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewDataPlaneCmd creates the data-plane parent command with all subcommands.
@@ -40,7 +40,7 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List data planes",
-		Example: `  gio am data-plane list`,
+		Example: `  gctl am data-plane list`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

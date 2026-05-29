@@ -17,7 +17,7 @@ package subscription
 import (
 	"encoding/json"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
+	"gravitee.io/gctl/internal/client"
 )
 
 func paginatedSubscriptions(items ...map[string]any) *client.FakeClient {

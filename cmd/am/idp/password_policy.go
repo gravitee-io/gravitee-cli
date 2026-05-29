@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newPasswordPolicyCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -47,8 +47,8 @@ func newPPAssignCmd(f *factory.Factory, domainID, idpID *string) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:   "assign --policy-id <policyID>",
 		Short: "Assign a password policy to an identity provider",
-		Example: `  gio am idp password-policy assign --domain my-domain --idp-id my-idp --policy-id pp-123
-  gio am idp password-policy assign --domain my-domain --idp-id my-idp --policy-id ""  # unassign`,
+		Example: `  gctl am idp password-policy assign --domain my-domain --idp-id my-idp --policy-id pp-123
+  gctl am idp password-policy assign --domain my-domain --idp-id my-idp --policy-id ""  # unassign`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

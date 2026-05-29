@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newRemoveCmd(f *factory.Factory) *cobra.Command {
@@ -29,7 +29,7 @@ func newRemoveCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "remove <memberId> --api <apiId>",
 		Short:   "Remove a member from an API",
-		Example: `  gio apim member remove bbbb1111-2222-3333-4444-555566667777 --api /my/api`,
+		Example: `  gctl apim member remove bbbb1111-2222-3333-4444-555566667777 --api /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

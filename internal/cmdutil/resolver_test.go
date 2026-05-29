@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/apim"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/apim"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newAPIMCmdWithFlag(f *factory.Factory) *cobra.Command {

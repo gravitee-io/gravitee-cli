@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type renewOptions struct {
@@ -37,8 +37,8 @@ func newRenewCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "renew --api <apiId> --subscription <subId>",
 		Short: "Generate a new API key for a subscription",
-		Example: `  gio apim api-key renew --api 8a7b3c4d --subscription aaaa1111
-  gio apim api-key renew --api 8a7b3c4d --subscription aaaa1111 -o json`,
+		Example: `  gctl apim api-key renew --api 8a7b3c4d --subscription aaaa1111
+  gctl apim api-key renew --api 8a7b3c4d --subscription aaaa1111 -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

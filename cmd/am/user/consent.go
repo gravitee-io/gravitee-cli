@@ -17,9 +17,9 @@ package user
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newConsentCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -44,8 +44,8 @@ func newConsentListCmd(f *factory.Factory, domainID, userID *string) *cobra.Comm
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List user consents",
-		Example: `  gio am user consent list --domain my-domain --user-id user-1
-  gio am user consent list --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user consent list --domain my-domain --user-id user-1
+  gctl am user consent list --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -79,7 +79,7 @@ func newConsentRevokeCmd(f *factory.Factory, domainID, userID *string) *cobra.Co
 	return &cobra.Command{
 		Use:     "revoke <consentID>",
 		Short:   "Revoke a user consent",
-		Example: `  gio am user consent revoke consent-1 --domain my-domain --user-id user-1`,
+		Example: `  gctl am user consent revoke consent-1 --domain my-domain --user-id user-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -106,7 +106,7 @@ func newConsentRevokeAllCmd(f *factory.Factory, domainID, userID *string) *cobra
 	return &cobra.Command{
 		Use:     "revoke-all",
 		Short:   "Revoke all user consents",
-		Example: `  gio am user consent revoke-all --domain my-domain --user-id user-1`,
+		Example: `  gctl am user consent revoke-all --domain my-domain --user-id user-1`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

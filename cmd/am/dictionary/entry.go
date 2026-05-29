@@ -17,9 +17,9 @@ package dictionary
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newEntryCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -43,7 +43,7 @@ func newEntryListCmd(f *factory.Factory, domainID, dictID *string) *cobra.Comman
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List dictionary entries",
-		Example: `  gio am dictionary entry list --domain my-domain --dict-id my-dict`,
+		Example: `  gctl am dictionary entry list --domain my-domain --dict-id my-dict`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -71,8 +71,8 @@ func newEntryUpdateCmd(f *factory.Factory, domainID, dictID *string) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:   "update [-f <file>]",
 		Short: "Update dictionary entries from a JSON file or stdin",
-		Example: `  gio am dictionary entry update --domain my-domain --dict-id my-dict --file entries.json
-  envsubst < entries.json | gio am dictionary entry update --domain my-domain --dict-id my-dict`,
+		Example: `  gctl am dictionary entry update --domain my-domain --dict-id my-dict --file entries.json
+  envsubst < entries.json | gctl am dictionary entry update --domain my-domain --dict-id my-dict`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

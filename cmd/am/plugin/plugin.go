@@ -15,8 +15,8 @@
 package plugin
 
 import (
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/factory"
 )
 
 var pluginTypes = map[string]string{

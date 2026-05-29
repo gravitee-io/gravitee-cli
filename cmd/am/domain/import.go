@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newImportCmd(f *factory.Factory) *cobra.Command {
@@ -29,8 +29,8 @@ func newImportCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "import <file>",
 		Short: "Import domain configuration from a JSON export file",
-		Example: `  gio am domain import domain-export.json
-  gio am domain import domain-export.json --target existing-domain-id`,
+		Example: `  gctl am domain import domain-export.json
+  gctl am domain import domain-export.json --target existing-domain-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireAMContext(f); err != nil {

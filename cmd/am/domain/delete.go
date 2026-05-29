@@ -17,15 +17,15 @@ package domain
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <domainID>",
 		Short:   "Delete a security domain",
-		Example: `  gio am domain delete my-domain-id`,
+		Example: `  gctl am domain delete my-domain-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

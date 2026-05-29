@@ -17,10 +17,10 @@ package context
 import (
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 type setOptions struct {
@@ -35,9 +35,9 @@ func newSetCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set <name>",
 		Short: "Create or update shared fields of a context",
-		Long:  "Create or update shared fields (org, env) of a context. Use 'gio login' to set product URLs and tokens.",
-		Example: `  gio context set prod --org ACME --env production
-  gio context set dev --org DEV --env development`,
+		Long:  "Create or update shared fields (org, env) of a context. Use 'gctl login' to set product URLs and tokens.",
+		Example: `  gctl context set prod --org ACME --env production
+  gctl context set dev --org DEV --env development`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return opts.run(cmd, args[0])

@@ -17,7 +17,7 @@ package apim
 import (
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
+	"gravitee.io/gctl/internal/client"
 )
 
 // MetadataService defines metadata-related operations.

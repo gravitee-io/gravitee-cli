@@ -8,16 +8,16 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev
 LDFLAGS = -ldflags "-X main.version=$(VERSION)"
 
 ## Pull in tool.mk when run standalone so $(GORELEASER) + install-tools resolve.
-ifndef GIO_TOOL_MK_LOADED
+ifndef GCTL_TOOL_MK_LOADED
 include $(ROOT_DIR)/hack/make/tool.mk
 endif
 
 .PHONY: build
-build: ## Build gio and gio-ro for the current platform into dist/
-	@echo "Building gio $(VERSION) ..."
-	@cd $(ROOT_DIR) && go build $(LDFLAGS) -o dist/gio .
-	@echo "Building gio-ro $(VERSION) ..."
-	@cd $(ROOT_DIR) && go build $(LDFLAGS) -o dist/gio-ro ./cmd/gio-ro
+build: ## Build gctl and gctl-ro for the current platform into dist/
+	@echo "Building gctl $(VERSION) ..."
+	@cd $(ROOT_DIR) && go build $(LDFLAGS) -o dist/gctl .
+	@echo "Building gctl-ro $(VERSION) ..."
+	@cd $(ROOT_DIR) && go build $(LDFLAGS) -o dist/gctl-ro ./cmd/gctl-ro
 
 .PHONY: release-check
 release-check: $(GORELEASER) ## Validate .goreleaser.yaml

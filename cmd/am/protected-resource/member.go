@@ -17,8 +17,8 @@ package protectedresource
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newMemberCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -42,7 +42,7 @@ func newMemberListCmd(f *factory.Factory, domainID, resourceID *string) *cobra.C
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List protected resource members",
-		Example: `  gio am protected-resource member list --domain my-domain --resource-id pr-1`,
+		Example: `  gctl am protected-resource member list --domain my-domain --resource-id pr-1`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -68,7 +68,7 @@ func newMemberRemoveCmd(f *factory.Factory, domainID, resourceID *string) *cobra
 	return &cobra.Command{
 		Use:     "remove <memberID>",
 		Short:   "Remove a member from a protected resource",
-		Example: `  gio am protected-resource member remove member-1 --domain my-domain --resource-id pr-1`,
+		Example: `  gctl am protected-resource member remove member-1 --domain my-domain --resource-id pr-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

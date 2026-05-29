@@ -17,9 +17,9 @@ package api
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newImportCmd(f *factory.Factory) *cobra.Command {
@@ -28,8 +28,8 @@ func newImportCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "import [-f <file>]",
 		Short: "Import an API definition from a JSON file or stdin",
-		Example: `  gio apim api import -f weather-api.json
-  envsubst < weather-api.json | gio apim api import`,
+		Example: `  gctl apim api import -f weather-api.json
+  envsubst < weather-api.json | gctl apim api import`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

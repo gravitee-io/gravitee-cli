@@ -21,10 +21,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newSettingsCmd(f *factory.Factory) *cobra.Command {
@@ -41,9 +41,9 @@ func newSettingsCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "settings <appId>",
 		Short: "View or update OAuth2 settings for an application",
-		Example: `  gio am app settings my-app-id
-  gio am app settings my-app-id --grant-types "authorization_code,refresh_token"
-  gio am app settings my-app-id --redirect-uris "https://myapp.com/callback"`,
+		Example: `  gctl am app settings my-app-id
+  gctl am app settings my-app-id --grant-types "authorization_code,refresh_token"
+  gctl am app settings my-app-id --redirect-uris "https://myapp.com/callback"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := cmdutil.RequireAMDomain(f); err != nil {

@@ -79,16 +79,16 @@ func TestMain(m *testing.M) {
 
 	// Env vars bypass the config file entirely (see cmdutil.ResolveProductContext).
 	// The login/config persistence flow has its own dedicated test in login_config_test.go.
-	os.Setenv("GIO_AM_URL", amURL)
-	os.Setenv("GIO_AM_TOKEN", amToken)
-	os.Setenv("GIO_APIM_URL", apimURL)
-	os.Setenv("GIO_APIM_TOKEN", apimToken)
+	os.Setenv("GCTL_AM_URL", amURL)
+	os.Setenv("GCTL_AM_TOKEN", amToken)
+	os.Setenv("GCTL_APIM_URL", apimURL)
+	os.Setenv("GCTL_APIM_TOKEN", apimToken)
 
 	os.Exit(m.Run())
 }
 
 func buildCLI() (string, error) {
-	binary := "../dist/gio-e2e-test"
+	binary := "../dist/gctl-e2e-test"
 
 	cmd := exec.Command("go", "build", "-o", binary, "..")
 	cmd.Stdout = os.Stdout
@@ -179,7 +179,7 @@ func fetchAPIMToken() (string, error) {
 		return "", fmt.Errorf("login: %w", err)
 	}
 
-	tokenName := fmt.Sprintf("gio-e2e-%d", time.Now().UnixNano())
+	tokenName := fmt.Sprintf("gctl-e2e-%d", time.Now().UnixNano())
 
 	req, _ := http.NewRequest("POST",
 		apimURL+"/management/organizations/DEFAULT/users/"+userID+"/tokens",

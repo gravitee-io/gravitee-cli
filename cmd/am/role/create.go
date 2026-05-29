@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type createOptions struct {
@@ -37,8 +37,8 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create --name <name>",
 		Short: "Create a role",
-		Example: `  gio am role create --domain my-domain --name "Admin"
-  gio am role create --domain my-domain --name "Admin" --description "Administrator role"`,
+		Example: `  gctl am role create --domain my-domain --name "Admin"
+  gctl am role create --domain my-domain --name "Admin" --description "Administrator role"`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

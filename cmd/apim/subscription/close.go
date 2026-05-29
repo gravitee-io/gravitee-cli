@@ -17,9 +17,9 @@ package subscription
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCloseCmd(f *factory.Factory) *cobra.Command {
@@ -28,7 +28,7 @@ func newCloseCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "close <subId> --api <apiId>",
 		Short:   "Close a subscription permanently",
-		Example: `  gio apim subscription close 34f8c9e7 --api 8a7b3c4d`,
+		Example: `  gctl apim subscription close 34f8c9e7 --api 8a7b3c4d`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

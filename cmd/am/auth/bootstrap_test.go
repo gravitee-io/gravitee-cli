@@ -25,8 +25,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // fakeJWT builds a JWT whose payload carries the given sub claim. The
@@ -101,7 +101,7 @@ func TestBootstrapMintsToken(t *testing.T) {
 		amURL:     srv.URL,
 		username:  "admin",
 		password:  "adminadmin",
-		tokenName: "gio-cli",
+		tokenName: "gctl",
 		org:       "DEFAULT",
 	}
 
@@ -124,7 +124,7 @@ func TestBootstrapSavesConfig(t *testing.T) {
 		amURL:       srv.URL,
 		username:    "admin",
 		password:    "adminadmin",
-		tokenName:   "gio-cli",
+		tokenName:   "gctl",
 		org:         "DEFAULT",
 		save:        true,
 		contextName: "local",
@@ -158,7 +158,7 @@ func TestBootstrapBadCredentials(t *testing.T) {
 		amURL:     srv.URL,
 		username:  "admin",
 		password:  "wrong",
-		tokenName: "gio-cli",
+		tokenName: "gctl",
 		org:       "DEFAULT",
 	}
 
@@ -194,7 +194,7 @@ func TestBootstrapFallsBackToResolvedURL(t *testing.T) {
 		factory:   f,
 		username:  "admin",
 		password:  "adminadmin",
-		tokenName: "gio-cli",
+		tokenName: "gctl",
 		org:       "DEFAULT",
 	}
 

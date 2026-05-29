@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newSecretCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -48,8 +48,8 @@ func newSecretRenewCmd(f *factory.Factory, domainID, appID *string) *cobra.Comma
 	return &cobra.Command{
 		Use:   "renew <secretID>",
 		Short: "Renew an application secret (rotate it and return the new value)",
-		Example: `  gio am app secret renew my-secret-id --domain my-domain --app-id my-app
-  gio am app secret renew my-secret-id --domain my-domain --app-id my-app -o json`,
+		Example: `  gctl am app secret renew my-secret-id --domain my-domain --app-id my-app
+  gctl am app secret renew my-secret-id --domain my-domain --app-id my-app -o json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -104,8 +104,8 @@ func newSecretListCmd(f *factory.Factory, domainID, appID *string) *cobra.Comman
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List application secrets",
-		Example: `  gio am app secret list --domain my-domain --app-id my-app
-  gio am app secret list --domain my-domain --app-id my-app -o json`,
+		Example: `  gctl am app secret list --domain my-domain --app-id my-app
+  gctl am app secret list --domain my-domain --app-id my-app -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -133,7 +133,7 @@ func newSecretCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:     "create",
 		Short:   "Create an application secret",
-		Example: `  gio am app secret create --domain my-domain --app-id my-app --name "my secret"`,
+		Example: `  gctl am app secret create --domain my-domain --app-id my-app --name "my secret"`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -172,7 +172,7 @@ func newSecretDeleteCmd(f *factory.Factory, domainID, appID *string) *cobra.Comm
 	return &cobra.Command{
 		Use:     "delete <secretID>",
 		Short:   "Delete an application secret",
-		Example: `  gio am app secret delete my-secret-id --domain my-domain --app-id my-app`,
+		Example: `  gctl am app secret delete my-secret-id --domain my-domain --app-id my-app`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

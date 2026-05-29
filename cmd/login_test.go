@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func setupInteractiveTest(t *testing.T, cfg *config.Config, input string) (*factory.Factory, *bytes.Buffer) {

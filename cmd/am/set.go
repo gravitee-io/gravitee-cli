@@ -17,9 +17,9 @@ package am
 import (
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 type setDomainOptions struct {
@@ -43,7 +43,7 @@ func newSetDomainCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "domain <id>",
 		Short:   "Set active AM domain",
-		Example: "  gio am set domain my-domain-id\n  gio am set domain --clear",
+		Example: "  gctl am set domain my-domain-id\n  gctl am set domain --clear",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireAMContext(f); err != nil {

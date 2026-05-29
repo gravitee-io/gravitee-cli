@@ -1,5 +1,5 @@
 {
-  "name": "gio-e2e-test",
+  "name": "gctl-e2e-test",
   "apiVersion": "1.0.1",
   "definitionVersion": "V4",
   "type": "PROXY",
@@ -7,7 +7,7 @@
   "listeners": [
     {
       "type": "HTTP",
-      "paths": [{ "path": "/gio-e2e-test" }],
+      "paths": [{ "path": "/gctl-e2e-test" }],
       "entrypoints": [{ "type": "http-proxy" }]
     }
   ],

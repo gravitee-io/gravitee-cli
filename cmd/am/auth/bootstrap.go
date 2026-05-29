@@ -30,9 +30,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 const sessionCookieName = "Auth-Graviteeio-AM"
@@ -67,10 +67,10 @@ the session cookie, then POSTs to /organizations/{org}/users/{userId}/tokens to
 mint a PAT.
 
 Useful for local-stack first-time CLI setup (e.g. admin/adminadmin), avoiding
-the UI click-through that's currently required before 'gio login am'.`,
-		Example: `  gio am auth bootstrap --url http://localhost:8093 --user admin --password-stdin --save
-  gio am auth bootstrap --url http://localhost:8093 --user admin --password adminadmin
-  gio am auth bootstrap --user admin --password-stdin --token-name ci-token --save`,
+the UI click-through that's currently required before 'gctl login am'.`,
+		Example: `  gctl am auth bootstrap --url http://localhost:8093 --user admin --password-stdin --save
+  gctl am auth bootstrap --url http://localhost:8093 --user admin --password adminadmin
+  gctl am auth bootstrap --user admin --password-stdin --token-name ci-token --save`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			// Don't follow redirects — AM's /management/auth/login returns a 302
@@ -91,10 +91,10 @@ the UI click-through that's currently required before 'gio login am'.`,
 	cmd.Flags().StringVar(&opts.username, "user", "", "Username (required)")
 	cmd.Flags().StringVar(&opts.password, "password", "", "Password (use --password-stdin to avoid leaks)")
 	cmd.Flags().BoolVar(&opts.passwordStdin, "password-stdin", false, "Read password from stdin")
-	cmd.Flags().StringVar(&opts.tokenName, "token-name", "gio-cli", "Name to give the minted PAT")
+	cmd.Flags().StringVar(&opts.tokenName, "token-name", "gctl", "Name to give the minted PAT")
 	cmd.Flags().StringVar(&opts.org, "org", config.DefaultOrg, "Organization ID")
 	cmd.Flags().StringVar(&opts.contextName, "context", "", "Context name to update when --save is set (defaults to current context)")
-	cmd.Flags().BoolVar(&opts.save, "save", false, "Write the minted PAT into ~/.gio/config.yaml for the chosen context")
+	cmd.Flags().BoolVar(&opts.save, "save", false, "Write the minted PAT into ~/.gctl/config.yaml for the chosen context")
 	_ = cmd.MarkFlagRequired("user")
 
 	return cmd
@@ -159,7 +159,7 @@ func (o *bootstrapOptions) resolveURL() error {
 		return nil
 	}
 
-	return fmt.Errorf("no AM URL: pass --url or configure a context with 'gio login am'")
+	return fmt.Errorf("no AM URL: pass --url or configure a context with 'gctl login am'")
 }
 
 func loginAndGetCookie(ctx context.Context, httpClient bootstrapClient, amURL, username, password string) (string, error) {

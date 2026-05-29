@@ -17,8 +17,8 @@ package group
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newMemberCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -43,7 +43,7 @@ func newMemberListCmd(f *factory.Factory, domainID, groupID *string) *cobra.Comm
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List group members",
-		Example: `  gio am group member list --domain my-domain --group-id my-group`,
+		Example: `  gctl am group member list --domain my-domain --group-id my-group`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -69,7 +69,7 @@ func newMemberAddCmd(f *factory.Factory, domainID, groupID *string) *cobra.Comma
 	return &cobra.Command{
 		Use:     "add <userID>",
 		Short:   "Add a member to a group",
-		Example: `  gio am group member add user-123 --domain my-domain --group-id my-group`,
+		Example: `  gctl am group member add user-123 --domain my-domain --group-id my-group`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -96,7 +96,7 @@ func newMemberRemoveCmd(f *factory.Factory, domainID, groupID *string) *cobra.Co
 	return &cobra.Command{
 		Use:     "remove <memberID>",
 		Short:   "Remove a member from a group",
-		Example: `  gio am group member remove member-123 --domain my-domain --group-id my-group`,
+		Example: `  gctl am group member remove member-123 --domain my-domain --group-id my-group`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

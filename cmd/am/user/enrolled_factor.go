@@ -17,9 +17,9 @@ package user
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newEnrolledFactorCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -43,8 +43,8 @@ func newEnrolledFactorListCmd(f *factory.Factory, domainID, userID *string) *cob
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List user enrolled factors",
-		Example: `  gio am user factor list --domain my-domain --user-id user-1
-  gio am user factor list --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user factor list --domain my-domain --user-id user-1
+  gctl am user factor list --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -78,7 +78,7 @@ func newEnrolledFactorDeleteCmd(f *factory.Factory, domainID, userID *string) *c
 	return &cobra.Command{
 		Use:     "delete <factorID>",
 		Short:   "Delete a user enrolled factor",
-		Example: `  gio am user factor delete factor-1 --domain my-domain --user-id user-1`,
+		Example: `  gctl am user factor delete factor-1 --domain my-domain --user-id user-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

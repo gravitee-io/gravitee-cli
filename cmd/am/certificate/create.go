@@ -17,9 +17,9 @@ package certificate
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newCreateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create a certificate from a JSON file or stdin",
-		Example: `  gio am certificate create --domain my-domain --file cert.json
-  gio am cert create --domain my-domain -f cert.json
-  envsubst < cert.json | gio am cert create --domain my-domain`,
+		Example: `  gctl am certificate create --domain my-domain --file cert.json
+  gctl am cert create --domain my-domain -f cert.json
+  envsubst < cert.json | gctl am cert create --domain my-domain`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

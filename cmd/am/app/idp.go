@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newAppIdpCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -42,7 +42,7 @@ func newAppIdpListCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list <appID>",
 		Short:   "List identity providers bound to an application",
-		Example: `  gio am app idp list my-app --domain my-domain`,
+		Example: `  gctl am app idp list my-app --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -77,8 +77,8 @@ func newAppIdpAddCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add <appID> <idpID>",
 		Short: "Bind an identity provider to an application",
-		Example: `  gio am app idp add my-app my-idp --domain my-domain
-  gio am app idp add my-app my-idp --domain my-domain --priority 10`,
+		Example: `  gctl am app idp add my-app my-idp --domain my-domain
+  gctl am app idp add my-app my-idp --domain my-domain --priority 10`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -99,7 +99,7 @@ func newAppIdpRemoveCmd(f *factory.Factory, domainID *string) *cobra.Command {
 		Use:     "remove <appID> <idpID>",
 		Aliases: []string{"rm", "delete"},
 		Short:   "Remove an identity provider binding from an application",
-		Example: `  gio am app idp remove my-app my-idp --domain my-domain`,
+		Example: `  gctl am app idp remove my-app my-idp --domain my-domain`,
 		Args:    cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

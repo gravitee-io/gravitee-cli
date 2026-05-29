@@ -17,10 +17,10 @@ package subscription
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/apim"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/apim"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type createOptions struct {
@@ -37,7 +37,7 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create --api <apiId> --plan <planId> --app <appId>",
 		Short:   "Create a subscription",
-		Example: `  gio apim subscription create --api 8a7b3c4d --plan a1b2c3d4 --app e5f6a7b8`,
+		Example: `  gctl apim subscription create --api 8a7b3c4d --plan a1b2c3d4 --app e5f6a7b8`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

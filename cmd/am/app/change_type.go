@@ -21,9 +21,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newChangeTypeCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -35,8 +35,8 @@ func newChangeTypeCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "change-type",
 		Short: "Change the type of an application",
-		Example: `  gio am app change-type --domain my-domain --app-id my-app --type browser
-  gio am app change-type --domain my-domain --app-id my-app --type web`,
+		Example: `  gctl am app change-type --domain my-domain --app-id my-app --type browser
+  gctl am app change-type --domain my-domain --app-id my-app --type web`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

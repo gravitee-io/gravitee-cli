@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgTagCmd(f *factory.Factory) *cobra.Command {
@@ -45,7 +45,7 @@ func newOrgTagListCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List organization sharding tags",
-		Example: `  gio am org tag list`,
+		Example: `  gctl am org tag list`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -75,7 +75,7 @@ func newOrgTagGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <tagID>",
 		Short:   "Get organization sharding tag details",
-		Example: `  gio am org tag get my-tag-id`,
+		Example: `  gctl am org tag get my-tag-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -110,8 +110,8 @@ func newOrgTagCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create --name <tag-name> [--description <description>]",
 		Short: "Create an organization sharding tag",
-		Example: `  gio am org tag create --name "my-tag"
-  gio am org tag create --name "my-tag" --description "Tag description"`,
+		Example: `  gctl am org tag create --name "my-tag"
+  gctl am org tag create --name "my-tag" --description "Tag description"`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -159,9 +159,9 @@ func newOrgTagUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <tagID> [-f <file>]",
 		Short: "Update an organization sharding tag from a JSON file or stdin",
-		Example: `  gio am org tag update my-tag-id --file tag.json
-  gio am org tag update my-tag-id -f tag.json
-  envsubst < tag.json | gio am org tag update my-tag-id`,
+		Example: `  gctl am org tag update my-tag-id --file tag.json
+  gctl am org tag update my-tag-id -f tag.json
+  envsubst < tag.json | gctl am org tag update my-tag-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -200,7 +200,7 @@ func newOrgTagDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <tagID>",
 		Short:   "Delete an organization sharding tag",
-		Example: `  gio am org tag delete my-tag-id`,
+		Example: `  gctl am org tag delete my-tag-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

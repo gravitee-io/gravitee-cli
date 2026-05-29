@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgGroupCmd(f *factory.Factory) *cobra.Command {
@@ -47,7 +47,7 @@ func newOrgGroupListCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List organization groups",
-		Example: `  gio am org group list`,
+		Example: `  gctl am org group list`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -79,7 +79,7 @@ func newOrgGroupGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <groupID>",
 		Short:   "Get organization group details",
-		Example: `  gio am org group get group-id`,
+		Example: `  gctl am org group get group-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -136,9 +136,9 @@ func newOrgGroupCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an organization group from a JSON file or stdin",
-		Example: `  gio am org group create --file group.json
-  gio am org group create -f group.json
-  envsubst < group.json | gio am org group create`,
+		Example: `  gctl am org group create --file group.json
+  gctl am org group create -f group.json
+  envsubst < group.json | gctl am org group create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -185,9 +185,9 @@ func newOrgGroupUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <groupID> [-f <file>]",
 		Short: "Update an organization group from a JSON file or stdin",
-		Example: `  gio am org group update group-id --file group.json
-  gio am org group update group-id -f group.json
-  envsubst < group.json | gio am org group update group-id`,
+		Example: `  gctl am org group update group-id --file group.json
+  gctl am org group update group-id -f group.json
+  envsubst < group.json | gctl am org group update group-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -232,7 +232,7 @@ func newOrgGroupDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <groupID>",
 		Short:   "Delete an organization group",
-		Example: `  gio am org group delete group-id`,
+		Example: `  gctl am org group delete group-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newEvaluateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -29,7 +29,7 @@ func newEvaluateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "evaluate <policyID> --password <password>",
 		Short:   "Evaluate a password against a policy",
-		Example: `  gio am password-policy evaluate policy-123 --domain my-domain --password "test123"`,
+		Example: `  gctl am password-policy evaluate policy-123 --domain my-domain --password "test123"`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -17,9 +17,9 @@ package authdevicenotifier
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -28,9 +28,9 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <authDeviceNotifierID> [-f <file>]",
 		Short: "Update an auth device notifier from a JSON file or stdin",
-		Example: `  gio am auth-device-notifier update my-adn-id --domain my-domain --file adn.json
-  gio am auth-device-notifier update my-adn-id --domain my-domain -f adn.json
-  envsubst < adn.json | gio am auth-device-notifier update my-adn-id --domain my-domain`,
+		Example: `  gctl am auth-device-notifier update my-adn-id --domain my-domain --file adn.json
+  gctl am auth-device-notifier update my-adn-id --domain my-domain -f adn.json
+  envsubst < adn.json | gctl am auth-device-notifier update my-adn-id --domain my-domain`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

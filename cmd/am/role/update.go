@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 type updateOptions struct {
@@ -39,8 +39,8 @@ func newUpdateCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <roleID>",
 		Short: "Update a role",
-		Example: `  gio am role update my-role-id --domain my-domain --name "New Name"
-  gio am role update my-role-id --domain my-domain --description "Updated description"`,
+		Example: `  gctl am role update my-role-id --domain my-domain --name "New Name"
+  gctl am role update my-role-id --domain my-domain --description "Updated description"`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

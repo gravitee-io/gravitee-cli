@@ -17,7 +17,7 @@ package context
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // NewContextCmd creates the context parent command with all subcommands.

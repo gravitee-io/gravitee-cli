@@ -17,8 +17,8 @@ package am
 import (
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/config"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/config"
 )
 
 // Service defines all AM management operations.

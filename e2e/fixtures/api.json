@@ -1,13 +1,13 @@
 {
-  "name": "gio-e2e-test",
+  "name": "gctl-e2e-test",
   "apiVersion": "1.0.0",
   "definitionVersion": "V4",
   "type": "PROXY",
-  "description": "Temporary API created by the gio smoke test. Safe to delete.",
+  "description": "Temporary API created by the gctl smoke test. Safe to delete.",
   "listeners": [
     {
       "type": "HTTP",
-      "paths": [{ "path": "/gio-e2e-test" }],
+      "paths": [{ "path": "/gctl-e2e-test" }],
       "entrypoints": [{ "type": "http-proxy" }]
     }
   ],

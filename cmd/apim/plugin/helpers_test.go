@@ -17,7 +17,7 @@ package plugin
 import (
 	"encoding/json"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
+	"gravitee.io/gctl/internal/client"
 )
 
 func pluginList(items ...map[string]string) *client.FakeClient {

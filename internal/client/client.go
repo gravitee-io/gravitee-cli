@@ -46,7 +46,7 @@ func MapHTTPError(status int, body []byte) *APIError {
 	case 400:
 		return newAPIError(status, "invalid request", body, "")
 	case 401:
-		return newAPIError(status, "authentication failed", body, "run 'gio login' to configure your credentials")
+		return newAPIError(status, "authentication failed", body, "run 'gctl login' to configure your credentials")
 	case 403:
 		return newAPIError(status, "access denied", body, "check your token permissions for this operation")
 	case 404:

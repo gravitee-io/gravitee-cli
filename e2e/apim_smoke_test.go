@@ -22,7 +22,7 @@ import (
 )
 
 // TestAPIMSmoke validates the APIM e2e harness end-to-end: the docker-compose
-// is up, fetchAPIMToken() obtained a valid PAT, GIO_APIM_* env vars are set,
+// is up, fetchAPIMToken() obtained a valid PAT, GCTL_APIM_* env vars are set,
 // and the CLI can hit the management API and parse a JSON response.
 //
 // If this test fails, no other apim_*_test.go can pass - fix this first.

@@ -17,8 +17,8 @@ package domain
 import (
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/testutil"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/testutil"
 )
 
 func TestDeleteDomain(t *testing.T) {

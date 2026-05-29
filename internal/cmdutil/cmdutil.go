@@ -28,26 +28,26 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 // Environment variable names for CLI overrides.
-// Per-product: GIO_APIM_URL, GIO_APIM_TOKEN, GIO_AM_URL, GIO_AM_TOKEN.
-// Shared: GIO_ORG, GIO_ENV (apply to whichever product is used).
+// Per-product: GCTL_APIM_URL, GCTL_APIM_TOKEN, GCTL_AM_URL, GCTL_AM_TOKEN.
+// Shared: GCTL_ORG, GCTL_ENV (apply to whichever product is used).
 const (
-	EnvOrg = "GIO_ORG"
-	EnvEnv = "GIO_ENV"
+	EnvOrg = "GCTL_ORG"
+	EnvEnv = "GCTL_ENV"
 )
 
 func productEnvURL(product string) string {
-	return "GIO_" + strings.ToUpper(product) + "_URL"
+	return "GCTL_" + strings.ToUpper(product) + "_URL"
 }
 
 func productEnvToken(product string) string {
-	return "GIO_" + strings.ToUpper(product) + "_TOKEN"
+	return "GCTL_" + strings.ToUpper(product) + "_TOKEN"
 }
 
 // SetupConfig loads the unified config file. Idempotent - skips if already loaded.
@@ -182,7 +182,7 @@ func RequireContext(f *factory.Factory) error {
 			product = "apim"
 		}
 
-		return fmt.Errorf("no context configured\nHint: run 'gio login %s' to get started", product)
+		return fmt.Errorf("no context configured\nHint: run 'gctl login %s' to get started", product)
 	}
 
 	return nil
@@ -216,11 +216,11 @@ func AMDomainPathFor(f *factory.Factory, domainID, path string) string {
 // RequireAMContext returns an error if no AM context is configured.
 func RequireAMContext(f *factory.Factory) error {
 	if f.Resolved == nil {
-		return fmt.Errorf("no AM context configured\nHint: run 'gio login am' to get started")
+		return fmt.Errorf("no AM context configured\nHint: run 'gctl login am' to get started")
 	}
 
 	if f.Resolved.Type != "am" {
-		return fmt.Errorf("current context '%s' is not an AM context (type: %s)\nHint: switch to an AM context with 'gio config use-context <am-context>'", f.Resolved.Name, f.Resolved.Type)
+		return fmt.Errorf("current context '%s' is not an AM context (type: %s)\nHint: switch to an AM context with 'gctl config use-context <am-context>'", f.Resolved.Name, f.Resolved.Type)
 	}
 
 	return nil
@@ -233,7 +233,7 @@ func RequireAMDomain(f *factory.Factory) error {
 	}
 
 	if f.Resolved.Domain == "" {
-		return fmt.Errorf("no domain selected\nHint: run 'gio am set domain <id>' to select a domain")
+		return fmt.Errorf("no domain selected\nHint: run 'gctl am set domain <id>' to select a domain")
 	}
 
 	return nil
@@ -260,7 +260,7 @@ func ReadJSONInput(path string, r io.Reader) (json.RawMessage, error) {
 	}
 
 	if r == nil || isTerminal(r) {
-		return nil, fmt.Errorf("no input provided\nHint: use -f <file> or pipe JSON to stdin\nExample: envsubst < config.json | gio ...")
+		return nil, fmt.Errorf("no input provided\nHint: use -f <file> or pipe JSON to stdin\nExample: envsubst < config.json | gctl ...")
 	}
 
 	data, err := io.ReadAll(r)
@@ -268,7 +268,7 @@ func ReadJSONInput(path string, r io.Reader) (json.RawMessage, error) {
 		return nil, fmt.Errorf("failed to read stdin: %w", err)
 	}
 	if len(data) == 0 {
-		return nil, fmt.Errorf("stdin: empty input\nHint: use -f <file> or pipe JSON to stdin\nExample: envsubst < config.json | gio ...")
+		return nil, fmt.Errorf("stdin: empty input\nHint: use -f <file> or pipe JSON to stdin\nExample: envsubst < config.json | gctl ...")
 	}
 	if !json.Valid(data) {
 		return nil, fmt.Errorf("stdin: invalid JSON")

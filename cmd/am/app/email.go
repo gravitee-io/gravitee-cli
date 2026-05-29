@@ -17,9 +17,9 @@ package app
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newAppEmailCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -47,7 +47,7 @@ func newAppEmailGetCmd(f *factory.Factory, domainID, appID *string) *cobra.Comma
 	cmd := &cobra.Command{
 		Use:     "get",
 		Short:   "Get an application email template",
-		Example: `  gio am app email get --domain my-domain --app-id my-app --template RESET_PASSWORD`,
+		Example: `  gctl am app email get --domain my-domain --app-id my-app --template RESET_PASSWORD`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -80,8 +80,8 @@ func newAppEmailCreateCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an application email template from a JSON file or stdin",
-		Example: `  gio am app email create --domain my-domain --app-id my-app --file email.json
-  envsubst < email.json | gio am app email create --domain my-domain --app-id my-app`,
+		Example: `  gctl am app email create --domain my-domain --app-id my-app --file email.json
+  envsubst < email.json | gctl am app email create --domain my-domain --app-id my-app`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -124,8 +124,8 @@ func newAppEmailUpdateCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 	cmd := &cobra.Command{
 		Use:   "update <emailID> [-f <file>]",
 		Short: "Update an application email template from a JSON file or stdin",
-		Example: `  gio am app email update email-1 --domain my-domain --app-id my-app --file email.json
-  envsubst < email.json | gio am app email update email-1 --domain my-domain --app-id my-app`,
+		Example: `  gctl am app email update email-1 --domain my-domain --app-id my-app --file email.json
+  envsubst < email.json | gctl am app email update email-1 --domain my-domain --app-id my-app`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -166,7 +166,7 @@ func newAppEmailDeleteCmd(f *factory.Factory, domainID, appID *string) *cobra.Co
 	return &cobra.Command{
 		Use:     "delete <emailID>",
 		Short:   "Delete an application email template",
-		Example: `  gio am app email delete email-1 --domain my-domain --app-id my-app`,
+		Example: `  gctl am app email delete email-1 --domain my-domain --app-id my-app`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

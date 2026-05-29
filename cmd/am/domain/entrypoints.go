@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newEntrypointsCmd(f *factory.Factory) *cobra.Command {
@@ -58,7 +58,7 @@ func newEntrypointsGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <domainID>",
 		Short:   "Show the entrypoint configuration for a domain",
-		Example: `  gio am domain entrypoints get my-domain-id -o json`,
+		Example: `  gctl am domain entrypoints get my-domain-id -o json`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -93,7 +93,7 @@ func newEntrypointsSetPathCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "set-path <domainID> <path>",
 		Short:   "Switch the domain to context-path mode and set its path",
-		Example: `  gio am domain entrypoints set-path my-domain-id /auth`,
+		Example: `  gctl am domain entrypoints set-path my-domain-id /auth`,
 		Args:    cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -119,8 +119,8 @@ func newEntrypointsAddVhostCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-vhost <domainID> <host>",
 		Short: "Add a vhost to the domain (switches to vhost mode)",
-		Example: `  gio am domain entrypoints add-vhost my-domain-id auth.example.com --path / --override
-  gio am domain entrypoints add-vhost my-domain-id alt.example.com --path /auth`,
+		Example: `  gctl am domain entrypoints add-vhost my-domain-id auth.example.com --path / --override
+  gctl am domain entrypoints add-vhost my-domain-id alt.example.com --path /auth`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -168,7 +168,7 @@ func newEntrypointsRemoveVhostCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "remove-vhost <domainID> <host>",
 		Short:   "Remove a vhost from the domain by host (and optionally path)",
-		Example: `  gio am domain entrypoints remove-vhost my-domain-id auth.example.com`,
+		Example: `  gctl am domain entrypoints remove-vhost my-domain-id auth.example.com`,
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -190,7 +190,7 @@ func newEntrypointsClearVhostsCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "clear-vhosts <domainID>",
 		Short:   "Drop all vhosts and switch the domain back to context-path mode",
-		Example: `  gio am domain entrypoints clear-vhosts my-domain-id`,
+		Example: `  gctl am domain entrypoints clear-vhosts my-domain-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

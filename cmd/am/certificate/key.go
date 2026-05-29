@@ -19,15 +19,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newKeyCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "key <certID>",
 		Short:   "Get the public key of a certificate",
-		Example: `  gio am certificate key cert-123 --domain my-domain`,
+		Example: `  gctl am certificate key cert-123 --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -51,7 +51,7 @@ func newKeysCmd(f *factory.Factory, domainID *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "keys <certID>",
 		Short:   "Get all keys of a certificate",
-		Example: `  gio am certificate keys cert-123 --domain my-domain`,
+		Example: `  gctl am certificate keys cert-123 --domain my-domain`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

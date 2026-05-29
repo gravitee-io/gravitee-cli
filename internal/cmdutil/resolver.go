@@ -17,7 +17,7 @@ package cmdutil
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/factory"
 )
 
 // ResolveAPIMFlags rewrites the --api flag (if present and set) with the id

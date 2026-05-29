@@ -21,9 +21,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newDeleteCmd(f *factory.Factory) *cobra.Command {
@@ -38,8 +38,8 @@ Without --force, the server rejects deletion if the API is running or has open
 plans. With --force, the CLI stops the API (if running) and closes all plans
 before deletion. Closing plans cascades to subscriptions server-side, so all
 consumers lose access. This is irreversible.`,
-		Example: `  gio apim api delete /my/api
-  gio apim api delete /my/api --force`,
+		Example: `  gctl apim api delete /my/api
+  gctl apim api delete /my/api --force`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

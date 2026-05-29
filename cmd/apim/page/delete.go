@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newDeleteCmd(f *factory.Factory) *cobra.Command {
@@ -29,7 +29,7 @@ func newDeleteCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete <pageId> --api <apiId>",
 		Short:   "Delete a page",
-		Example: `  gio apim page delete dddd1111-2222-3333-4444-555566667777 --api /my/api`,
+		Example: `  gctl apim page delete dddd1111-2222-3333-4444-555566667777 --api /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

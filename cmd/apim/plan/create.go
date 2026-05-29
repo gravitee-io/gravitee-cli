@@ -17,9 +17,9 @@ package plan
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newCreateCmd(f *factory.Factory) *cobra.Command {
@@ -31,8 +31,8 @@ func newCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create --api <apiId> [-f <file>]",
 		Short: "Create a plan from a JSON file or stdin",
-		Example: `  gio apim plan create --api /my/api -f plan.json
-  envsubst < plan.json | gio apim plan create --api /my/api`,
+		Example: `  gctl apim plan create --api /my/api -f plan.json
+  envsubst < plan.json | gctl apim plan create --api /my/api`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

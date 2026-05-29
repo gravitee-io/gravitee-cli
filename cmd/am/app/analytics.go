@@ -17,9 +17,9 @@ package app
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newAppAnalyticsCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -51,8 +51,8 @@ func newAppAnalyticsGetCmd(f *factory.Factory, domainID, appID *string) *cobra.C
 	cmd := &cobra.Command{
 		Use:   "get",
 		Short: "Get application analytics",
-		Example: `  gio am app analytics get --domain my-domain --app-id my-app --type count --field application_id
-  gio am app analytics get --domain my-domain --app-id my-app --type count --from 1609459200000 --to 1612137600000`,
+		Example: `  gctl am app analytics get --domain my-domain --app-id my-app --type count --field application_id
+  gctl am app analytics get --domain my-domain --app-id my-app --type count --from 1609459200000 --to 1612137600000`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgIDPCmd(f *factory.Factory) *cobra.Command {
@@ -45,7 +45,7 @@ func newOrgIDPListCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List organization identity providers",
-		Example: `  gio am org idp list`,
+		Example: `  gctl am org idp list`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -75,7 +75,7 @@ func newOrgIDPGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <idpID>",
 		Short:   "Get organization identity provider details",
-		Example: `  gio am org idp get my-idp-id`,
+		Example: `  gctl am org idp get my-idp-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -107,9 +107,9 @@ func newOrgIDPCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an organization identity provider from a JSON file or stdin",
-		Example: `  gio am org idp create --file idp.json
-  gio am org idp create -f idp.json
-  envsubst < idp.json | gio am org idp create`,
+		Example: `  gctl am org idp create --file idp.json
+  gctl am org idp create -f idp.json
+  envsubst < idp.json | gctl am org idp create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -150,9 +150,9 @@ func newOrgIDPUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <idpID> [-f <file>]",
 		Short: "Update an organization identity provider from a JSON file or stdin",
-		Example: `  gio am org idp update my-idp-id --file idp.json
-  gio am org idp update my-idp-id -f idp.json
-  envsubst < idp.json | gio am org idp update my-idp-id`,
+		Example: `  gctl am org idp update my-idp-id --file idp.json
+  gctl am org idp update my-idp-id -f idp.json
+  envsubst < idp.json | gctl am org idp update my-idp-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -191,7 +191,7 @@ func newOrgIDPDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <idpID>",
 		Short:   "Delete an organization identity provider",
-		Example: `  gio am org idp delete my-idp-id`,
+		Example: `  gctl am org idp delete my-idp-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

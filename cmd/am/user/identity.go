@@ -17,9 +17,9 @@ package user
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newIdentityCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -43,8 +43,8 @@ func newIdentityListCmd(f *factory.Factory, domainID, userID *string) *cobra.Com
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List user identities",
-		Example: `  gio am user identity list --domain my-domain --user-id user-1
-  gio am user identity list --domain my-domain --user-id user-1 -o json`,
+		Example: `  gctl am user identity list --domain my-domain --user-id user-1
+  gctl am user identity list --domain my-domain --user-id user-1 -o json`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -78,7 +78,7 @@ func newIdentityUnlinkCmd(f *factory.Factory, domainID, userID *string) *cobra.C
 	return &cobra.Command{
 		Use:     "unlink <identityID>",
 		Short:   "Unlink a user identity",
-		Example: `  gio am user identity unlink identity-1 --domain my-domain --user-id user-1`,
+		Example: `  gctl am user identity unlink identity-1 --domain my-domain --user-id user-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

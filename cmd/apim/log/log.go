@@ -25,10 +25,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/apim"
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/apim"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 // NewLogCmd creates the log parent command.
@@ -63,9 +63,9 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list --api <apiId>",
 		Short: "List API connection logs",
-		Example: `  gio apim log list --api /my/api --from 1711497600000 --to 1711584000000
-  gio apim log list --api /my/api --methods GET --per-page 20
-  gio apim log list --api /my/api --follow`,
+		Example: `  gctl apim log list --api /my/api --from 1711497600000 --to 1711584000000
+  gctl apim log list --api /my/api --methods GET --per-page 20
+  gctl apim log list --api /my/api --follow`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return runList(f, apiID, applicationIDs, planIDs, methods, from, to, page, perPage, all, follow)
@@ -92,7 +92,7 @@ func newGetCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "get <requestId> --api <apiId>",
 		Short:   "Get details of a specific request log",
-		Example: `  gio apim log get req-aaaa-bbbb-cccc-dddd-eeeeeeee --api /my/api`,
+		Example: `  gctl apim log get req-aaaa-bbbb-cccc-dddd-eeeeeeee --api /my/api`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

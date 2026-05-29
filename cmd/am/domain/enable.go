@@ -19,15 +19,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newEnableCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "enable <domainID>",
 		Short:   "Enable a security domain",
-		Example: `  gio am domain enable my-domain-id`,
+		Example: `  gctl am domain enable my-domain-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -43,7 +43,7 @@ func newDisableCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "disable <domainID>",
 		Short:   "Disable a security domain",
-		Example: `  gio am domain disable my-domain-id`,
+		Example: `  gctl am domain disable my-domain-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

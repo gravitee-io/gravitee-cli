@@ -24,9 +24,9 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newAMTestFactory(fc *client.FakeClient) (*factory.Factory, *bytes.Buffer) {

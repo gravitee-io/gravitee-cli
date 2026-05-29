@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func NewTraceCmd(f *factory.Factory) *cobra.Command {

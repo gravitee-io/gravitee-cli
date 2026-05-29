@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgRoleCmd(f *factory.Factory) *cobra.Command {
@@ -47,7 +47,7 @@ func newOrgRoleListCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List organization roles",
-		Example: `  gio am org role list`,
+		Example: `  gctl am org role list`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -103,7 +103,7 @@ func newOrgRoleGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <roleID>",
 		Short:   "Get organization role details",
-		Example: `  gio am org role get role-id`,
+		Example: `  gctl am org role get role-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -161,9 +161,9 @@ func newOrgRoleCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an organization role from a JSON file or stdin",
-		Example: `  gio am org role create --file role.json
-  gio am org role create -f role.json
-  envsubst < role.json | gio am org role create`,
+		Example: `  gctl am org role create --file role.json
+  gctl am org role create -f role.json
+  envsubst < role.json | gctl am org role create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -210,9 +210,9 @@ func newOrgRoleUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <roleID> [-f <file>]",
 		Short: "Update an organization role from a JSON file or stdin",
-		Example: `  gio am org role update role-id --file role.json
-  gio am org role update role-id -f role.json
-  envsubst < role.json | gio am org role update role-id`,
+		Example: `  gctl am org role update role-id --file role.json
+  gctl am org role update role-id -f role.json
+  envsubst < role.json | gctl am org role update role-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -257,7 +257,7 @@ func newOrgRoleDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <roleID>",
 		Short:   "Delete an organization role",
-		Example: `  gio am org role delete role-id`,
+		Example: `  gctl am org role delete role-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

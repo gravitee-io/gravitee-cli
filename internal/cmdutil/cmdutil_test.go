@@ -23,9 +23,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func TestRequireContext_ReturnsResolveError(t *testing.T) {
@@ -45,9 +45,9 @@ func TestRequireContext_ProductAwareHint(t *testing.T) {
 		product  string
 		wantHint string
 	}{
-		{"apim", "gio login apim"},
-		{"am", "gio login am"},
-		{"", "gio login apim"},
+		{"apim", "gctl login apim"},
+		{"am", "gctl login am"},
+		{"", "gctl login apim"},
 	}
 
 	for _, tt := range tests {
@@ -272,10 +272,10 @@ func TestValidatePagination(t *testing.T) {
 }
 
 func TestResolveProductContext_EnvOrgAppliesOnEnvBypass(t *testing.T) {
-	// Product env vars (URL+Token) trigger the bypass branch; GIO_ORG/GIO_ENV
+	// Product env vars (URL+Token) trigger the bypass branch; GCTL_ORG/GCTL_ENV
 	// must still apply on that branch, not just on the config-file branch.
-	t.Setenv("GIO_APIM_URL", "https://envhost")
-	t.Setenv("GIO_APIM_TOKEN", "env_tok")
+	t.Setenv("GCTL_APIM_URL", "https://envhost")
+	t.Setenv("GCTL_APIM_TOKEN", "env_tok")
 	t.Setenv(EnvOrg, "ENV_ORG")
 	t.Setenv(EnvEnv, "ENV_ENV")
 
@@ -301,10 +301,10 @@ func TestResolveProductContext_EnvOrgAppliesOnEnvBypass(t *testing.T) {
 }
 
 func TestResolveProductContext_EnvOrgFallsBackToDefaultOnBypass(t *testing.T) {
-	// On the env-bypass branch, when GIO_ORG/GIO_ENV are not set, fall back
+	// On the env-bypass branch, when GCTL_ORG/GCTL_ENV are not set, fall back
 	// to the package-level defaults.
-	t.Setenv("GIO_APIM_URL", "https://envhost")
-	t.Setenv("GIO_APIM_TOKEN", "env_tok")
+	t.Setenv("GCTL_APIM_URL", "https://envhost")
+	t.Setenv("GCTL_APIM_TOKEN", "env_tok")
 	t.Setenv(EnvOrg, "")
 	t.Setenv(EnvEnv, "")
 
@@ -329,8 +329,8 @@ func TestResolveProductContext_EnvOrgFallsBackToDefaultOnBypass(t *testing.T) {
 func TestResolveProductContext_EnvOrgBeatsFlagBeatsConfig(t *testing.T) {
 	t.Setenv(EnvOrg, "ENV_ORG")
 	t.Setenv(EnvEnv, "ENV_ENV")
-	t.Setenv("GIO_APIM_URL", "")
-	t.Setenv("GIO_APIM_TOKEN", "")
+	t.Setenv("GCTL_APIM_URL", "")
+	t.Setenv("GCTL_APIM_TOKEN", "")
 
 	f := &factory.Factory{
 		Config: &config.Config{
@@ -364,8 +364,8 @@ func TestResolveProductContext_EnvOrgBeatsFlagBeatsConfig(t *testing.T) {
 func TestResolveProductContext_FlagBeatsConfig(t *testing.T) {
 	t.Setenv(EnvOrg, "")
 	t.Setenv(EnvEnv, "")
-	t.Setenv("GIO_APIM_URL", "")
-	t.Setenv("GIO_APIM_TOKEN", "")
+	t.Setenv("GCTL_APIM_URL", "")
+	t.Setenv("GCTL_APIM_TOKEN", "")
 
 	f := &factory.Factory{
 		Config: &config.Config{

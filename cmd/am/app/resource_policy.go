@@ -17,8 +17,8 @@ package app
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newAppResourcePolicyCmd(f *factory.Factory, domainID *string) *cobra.Command {
@@ -47,7 +47,7 @@ func newAppResourcePolicyListCmd(f *factory.Factory, domainID, appID, resourceID
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List application resource policies",
-		Example: `  gio am app resource-policy list --domain my-domain --app-id my-app --resource-id res-1`,
+		Example: `  gctl am app resource-policy list --domain my-domain --app-id my-app --resource-id res-1`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -73,7 +73,7 @@ func newAppResourcePolicyGetCmd(f *factory.Factory, domainID, appID, resourceID 
 	return &cobra.Command{
 		Use:     "get <policyID>",
 		Short:   "Get an application resource policy",
-		Example: `  gio am app resource-policy get policy-1 --domain my-domain --app-id my-app --resource-id res-1`,
+		Example: `  gctl am app resource-policy get policy-1 --domain my-domain --app-id my-app --resource-id res-1`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

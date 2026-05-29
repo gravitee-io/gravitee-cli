@@ -17,11 +17,11 @@ package user
 import (
 	"bytes"
 
-	"github.com/gravitee-io/gio-cli/internal/am"
-	"github.com/gravitee-io/gio-cli/internal/client"
-	"github.com/gravitee-io/gio-cli/internal/config"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/testutil"
+	"gravitee.io/gctl/internal/am"
+	"gravitee.io/gctl/internal/client"
+	"gravitee.io/gctl/internal/config"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/testutil"
 )
 
 // newTestUser wires the mock service into the factory for testing.

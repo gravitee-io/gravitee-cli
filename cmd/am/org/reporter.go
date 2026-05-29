@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newOrgReporterCmd(f *factory.Factory) *cobra.Command {
@@ -45,7 +45,7 @@ func newOrgReporterListCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
 		Short:   "List organization reporters",
-		Example: `  gio am org reporter list`,
+		Example: `  gctl am org reporter list`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -75,7 +75,7 @@ func newOrgReporterGetCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "get <reporterID>",
 		Short:   "Get organization reporter details",
-		Example: `  gio am org reporter get my-reporter-id`,
+		Example: `  gctl am org reporter get my-reporter-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -107,9 +107,9 @@ func newOrgReporterCreateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create [-f <file>]",
 		Short: "Create an organization reporter from a JSON file or stdin",
-		Example: `  gio am org reporter create --file reporter.json
-  gio am org reporter create -f reporter.json
-  envsubst < reporter.json | gio am org reporter create`,
+		Example: `  gctl am org reporter create --file reporter.json
+  gctl am org reporter create -f reporter.json
+  envsubst < reporter.json | gctl am org reporter create`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -150,9 +150,9 @@ func newOrgReporterUpdateCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <reporterID> [-f <file>]",
 		Short: "Update an organization reporter from a JSON file or stdin",
-		Example: `  gio am org reporter update my-reporter-id --file reporter.json
-  gio am org reporter update my-reporter-id -f reporter.json
-  envsubst < reporter.json | gio am org reporter update my-reporter-id`,
+		Example: `  gctl am org reporter update my-reporter-id --file reporter.json
+  gctl am org reporter update my-reporter-id -f reporter.json
+  envsubst < reporter.json | gctl am org reporter update my-reporter-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -191,7 +191,7 @@ func newOrgReporterDeleteCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "delete <reporterID>",
 		Short:   "Delete an organization reporter",
-		Example: `  gio am org reporter delete my-reporter-id`,
+		Example: `  gctl am org reporter delete my-reporter-id`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

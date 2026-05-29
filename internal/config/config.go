@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	configDir  = ".gio"
+	configDir  = ".gctl"
 	configFile = "config.yaml"
 
 	DefaultOrg = "DEFAULT"
@@ -80,7 +80,7 @@ func NormalizeContextName(name string) string {
 	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(name)), " ", "-")
 }
 
-// Path returns the full path to the config file (~/.gio/config.yaml).
+// Path returns the full path to the config file (~/.gctl/config.yaml).
 func Path() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -162,7 +162,7 @@ func (c *Config) Resolve(overrides Overrides, product string) (*ResolvedContext,
 
 	pc := ctx.productConfig(product)
 	if pc == nil {
-		return nil, fmt.Errorf("%s not configured for context '%s'\nHint: run 'gio login %s' to configure", strings.ToUpper(product), contextName, product)
+		return nil, fmt.Errorf("%s not configured for context '%s'\nHint: run 'gctl login %s' to configure", strings.ToUpper(product), contextName, product)
 	}
 
 	resolved := &ResolvedContext{

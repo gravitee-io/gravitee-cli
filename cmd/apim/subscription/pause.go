@@ -17,9 +17,9 @@ package subscription
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newPauseCmd(f *factory.Factory) *cobra.Command {
@@ -28,7 +28,7 @@ func newPauseCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pause <subId> --api <apiId>",
 		Short:   "Pause an active subscription",
-		Example: `  gio apim subscription pause 34f8c9e7 --api 8a7b3c4d`,
+		Example: `  gctl apim subscription pause 34f8c9e7 --api 8a7b3c4d`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

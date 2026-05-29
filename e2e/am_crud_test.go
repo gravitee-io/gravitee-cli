@@ -300,10 +300,10 @@ func TestErrorHandling(t *testing.T) {
 	t.Run("nonexistent context", func(t *testing.T) {
 		// Isolate HOME and clear the AM env vars so the CLI falls back to the
 		// config file (and reports the missing context) instead of bypassing
-		// resolution via GIO_AM_URL/GIO_AM_TOKEN set in TestMain.
+		// resolution via GCTL_AM_URL/GCTL_AM_TOKEN set in TestMain.
 		t.Setenv("HOME", t.TempDir())
-		t.Setenv("GIO_AM_URL", "")
-		t.Setenv("GIO_AM_TOKEN", "")
+		t.Setenv("GCTL_AM_URL", "")
+		t.Setenv("GCTL_AM_TOKEN", "")
 
 		out := runCLIExpectError(t, "am", "domain", "list", "--context", "nonexistent")
 		if !strings.Contains(out, "not found") {

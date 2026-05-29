@@ -17,9 +17,9 @@ package token
 import (
 	"fmt"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
 	"github.com/spf13/cobra"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newRevokeCmd(f *factory.Factory) *cobra.Command {
@@ -27,7 +27,7 @@ func newRevokeCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "revoke <tokenId>",
 		Short:   "Revoke a user token",
-		Example: `  gio am token revoke token-id --user user-uuid`,
+		Example: `  gctl am token revoke token-id --user user-uuid`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireAMDomain(f); err != nil {

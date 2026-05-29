@@ -14,11 +14,11 @@
 
 version: 2
 
-project_name: gio
+project_name: gctl
 
 builds:
-  - id: gio
-    binary: gio
+  - id: gctl
+    binary: gctl
     main: .
     env: [CGO_ENABLED=0]
     ldflags:
@@ -28,9 +28,9 @@ builds:
     ignore:
       - goos: windows
         goarch: arm64
-  - id: gio-ro
-    binary: gio-ro
-    main: ./cmd/gio-ro
+  - id: gctl-ro
+    binary: gctl-ro
+    main: ./cmd/gctl-ro
     env: [CGO_ENABLED=0]
     ldflags:
       - -s -w -X main.version={{.Version}}
@@ -41,16 +41,16 @@ builds:
         goarch: arm64
 
 archives:
-  - id: gio
-    ids: [gio]
+  - id: gctl
+    ids: [gctl]
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     formats: [tar.gz]
     format_overrides:
       - goos: windows
         formats: [zip]
     files: [LICENSE.txt, README.md]
-  - id: gio-ro
-    ids: [gio-ro]
+  - id: gctl-ro
+    ids: [gctl-ro]
     name_template: "{{ .ProjectName }}_readonly_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     formats: [tar.gz]
     format_overrides:
@@ -79,9 +79,9 @@ changelog:
 
 release:
   header: |
-    ## gio {{ .Tag }}
+    ## gctl {{ .Tag }}
 
-    gio is the Gravitee CLI for APIM & AM.
+    gctl is the Gravitee CLI for APIM & AM.
   footer: |
     ## Variants
 
@@ -89,10 +89,10 @@ release:
 
     | Binary | Use case | Commands |
     |--------|----------|----------|
-    | `gio` | Humans, scripts, CI | Full CRUD - get, list, create, update, delete |
-    | `gio-ro` | AI agents, read-only automation | Get and list only - no write operations |
+    | `gctl` | Humans, scripts, CI | Full CRUD - get, list, create, update, delete |
+    | `gctl-ro` | AI agents, read-only automation | Get and list only - no write operations |
 
-    Both binaries read the same config file (`~/.gio/config.yaml`) and support the same flags and output formats. Install both on the same machine if you want agents to use `gio-ro` while you use `gio` - they coexist without conflict.
+    Both binaries read the same config file (`~/.gctl/config.yaml`) and support the same flags and output formats. Install both on the same machine if you want agents to use `gctl-ro` while you use `gctl` - they coexist without conflict.
 
     ## Install
 
@@ -100,30 +100,30 @@ release:
 
     **1. Identify your platform.** Run `uname -sm` in a terminal and match the output:
 
-    | `uname -sm` output | `gio` archive | `gio-ro` archive |
+    | `uname -sm` output | `gctl` archive | `gctl-ro` archive |
     |--------------------|---------------|------------------|
-    | `Darwin arm64`     | [`gio_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_arm64.tar.gz) | [`gio_readonly_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_darwin_arm64.tar.gz) |
-    | `Darwin x86_64`    | [`gio_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_darwin_amd64.tar.gz) | [`gio_readonly_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_darwin_amd64.tar.gz) |
-    | `Linux x86_64`     | [`gio_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_amd64.tar.gz) | [`gio_readonly_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_linux_amd64.tar.gz) |
-    | `Linux aarch64`    | [`gio_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_linux_arm64.tar.gz) | [`gio_readonly_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_linux_arm64.tar.gz) |
+    | `Darwin arm64`     | [`gctl_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_darwin_arm64.tar.gz) | [`gctl_readonly_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_darwin_arm64.tar.gz) |
+    | `Darwin x86_64`    | [`gctl_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_darwin_amd64.tar.gz) | [`gctl_readonly_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_darwin_amd64.tar.gz) |
+    | `Linux x86_64`     | [`gctl_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_linux_amd64.tar.gz) | [`gctl_readonly_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_linux_amd64.tar.gz) |
+    | `Linux aarch64`    | [`gctl_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_linux_arm64.tar.gz) | [`gctl_readonly_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_linux_arm64.tar.gz) |
 
     **2. Download and extract** (replace `linux_amd64` with your archive):
 
     ```bash
-    tar -xzf gio_{{ .Version }}_linux_amd64.tar.gz
-    ./gio version
+    tar -xzf gctl_{{ .Version }}_linux_amd64.tar.gz
+    ./gctl version
     ```
 
-    Move the resulting binary to a directory in your `PATH`. If you install both variants, both `gio` and `gio-ro` can live in the same directory.
+    Move the resulting binary to a directory in your `PATH`. If you install both variants, both `gctl` and `gctl-ro` can live in the same directory.
 
     ### Windows
 
-    1. Download [`gio_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_{{ .Version }}_windows_amd64.zip) and/or [`gio_readonly_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gio-cli/releases/download/{{ .Tag }}/gio_readonly_{{ .Version }}_windows_amd64.zip)
-    2. Unzip into a folder of your choice (e.g. `C:\Tools\gio`)
-    3. Add that folder to your `PATH` so `gio` works from any terminal (run once in PowerShell):
+    1. Download [`gctl_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_windows_amd64.zip) and/or [`gctl_readonly_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_windows_amd64.zip)
+    2. Unzip into a folder of your choice (e.g. `C:\Tools\gctl`)
+    3. Add that folder to your `PATH` so `gctl` works from any terminal (run once in PowerShell):
 
        ```powershell
-       $target = "C:\Tools\gio"
+       $target = "C:\Tools\gctl"
        $userPath = [Environment]::GetEnvironmentVariable("PATH", "User")
        if (-not ($userPath -split ";" -contains $target)) {
            [Environment]::SetEnvironmentVariable("PATH", "$userPath;$target", "User")
@@ -133,5 +133,5 @@ release:
     4. Open a new terminal and verify:
 
        ```powershell
-       gio version
+       gctl version
        ```

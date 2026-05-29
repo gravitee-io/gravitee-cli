@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 type doctorCheck struct {
@@ -52,7 +52,7 @@ func runDoctorChecks(f *factory.Factory) []doctorCheck {
 
 	// 1. Config
 	if f.Config == nil || len(f.Config.Contexts) == 0 {
-		checks = append(checks, doctorCheck{"config", "FAIL", "No contexts configured — run 'gio login am'"})
+		checks = append(checks, doctorCheck{"config", "FAIL", "No contexts configured — run 'gctl login am'"})
 		return checks
 	}
 
@@ -79,7 +79,7 @@ func runDoctorChecks(f *factory.Factory) []doctorCheck {
 
 	// 3. Token
 	if ctx.AM == nil || ctx.AM.Token == "" {
-		checks = append(checks, doctorCheck{"auth", "FAIL", "No AM token stored — run 'gio login am'"})
+		checks = append(checks, doctorCheck{"auth", "FAIL", "No AM token stored — run 'gctl login am'"})
 		return checks
 	}
 
@@ -92,7 +92,7 @@ func runDoctorChecks(f *factory.Factory) []doctorCheck {
 	}
 
 	if domain == "" {
-		checks = append(checks, doctorCheck{"domain", "WARN", "No domain set — run 'gio am set domain <id>'"})
+		checks = append(checks, doctorCheck{"domain", "WARN", "No domain set — run 'gctl am set domain <id>'"})
 	} else {
 		checks = append(checks, doctorCheck{"domain", "OK", domain})
 	}

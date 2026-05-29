@@ -19,15 +19,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
 )
 
 func newCurrentCmd(f *factory.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:     "current",
 		Short:   "Print the current context name",
-		Example: `  gio context current`,
+		Example: `  gctl context current`,
 		Args:    cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return runCurrent(f)
@@ -43,7 +43,7 @@ func runCurrent(f *factory.Factory) error {
 	cfg := f.Config
 
 	if cfg.Current == "" {
-		return fmt.Errorf("no context configured\nHint: run 'gio login' to get started")
+		return fmt.Errorf("no context configured\nHint: run 'gctl login' to get started")
 	}
 
 	fmt.Fprintln(f.IOStreams.Out, cfg.Current)

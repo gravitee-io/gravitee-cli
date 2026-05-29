@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func ownerDisplayName(item any) string {

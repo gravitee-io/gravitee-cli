@@ -17,9 +17,9 @@ package domain
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
-	"github.com/gravitee-io/gio-cli/internal/factory"
-	"github.com/gravitee-io/gio-cli/internal/printer"
+	"gravitee.io/gctl/internal/cmdutil"
+	"gravitee.io/gctl/internal/factory"
+	"gravitee.io/gctl/internal/printer"
 )
 
 func newUpdateCertSettingsCmd(f *factory.Factory) *cobra.Command {
@@ -28,8 +28,8 @@ func newUpdateCertSettingsCmd(f *factory.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-cert-settings <domainID> [-f <file>]",
 		Short: "Update domain certificate settings",
-		Example: `  gio am domain update-cert-settings my-domain-id --file settings.json
-  envsubst < settings.json | gio am domain update-cert-settings my-domain-id`,
+		Example: `  gctl am domain update-cert-settings my-domain-id --file settings.json
+  envsubst < settings.json | gctl am domain update-cert-settings my-domain-id`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {

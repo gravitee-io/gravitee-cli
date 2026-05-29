@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gravitee-io/gio-cli/internal/cmdutil"
+	"gravitee.io/gctl/internal/cmdutil"
 )
 
 type AuditEvent struct {
