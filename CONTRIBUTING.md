@@ -27,7 +27,7 @@ Thanks for taking the time to contribute. This guide walks through reporting iss
 
 ## Reporting a bug or suggesting an enhancement
 
-Open an [issue](https://github.com/gravitee-io/gravitee-gctl/issues/new/choose) and follow the template that matches your request. Be sure to include the `gctl` version (`gctl version`), the Gravitee version you are targeting, and a minimal reproducer.
+Open an [issue](https://github.com/gravitee-io/gravitee-cli/issues/new/choose) and follow the template that matches your request. Be sure to include the `gctl` version (`gctl version`), the Gravitee version you are targeting, and a minimal reproducer.
 
 ## Submitting a pull request
 

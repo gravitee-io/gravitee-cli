@@ -38,7 +38,21 @@ Both read the same config file (`~/.gctl/config.yaml`) and support the same flag
 
 ## Install
 
-See the [latest release](https://github.com/gravitee-io-labs/gio-cli/releases/latest) for archives and install instructions for both `gctl` and `gctl-ro`.
+### curl (macOS / Linux, and Windows via Git Bash / WSL)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | sh
+```
+
+Install the read-only variant (`gctl-ro`) instead:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | GCTL_BIN=gctl-ro sh
+```
+
+### Manual (any OS, including native Windows)
+
+Download the archive for your platform from the [latest release](https://github.com/gravitee-io/gravitee-cli/releases/latest), extract it, and move `gctl` (and optionally `gctl-ro`) into a directory on your `PATH`. Run `gctl version` to verify.
 
 ## Quickstart
 
@@ -165,8 +179,8 @@ Switch between contexts with `--context <name>` on any command, or by editing th
 ## Documentation and support
 
 - [Gravitee product documentation](https://documentation.gravitee.io/)
-- [Report an issue](https://github.com/gravitee-io-labs/gio-cli/issues)
-- [Latest release and changelog](https://github.com/gravitee-io-labs/gio-cli/releases/latest)
+- [Report an issue](https://github.com/gravitee-io/gravitee-cli/issues)
+- [Latest release and changelog](https://github.com/gravitee-io/gravitee-cli/releases/latest)
 
 ## Contributing
 

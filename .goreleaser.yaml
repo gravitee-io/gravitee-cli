@@ -96,42 +96,18 @@ release:
 
     ## Install
 
-    ### Linux / macOS
-
-    **1. Identify your platform.** Run `uname -sm` in a terminal and match the output:
-
-    | `uname -sm` output | `gctl` archive | `gctl-ro` archive |
-    |--------------------|---------------|------------------|
-    | `Darwin arm64`     | [`gctl_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_darwin_arm64.tar.gz) | [`gctl_readonly_{{ .Version }}_darwin_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_darwin_arm64.tar.gz) |
-    | `Darwin x86_64`    | [`gctl_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_darwin_amd64.tar.gz) | [`gctl_readonly_{{ .Version }}_darwin_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_darwin_amd64.tar.gz) |
-    | `Linux x86_64`     | [`gctl_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_linux_amd64.tar.gz) | [`gctl_readonly_{{ .Version }}_linux_amd64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_linux_amd64.tar.gz) |
-    | `Linux aarch64`    | [`gctl_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_linux_arm64.tar.gz) | [`gctl_readonly_{{ .Version }}_linux_arm64.tar.gz`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_linux_arm64.tar.gz) |
-
-    **2. Download and extract** (replace `linux_amd64` with your archive):
+    ### curl (macOS / Linux, and Windows via Git Bash / WSL)
 
     ```bash
-    tar -xzf gctl_{{ .Version }}_linux_amd64.tar.gz
-    ./gctl version
+    curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | sh
     ```
 
-    Move the resulting binary to a directory in your `PATH`. If you install both variants, both `gctl` and `gctl-ro` can live in the same directory.
+    Install the read-only variant instead with `GCTL_BIN=gctl-ro`:
 
-    ### Windows
+    ```bash
+    curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | GCTL_BIN=gctl-ro sh
+    ```
 
-    1. Download [`gctl_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_{{ .Version }}_windows_amd64.zip) and/or [`gctl_readonly_{{ .Version }}_windows_amd64.zip`](https://github.com/gravitee-io-labs/gctl/releases/download/{{ .Tag }}/gctl_readonly_{{ .Version }}_windows_amd64.zip)
-    2. Unzip into a folder of your choice (e.g. `C:\Tools\gctl`)
-    3. Add that folder to your `PATH` so `gctl` works from any terminal (run once in PowerShell):
+    ### Manual (any OS, including native Windows)
 
-       ```powershell
-       $target = "C:\Tools\gctl"
-       $userPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-       if (-not ($userPath -split ";" -contains $target)) {
-           [Environment]::SetEnvironmentVariable("PATH", "$userPath;$target", "User")
-       }
-       ```
-
-    4. Open a new terminal and verify:
-
-       ```powershell
-       gctl version
-       ```
+    Download the archive for your platform from the **Assets** below, extract it, and move `gctl` (and optionally `gctl-ro`) into a directory on your `PATH`. Run `gctl version` to verify.
