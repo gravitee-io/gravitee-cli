@@ -27,8 +27,8 @@ func newVersionCmd(f *factory.Factory, version string) *cobra.Command {
 		Use:   "version",
 		Short: "Print the CLI version",
 		Args:  cobra.NoArgs,
-		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Fprintf(f.IOStreams.Out, "gctl version %s\n", version)
+		Run: func(cmd *cobra.Command, _ []string) {
+			fmt.Fprintf(f.IOStreams.Out, "%s version %s\n", cmd.Root().Name(), version)
 		},
 	}
 }

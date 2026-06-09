@@ -63,6 +63,10 @@ checksum:
   algorithm: sha256
 
 changelog:
+  ## Disabled for the initial public release: with no prior tag, the changelog
+  ## would dump the entire commit history. Flip back to false after v0.1.0 so
+  ## later releases get a clean tag-to-tag diff.
+  disable: true
   use: github
   sort: asc
   groups:
@@ -92,22 +96,10 @@ release:
     | `gctl` | Humans, scripts, CI | Full CRUD - get, list, create, update, delete |
     | `gctl-ro` | AI agents, read-only automation | Get and list only - no write operations |
 
-    Both binaries read the same config file (`~/.gctl/config.yaml`) and support the same flags and output formats. Install both on the same machine if you want agents to use `gctl-ro` while you use `gctl` - they coexist without conflict.
+    Both binaries read the same config file (`~/.gctl/config.yaml`) and share the same flags and output formats. Install them side by side: agents use `gctl-ro`, you use `gctl`.
 
     ## Install
 
-    ### curl (macOS / Linux, and Windows via Git Bash / WSL)
+    See the [installation instructions](https://github.com/gravitee-io/gravitee-cli#install) for the curl one-liner and manual options.
 
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | sh
-    ```
-
-    Install the read-only variant instead with `GCTL_BIN=gctl-ro`:
-
-    ```bash
-    curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | GCTL_BIN=gctl-ro sh
-    ```
-
-    ### Manual (any OS, including native Windows)
-
-    Download the archive for your platform from the **Assets** below, extract it, and move `gctl` (and optionally `gctl-ro`) into a directory on your `PATH`. Run `gctl version` to verify.
+    For a manual install, download the archive for your platform from the **Assets** below, extract it, and move `gctl` (and optionally `gctl-ro`) into a directory on your `PATH`. Run `gctl version` to verify.

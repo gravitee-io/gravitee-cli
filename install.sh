@@ -13,18 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# gctl installer for macOS and Linux.
+# gctl installer for macOS and Linux. Re-run any time to upgrade in place.
 #
 #   curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | sh
 #
 # Environment overrides:
 #   GCTL_BIN  binary to install: "gctl" (default) or "gctl-ro"
-#   GCTL_DIR  install directory (default: /usr/local/bin, falls back to ~/.local/bin)
+#   GCTL_DIR  install directory (default: ~/.local/bin). For a system directory,
+#             prepend sudo: curl ... | sudo GCTL_DIR=/usr/local/bin sh
 
 set -eu
 
 REPO="gravitee-io/gravitee-cli"
 BIN="${GCTL_BIN:-gctl}"
+DIR="${GCTL_DIR:-$HOME/.local/bin}"
+DIR="${DIR%/}"
 
 case "$BIN" in
   gctl)    ASSET_PREFIX="gctl" ;;
@@ -55,26 +58,17 @@ esac
 
 # Resolve the latest release tag.
 api="https://api.github.com/repos/${REPO}/releases/latest"
-TAG=$(curl -fsSL "$api" | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+body=$(curl -fsSL "$api") || err "GitHub API request failed: $api"
+TAG=$(printf '%s\n' "$body" | grep '"tag_name"' | head -1 | cut -d'"' -f4)
 [ -n "$TAG" ] || err "could not determine the latest release tag from $REPO"
 VERSION="${TAG#v}"
 
 ASSET="${ASSET_PREFIX}_${VERSION}_${OS}_${ARCH}.tar.gz"
 URL="https://github.com/${REPO}/releases/download/${TAG}/${ASSET}"
 
-# Choose an install directory we can write to.
-DIR="${GCTL_DIR:-/usr/local/bin}"
-SUDO=""
-if [ ! -d "$DIR" ] || [ ! -w "$DIR" ]; then
-  if [ "$DIR" = "/usr/local/bin" ]; then
-    if command -v sudo >/dev/null 2>&1; then
-      SUDO="sudo"
-    else
-      DIR="${HOME}/.local/bin"
-    fi
-  fi
-fi
-mkdir -p "$DIR" 2>/dev/null || $SUDO mkdir -p "$DIR"
+# Prepare the install directory (user-writable by default, no sudo needed).
+mkdir -p "$DIR" 2>/dev/null || err "cannot create $DIR; re-run with sudo or set GCTL_DIR to a writable directory"
+[ -w "$DIR" ] || err "$DIR is not writable; re-run with sudo (e.g. curl ... | sudo GCTL_DIR=$DIR sh) or set GCTL_DIR to a writable directory"
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
@@ -85,7 +79,7 @@ curl -fsSL -o "$tmp/$ASSET" "$URL" || err "download failed: $URL"
 tar -xzf "$tmp/$ASSET" -C "$tmp"
 [ -f "$tmp/$BIN" ] || err "binary '$BIN' not found in archive"
 chmod +x "$tmp/$BIN"
-$SUDO mv "$tmp/$BIN" "$DIR/$BIN"
+mv "$tmp/$BIN" "$DIR/$BIN"
 
 echo "Installed $BIN to $DIR/$BIN"
 case ":${PATH}:" in
