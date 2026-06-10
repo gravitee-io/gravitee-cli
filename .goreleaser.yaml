@@ -62,6 +62,44 @@ checksum:
   name_template: checksums.txt
   algorithm: sha256
 
+homebrew_casks:
+  - name: gctl
+    ids: [gctl]
+    repository:
+      owner: gravitee-io
+      name: homebrew-gravitee
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: "https://github.com/gravitee-io/gravitee-cli"
+    description: "Gravitee CLI for APIM & AM"
+    commit_author:
+      name: gravitee-bot
+      email: gravitee-bot@graviteesource.com
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/gctl"]
+          end
+  - name: gctl-ro
+    ids: [gctl-ro]
+    repository:
+      owner: gravitee-io
+      name: homebrew-gravitee
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: "https://github.com/gravitee-io/gravitee-cli"
+    description: "Gravitee CLI for APIM & AM read-only"
+    commit_author:
+      name: gravitee-bot
+      email: gravitee-bot@graviteesource.com
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/gctl-ro"]
+          end
+
 changelog:
   ## Disabled for the initial public release: with no prior tag, the changelog
   ## would dump the entire commit history. Flip back to false after v0.1.0 so
@@ -100,6 +138,6 @@ release:
 
     ## Install
 
-    See the [installation instructions](https://github.com/gravitee-io/gravitee-cli#install) for the curl one-liner and manual options.
+    See the [installation instructions](https://github.com/gravitee-io/gravitee-cli#install) for the curl one-liner or brew and manual options.
 
     For a manual install, download the archive for your platform from the **Assets** below, extract it, and move `gctl` (and optionally `gctl-ro`) into a directory on your `PATH`. Run `gctl version` to verify.

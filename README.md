@@ -50,6 +50,19 @@ Install the read-only variant (`gctl-ro`) instead:
 curl -fsSL https://raw.githubusercontent.com/gravitee-io/gravitee-cli/main/install.sh | GCTL_BIN=gctl-ro sh
 ```
 
+### Homebrew (macOS / Linux)
+
+```bash
+brew tap gravitee-io/gravitee
+brew install --cask gctl
+```
+
+Install the read-only variant (`gctl-ro`) instead:
+
+```bash
+brew install --cask gctl-ro
+```
+
 ### Manual (any OS, including native Windows)
 
 Download the archive for your platform from the [latest release](https://github.com/gravitee-io/gravitee-cli/releases/latest), extract it, and move `gctl` (and optionally `gctl-ro`) into a directory on your `PATH`. Run `gctl version` to verify.
