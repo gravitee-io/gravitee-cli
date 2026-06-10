@@ -7,6 +7,7 @@ LOCALBIN ?= $(ROOT_DIR)/bin
 
 ADDLICENSE ?= $(LOCALBIN)/addlicense
 GORELEASER ?= $(LOCALBIN)/goreleaser
+GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
 
 $(LOCALBIN):
 	@mkdir -p $(LOCALBIN)

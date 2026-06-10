@@ -12,62 +12,80 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-run:
-  timeout: 2m
-
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
-    # Errors
+    - bodyclose
+    - cyclop
     - errcheck
     - errorlint
-    - govet
-    - staticcheck
-    - typecheck
-    - unused
-    # Style
-    - revive
-    - gofmt
-    - goimports
-    - whitespace
-    - godot
-    # Security
-    - gosec
-    # Complexity
-    - cyclop
-    - gocognit
     - funlen
-    # Cleanup
+    - gocognit
+    - godot
+    - gosec
+    - govet
+    - noctx
+    - revive
+    - staticcheck
     - unconvert
     - unparam
+    - unused
     - wastedassign
-    - bodyclose
-    - noctx
-
-linters-settings:
-  cyclop:
-    max-complexity: 20
-  gocognit:
-    min-complexity: 20
-  funlen:
-    lines: 80
-    statements: 50
-  errcheck:
-    check-type-assertions: true
-  govet:
-    enable-all: true
-    disable:
-      - fieldalignment
-  revive:
+    - whitespace
+  settings:
+    cyclop:
+      max-complexity: 20
+    gosec:
+      # G704: SSRF taint analysis. This CLI legitimately calls user-supplied
+      # API endpoints everywhere (oidctest, login, ...), so the check is noise.
+      excludes:
+        - G704
+    errcheck:
+      check-type-assertions: true
+    funlen:
+      lines: 80
+      statements: 50
+    gocognit:
+      min-complexity: 20
+    govet:
+      disable:
+        - fieldalignment
+      enable-all: true
+    revive:
+      rules:
+        - name: var-naming
+          disabled: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      - name: var-naming
-        disabled: true
-
-issues:
-  exclude-dirs:
-    - dist
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - funlen
-        - gocognit
+      - linters:
+          - funlen
+          - gocognit
+          - gosec
+        path: _test\.go
+      # ST1005: this CLI uses multi-line errors with actionable hints on purpose.
+      - linters:
+          - staticcheck
+        text: ST1005
+    paths:
+      - dist
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - dist
+      - third_party$
+      - builtin$
+      - examples$

@@ -26,9 +26,9 @@ fmt: ## Format all Go sources with gofmt
 	@cd $(ROOT_DIR) && gofmt -w .
 
 .PHONY: lint-sources
-lint-sources: ## Run golangci-lint (includes go vet, gofmt, staticcheck, errcheck...)
+lint-sources: $(GOLANGCI_LINT) ## Run golangci-lint (includes go vet, gofmt, staticcheck, errcheck...)
 	@echo "Linting go sources ..."
-	@cd $(ROOT_DIR) && golangci-lint run
+	@cd $(ROOT_DIR) && $(GOLANGCI_LINT) run
 
 .PHONY: lint-licenses
 lint-licenses: $(ADDLICENSE) ## Check license headers and fail if any file is missing one
@@ -43,4 +43,7 @@ add-license: $(ADDLICENSE) ## Stamp a license header on every file that is missi
 ## File-target for the addlicense binary. When a lint target depends on
 ## $(ADDLICENSE) and the file is missing, Make runs install-tools to build it.
 $(ADDLICENSE):
+	@$(MAKE) install-tools
+
+$(GOLANGCI_LINT):
 	@$(MAKE) install-tools

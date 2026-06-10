@@ -111,15 +111,15 @@ func render(data DashboardData, intervalSec int) string {
 	var sb strings.Builder
 	hr := strings.Repeat("─", 80)
 
-	sb.WriteString(fmt.Sprintf("  Gravitee AM — %s (%s)\n", data.DomainName, data.Workspace))
-	sb.WriteString(fmt.Sprintf("  %s\n\n", hr))
+	fmt.Fprintf(&sb, "  Gravitee AM — %s (%s)\n", data.DomainName, data.Workspace)
+	fmt.Fprintf(&sb, "  %s\n\n", hr)
 
 	successRate := 0
 	if data.Stats.Total > 0 {
 		successRate = int(math.Round(float64(data.Stats.Successes) / float64(data.Stats.Total) * 100))
 	}
-	sb.WriteString(fmt.Sprintf("  Events: %d    Success: %d    Failure: %d    Rate: %d%%\n\n",
-		data.Stats.Total, data.Stats.Successes, data.Stats.Failures, successRate))
+	fmt.Fprintf(&sb, "  Events: %d    Success: %d    Failure: %d    Rate: %d%%\n\n",
+		data.Stats.Total, data.Stats.Successes, data.Stats.Failures, successRate)
 
 	if len(data.Stats.TopTypes) > 0 {
 		sb.WriteString("  Event types:\n")
@@ -129,7 +129,7 @@ func render(data DashboardData, intervalSec int) string {
 				barLen = int(math.Round(float64(t.Count) / float64(data.Stats.Total) * 30))
 			}
 			bar := strings.Repeat("█", barLen)
-			sb.WriteString(fmt.Sprintf("    %-25s %s %d\n", t.Type, bar, t.Count))
+			fmt.Fprintf(&sb, "    %-25s %s %d\n", t.Type, bar, t.Count)
 		}
 		sb.WriteString("\n")
 	}
@@ -137,7 +137,7 @@ func render(data DashboardData, intervalSec int) string {
 	if len(data.Stats.TopErrors) > 0 {
 		sb.WriteString("  Top errors:\n")
 		for _, e := range data.Stats.TopErrors {
-			sb.WriteString(fmt.Sprintf("    %-30s %d\n", e.Type, e.Count))
+			fmt.Fprintf(&sb, "    %-30s %d\n", e.Type, e.Count)
 		}
 		sb.WriteString("\n")
 	}
@@ -156,12 +156,12 @@ func render(data DashboardData, intervalSec int) string {
 		if ev.Target != "" {
 			target = " -> " + ev.Target
 		}
-		sb.WriteString(fmt.Sprintf("    %s %s %-20s %s%s\n",
-			ev.Timestamp, icon, ev.EventType, ev.Actor, target))
+		fmt.Fprintf(&sb, "    %s %s %-20s %s%s\n",
+			ev.Timestamp, icon, ev.EventType, ev.Actor, target)
 	}
 
-	sb.WriteString(fmt.Sprintf("\n  %s\n", hr))
-	sb.WriteString(fmt.Sprintf("  Last refresh: %s    Interval: %ds    Ctrl+C to stop\n", data.RefreshedAt, intervalSec))
+	fmt.Fprintf(&sb, "\n  %s\n", hr)
+	fmt.Fprintf(&sb, "  Last refresh: %s    Interval: %ds    Ctrl+C to stop\n", data.RefreshedAt, intervalSec)
 	return sb.String()
 }
 

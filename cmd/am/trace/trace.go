@@ -122,9 +122,10 @@ func runTrace(f *factory.Factory, userArg, appArg string) error {
 	fmt.Fprintf(out, "\nAuth flow trace: %s -> %s\n\n", userLabel, appLabel)
 	for _, step := range steps {
 		tag := "[OK]  "
-		if step.Status == "warn" {
+		switch step.Status {
+		case "warn":
 			tag = "[WARN]"
-		} else if step.Status == "block" {
+		case "block":
 			tag = "[FAIL]"
 		}
 		fmt.Fprintf(out, "  %s %-16s %s\n", tag, step.Label, step.Detail)
