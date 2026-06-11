@@ -1,0 +1,248 @@
+# Copyright (C) 2015 The Gravitee team (http://gravitee.io)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 2.1
+
+orbs:
+  go: circleci/go@3.0.3
+  keeper: gravitee-io/keeper@0.7.0
+
+parameters:
+  go-version:
+    # Keep in sync with the go directive in go.mod.
+    type: string
+    default: "1.26.4"
+
+jobs:
+  job-install-go-tools:
+    docker:
+      - image: cimg/go:<< pipeline.parameters.go-version >>-node
+    steps:
+      - checkout
+      - run:
+          name: Generate cache keys for Go tools
+          command: find . -name go.mod -exec md5sum {} \; | sort -k 2 > /tmp/gomod_checksum.md5
+      - go/load-mod-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - go/load-build-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - run:
+          name: Download go modules
+          command: go mod download
+      - run:
+          name: Install Go tools
+          command: make install-tools
+      - go/save-mod-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - go/save-build-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - save_cache:
+          key: gotools-{{ checksum "/tmp/gomod_checksum.md5" }}
+          paths:
+            - bin
+
+  job-lint-sources:
+    docker:
+      - image: cimg/go:<< pipeline.parameters.go-version >>-node
+    steps:
+      - checkout
+      - run:
+          name: Generate cache keys for Go tools
+          command: find . -name go.mod -exec md5sum {} \; | sort -k 2 > /tmp/gomod_checksum.md5
+      - go/load-mod-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - go/load-golangci-lint-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - restore_cache:
+          keys:
+            - gotools-{{ checksum "/tmp/gomod_checksum.md5" }}
+      - run:
+          name: Lint sources
+          command: make lint-sources
+      - go/save-golangci-lint-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+
+  job-lint-licenses:
+    docker:
+      - image: cimg/go:<< pipeline.parameters.go-version >>-node
+    steps:
+      - checkout
+      - run:
+          name: Generate cache keys for Go tools
+          command: find . -name go.mod -exec md5sum {} \; | sort -k 2 > /tmp/gomod_checksum.md5
+      - go/load-mod-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - restore_cache:
+          keys:
+            - gotools-{{ checksum "/tmp/gomod_checksum.md5" }}
+      - run:
+          name: Lint licenses
+          command: make lint-licenses
+
+  job-unit-test:
+    docker:
+      - image: cimg/go:<< pipeline.parameters.go-version >>-node
+    steps:
+      - checkout
+      - run:
+          name: Generate cache keys for Go tools
+          command: find . -name go.mod -exec md5sum {} \; | sort -k 2 > /tmp/gomod_checksum.md5
+      - go/load-mod-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - go/load-build-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - run:
+          name: Run unit tests with coverage
+          command: make test-cover
+      - store_artifacts:
+          path: cover.out
+          destination: coverage/cover.out
+      - go/save-build-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+
+  # Runs the full goreleaser pipeline on every merge without publishing,
+  # so release-time surprises surface here instead of on a tag.
+  job-release-dry-run:
+    docker:
+      - image: cimg/go:<< pipeline.parameters.go-version >>-node
+    steps:
+      - checkout
+      - run:
+          name: Generate cache keys for Go tools
+          command: find . -name go.mod -exec md5sum {} \; | sort -k 2 > /tmp/gomod_checksum.md5
+      - go/load-mod-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - go/load-build-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - restore_cache:
+          keys:
+            - gotools-{{ checksum "/tmp/gomod_checksum.md5" }}
+      - run:
+          name: Install Go tools
+          command: make install-tools
+      - run:
+          name: Snapshot release
+          command: bin/goreleaser release --snapshot --clean --skip=publish
+      - store_artifacts:
+          path: dist
+          destination: snapshot
+
+  job-e2e:
+    machine:
+      image: ubuntu-2204:2024.01.2
+      docker_layer_caching: true
+    resource_class: medium
+    steps:
+      - checkout
+      - go/install:
+          version: "<< pipeline.parameters.go-version >>"
+      - run:
+          name: Start services
+          working_directory: e2e
+          command: docker compose up -d --wait --wait-timeout 180
+      - run:
+          name: Run E2E tests
+          command: make test-e2e
+      - run:
+          name: Show logs on failure
+          working_directory: e2e
+          when: on_fail
+          command: docker compose logs
+      - run:
+          name: Stop services
+          working_directory: e2e
+          when: always
+          command: docker compose down -v
+
+  job-release:
+    docker:
+      - image: cimg/go:<< pipeline.parameters.go-version >>-node
+    steps:
+      - checkout
+      - run:
+          name: Generate cache keys for Go tools
+          command: find . -name go.mod -exec md5sum {} \; | sort -k 2 > /tmp/gomod_checksum.md5
+      - go/load-mod-cache:
+          checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
+      - restore_cache:
+          keys:
+            - gotools-{{ checksum "/tmp/gomod_checksum.md5" }}
+      - run:
+          name: Install Go tools
+          command: make install-tools
+      # gravitee bot token: write access to this repo (release) and the homebrew-gravitee tap.
+      - keeper/env-export:
+          secret-url: keeper://TIlcGPFq4rN5GvgnZb9hng/field/password
+          var-name: GITHUB_TOKEN
+      - keeper/env-export:
+          secret-url: keeper://TIlcGPFq4rN5GvgnZb9hng/field/password
+          var-name: HOMEBREW_TAP_TOKEN
+      - run:
+          name: Release
+          command: bin/goreleaser release --clean
+
+workflows:
+  ci:
+    jobs:
+      - job-install-go-tools:
+          name: Install Go tools
+          filters:
+            tags:
+              ignore: /.*/
+      - job-lint-sources:
+          name: Lint sources
+          requires:
+            - Install Go tools
+          filters:
+            tags:
+              ignore: /.*/
+      - job-lint-licenses:
+          name: Lint licenses
+          requires:
+            - Install Go tools
+          filters:
+            tags:
+              ignore: /.*/
+      - job-unit-test:
+          name: Run unit tests
+          requires:
+            - Install Go tools
+          filters:
+            tags:
+              ignore: /.*/
+      - job-e2e:
+          name: Run E2E tests
+          filters:
+            tags:
+              ignore: /.*/
+      - job-release-dry-run:
+          name: Release dry run
+          requires:
+            - Lint sources
+            - Lint licenses
+            - Run unit tests
+          filters:
+            tags:
+              ignore: /.*/
+
+  release:
+    jobs:
+      - job-release:
+          name: Release
+          context: cicd-orchestrator
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
