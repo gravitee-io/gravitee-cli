@@ -110,9 +110,6 @@ jobs:
           destination: coverage/cover.out
       - go/save-build-cache:
           checksum: '{{ checksum "/tmp/gomod_checksum.md5" }}'
-
-  # Runs the full goreleaser pipeline on every merge without publishing,
-  # so release-time surprises surface here instead of on a tag.
   job-release-dry-run:
     docker:
       - image: cimg/go:<< pipeline.parameters.go-version >>-node
@@ -181,7 +178,6 @@ jobs:
       - run:
           name: Install Go tools
           command: make install-tools
-      # gravitee bot token: write access to this repo (release) and the homebrew-gravitee tap.
       - keeper/env-export:
           secret-url: keeper://TIlcGPFq4rN5GvgnZb9hng/field/password
           var-name: GITHUB_TOKEN
@@ -194,38 +190,25 @@ jobs:
 
 workflows:
   ci:
+    when:
+      not: << pipeline.git.tag >>
     jobs:
       - job-install-go-tools:
           name: Install Go tools
-          filters:
-            tags:
-              ignore: /.*/
       - job-lint-sources:
           name: Lint sources
           requires:
             - Install Go tools
-          filters:
-            tags:
-              ignore: /.*/
       - job-lint-licenses:
           name: Lint licenses
           requires:
             - Install Go tools
-          filters:
-            tags:
-              ignore: /.*/
       - job-unit-test:
           name: Run unit tests
           requires:
             - Install Go tools
-          filters:
-            tags:
-              ignore: /.*/
       - job-e2e:
           name: Run E2E tests
-          filters:
-            tags:
-              ignore: /.*/
       - job-release-dry-run:
           name: Release dry run
           requires:
@@ -233,16 +216,17 @@ workflows:
             - Lint licenses
             - Run unit tests
           filters:
-            tags:
-              ignore: /.*/
-
+            branches:
+              only: main
   release:
+    when:
+      matches:
+        pattern: "^v.*"
+        value: << pipeline.git.tag >>
     jobs:
       - job-release:
           name: Release
           context: cicd-orchestrator
           filters:
-            branches:
-              ignore: /.*/
             tags:
               only: /^v.*/
