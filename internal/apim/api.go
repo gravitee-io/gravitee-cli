@@ -25,10 +25,11 @@ import (
 
 // ListAPIsParams holds parameters for listing APIs.
 type ListAPIsParams struct {
-	Query   string
-	Status  string
-	Page    int
-	PerPage int
+	Query    string
+	Status   string
+	APITypes []string
+	Page     int
+	PerPage  int
 }
 
 // ListAPILogsParams holds parameters for listing API logs.
@@ -83,9 +84,13 @@ func (s *service) ListAPIs(params ListAPIsParams) (*PaginatedResponse, error) {
 		"status": params.Status,
 	})
 
-	body := map[string]string{}
+	body := map[string]any{}
 	if params.Query != "" {
 		body["query"] = params.Query
+	}
+
+	if len(params.APITypes) > 0 {
+		body["apiTypes"] = params.APITypes
 	}
 
 	data, err := s.client.Post(s.v2("apis/_search?"+q), body)

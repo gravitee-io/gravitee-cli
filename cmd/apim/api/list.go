@@ -26,13 +26,14 @@ import (
 )
 
 type listOptions struct {
-	factory *factory.Factory
-	query   string
-	status  string
-	page    int
-	perPage int
-	all     bool
-	wide    bool
+	factory  *factory.Factory
+	query    string
+	status   string
+	apiTypes []string
+	page     int
+	perPage  int
+	all      bool
+	wide     bool
 }
 
 func newListCmd(f *factory.Factory) *cobra.Command {
@@ -42,7 +43,9 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 		Use:   "list",
 		Short: "List APIs",
 		Example: `  gctl apim api list
-  gctl apim api list --status STARTED --per-page 20`,
+  gctl apim api list --status STARTED --per-page 20
+  gctl apim api list --type V4_HTTP_PROXY
+  gctl apim api list --type V4_HTTP_PROXY,V4_MESSAGE`,
 		Args: cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			if err := cmdutil.RequireContext(f); err != nil {
@@ -55,6 +58,7 @@ func newListCmd(f *factory.Factory) *cobra.Command {
 
 	cmd.Flags().StringVar(&opts.query, "query", "", "Search by name or description")
 	cmd.Flags().StringVar(&opts.status, "status", "", "Filter by status: STARTED, STOPPED")
+	cmd.Flags().StringSliceVar(&opts.apiTypes, "type", nil, "Filter by API type, e.g. V4_HTTP_PROXY, V4_MESSAGE")
 	cmd.Flags().IntVar(&opts.page, "page", 1, "Page number")
 	cmd.Flags().IntVar(&opts.perPage, "per-page", 10, "Results per page")
 	cmd.Flags().BoolVar(&opts.all, "all", false, "Fetch all pages")
@@ -79,10 +83,11 @@ func (o *listOptions) run() error {
 
 func (o *listOptions) params(page int) apim.ListAPIsParams {
 	return apim.ListAPIsParams{
-		Query:   o.query,
-		Status:  o.status,
-		Page:    page,
-		PerPage: o.perPage,
+		Query:    o.query,
+		Status:   o.status,
+		APITypes: o.apiTypes,
+		Page:     page,
+		PerPage:  o.perPage,
 	}
 }
 
