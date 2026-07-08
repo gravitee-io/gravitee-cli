@@ -38,6 +38,42 @@ func TestListAPIs(t *testing.T) {
 		testutil.AssertOutputContains(t, tc.Out, "Petstore")
 	})
 
+	t.Run("--type filters by API type in the search body", func(t *testing.T) {
+		var gotBody any
+
+		fake := &client.FakeClient{
+			PostFunc: func(_ string, body any) ([]byte, error) {
+				gotBody = body
+
+				resp, _ := json.Marshal(map[string]any{
+					"data":       []any{},
+					"pagination": map[string]int{"page": 1, "perPage": 10, "pageCount": 0, "totalCount": 0, "pageItemsCount": 0},
+				})
+
+				return resp, nil
+			},
+		}
+		tc := testutil.NewFactory(fake)
+
+		err := testutil.Execute(newListCmd(tc.Factory), "--type", "V4_HTTP_PROXY,V4_MESSAGE")
+
+		testutil.AssertNoError(t, err)
+
+		m, ok := gotBody.(map[string]any)
+		if !ok {
+			t.Fatalf("expected map body, got %T", gotBody)
+		}
+
+		types, ok := m["apiTypes"].([]string)
+		if !ok {
+			t.Fatalf("expected apiTypes []string in body, got %T", m["apiTypes"])
+		}
+
+		if len(types) != 2 || types[0] != "V4_HTTP_PROXY" || types[1] != "V4_MESSAGE" {
+			t.Errorf("unexpected apiTypes: %v", types)
+		}
+	})
+
 	t.Run("rejects invalid token with hint", func(t *testing.T) {
 		fake := testutil.APIFailingWith(401, "authentication failed")
 		tc := testutil.NewFactory(fake)
